@@ -1,0 +1,57 @@
+{
+    "name": "zendframework/zend-expressive-swoole",
+    "description": "<package description; should match repository description>",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "components",
+        "zf",
+        "zendframework",
+        "<individual keywords for current package>"
+    ],
+    "support": {
+        "docs": "https://docs.zendframework.com/zend-expressive-swoole/",
+        "issues": "https://github.com/zendframework/zend-expressive-swoole/issues",
+        "source": "https://github.com/zendframework/zend-expressive-swoole",
+        "rss": "https://github.com/zendframework/zend-expressive-swoole/releases.atom",
+        "chat": "https://zendframework-slack.herokuapp.com",
+        "forum": "https://discourse.zendframework.com/c/questions/components"
+    },
+    "require": {
+        "php": "^7.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.1.1",
+        "zendframework/zend-coding-standard": "~1.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Zend\\Expressive\\Swoole\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZendTest\\Expressive\\Swoole\\": "test/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        },
+        "zf": {
+            "config-provider": "Zend\\Expressive\\Swoole\\ConfigProvider"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    }
+}
