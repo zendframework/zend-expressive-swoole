@@ -25,9 +25,11 @@ class ConfigProvider
     public function getDependencies() : array
     {
         return [
-            ServerRequestInterface::class => Container\ServerRequestSwooleFactory::class,
-            RequestHandlerRunner::class   => Container\RequestHandlerSwooleRunnerFactory::class,
-            swoole_http_server::class     => Container\SwooleHttpServerFactory::class
+            'factories'  => [
+                ServerRequestInterface::class => Container\ServerRequestSwooleFactory::class,
+                RequestHandlerRunner::class   => Container\RequestHandlerSwooleRunnerFactory::class,
+                swoole_http_server::class     => Container\SwooleHttpServerFactory::class
+            ]
         ];
     }
 }

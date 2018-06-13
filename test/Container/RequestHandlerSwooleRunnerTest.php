@@ -21,10 +21,10 @@ class RequestHandlerSwooleRunnerTest extends TestCase
     public function setUp()
     {
         $this->requestHandler = $this->prophesize(RequestHandlerInterface::class);
-        $this->serverRequest = function() {
+        $this->serverRequest = function () {
             return $this->prophesize(ServerRequestInterface::class)->reveal();
         };
-        $this->serverRequestError = function() {
+        $this->serverRequestError = function () {
             return $this->prophesize(ServerRequestErrorResponseGenerator::class)->reveal();
         };
         $this->swooleHttpServer = $this->createMock(swoole_http_server::class);

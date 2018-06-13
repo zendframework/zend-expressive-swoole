@@ -95,7 +95,8 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         });
 
         $this->swooleHttpServer->on('request', function ($request, $response) {
-            printf("%s - %s - %s %s\n",
+            printf(
+                "%s - %s - %s %s\n",
                 date('Y-m-d H:i:sO', time()),
                 $request->server['remote_addr'],
                 $request->server['request_method'],

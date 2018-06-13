@@ -35,12 +35,12 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
             ->willReturn($this->requestHandler->reveal());
         $this->container
             ->get(ServerRequestInterface::class)
-            ->willReturn(function(){
+            ->willReturn(function () {
                 return $this->serverRequest->reveal();
             });
         $this->container
             ->get(ServerRequestErrorResponseGenerator::class)
-            ->willReturn(function(){
+            ->willReturn(function () {
                 return $this->serverRequestError->reveal();
             });
         $this->container
@@ -52,7 +52,6 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
     {
         $request = new RequestHandlerSwooleRunnerFactory();
         $this->assertInstanceOf(RequestHandlerSwooleRunnerFactory::class, $request);
-
     }
 
     public function testInvoke()

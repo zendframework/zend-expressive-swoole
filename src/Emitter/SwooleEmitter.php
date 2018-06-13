@@ -40,7 +40,7 @@ class SwooleEmitter implements EmitterInterface
      */
     public function emit(ResponseInterface $response) : bool
     {
-        if (PHP_SAPI !== 'cli' || !extension_loaded('swoole')) {
+        if (PHP_SAPI !== 'cli' || ! extension_loaded('swoole')) {
             return false;
         }
         $this->emitStatusCode($response);
