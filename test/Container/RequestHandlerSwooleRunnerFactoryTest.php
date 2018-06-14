@@ -14,6 +14,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use swoole_http_server;
+use Zend\Expressive\ApplicationPipeline;
 use Zend\Expressive\Response\ServerRequestErrorResponseGenerator;
 use Zend\Expressive\Swoole\Container\RequestHandlerSwooleRunner;
 use Zend\Expressive\Swoole\Container\RequestHandlerSwooleRunnerFactory;
@@ -22,17 +23,19 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
 {
     public function setUp()
     {
-        $this->requestHandler = $this->prophesize(RequestHandlerInterface::class);
+        $this->applicationPipeline = $this->prophesize(ApplicationPipeline::class);
+        $this->applicationPipeline->willImplement(RequestHandlerInterface::class);
+
         $this->serverRequest = $this->prophesize(ServerRequestInterface::class);
+
         $this->serverRequestError = $this->prophesize(ServerRequestErrorResponseGenerator::class);
         // used createMock instead of prophesize for issue
         $this->swooleHttpServer = $this->createMock(swoole_http_server::class);
 
-
         $this->container = $this->prophesize(ContainerInterface::class);
         $this->container
-            ->get(RequestHandlerInterface::class)
-            ->willReturn($this->requestHandler->reveal());
+            ->get(ApplicationPipeline::class)
+            ->willReturn($this->applicationPipeline->reveal());
         $this->container
             ->get(ServerRequestInterface::class)
             ->willReturn(function () {
