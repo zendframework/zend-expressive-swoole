@@ -19,16 +19,10 @@
         "chat": "https://zendframework-slack.herokuapp.com",
         "forum": "https://discourse.zendframework.com/c/questions/components"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/ezimuel/zend-diactoros"
-        }
-    ],
     "require": {
         "php": "^7.1",
         "ext-swoole": "*",
-        "zendframework/zend-diactoros" : "dev-feature/swoole",
+        "zendframework/zend-diactoros" : "^1.8",
         "zendframework/zend-expressive" : "^3.0.2",
         "zendframework/zend-httphandlerrunner": "^1.0.1",
         "psr/container": "^1.0",
