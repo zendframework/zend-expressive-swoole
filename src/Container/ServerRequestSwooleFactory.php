@@ -20,6 +20,8 @@ use function Zend\Diactoros\marshalProtocolVersionFromSapi;
 use function Zend\Diactoros\marshalUriFromSapi;
 use function Zend\Diactoros\normalizeUploadedFiles;
 
+use const CASE_UPPER;
+
 /**
  * Return a factory for generating a server request from Swoole.
  */
@@ -35,6 +37,9 @@ class ServerRequestSwooleFactory
             $files   = $request->files ?? [];
             $server  = $request->server ?? [];
             $headers = $request->header ?? [];
+
+            // Normalize SAPI params
+            $server = array_change_key_case($server, CASE_UPPER);
 
             // Create request
             $request = new ServerRequest(

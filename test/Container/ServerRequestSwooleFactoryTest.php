@@ -36,13 +36,13 @@ class ServerRequestSwooleFactoryTest extends TestCase
         $swooleRequest = $this->createMock(swoole_http_request::class);
 
         $swooleRequest->server = [
-            'PATH_INFO' => '/',
-            'REMOTE_PORT' => 45314,
+            'path_info' => '/',
+            'remote_port' => 45314,
             'REQUEST_METHOD' => 'POST',
             'REQUEST_TIME' => time(),
             'REQUEST_URI' => '/some/path',
-            'SERVER_PORT' => 9501,
-            'SERVER_PROTOCOL' => 'HTTP/2',
+            'server_port' => 9501,
+            'server_protocol' => 'HTTP/2',
         ];
 
         $swooleRequest->get = [
