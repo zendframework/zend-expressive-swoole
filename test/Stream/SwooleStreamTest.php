@@ -12,7 +12,7 @@ namespace ZendTest\Expressive\Swoole\Stream;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
-use swoole_http_request;
+use Swoole\Http\Request as SwooleHttpRequest;
 use Zend\Expressive\Swoole\Stream\SwooleStream;
 
 class SwooleStreamTest extends TestCase
@@ -24,7 +24,7 @@ class SwooleStreamTest extends TestCase
         if (! extension_loaded('swoole')) {
             $this->markTestSkipped('The Swoole extension is not available');
         }
-        $this->request = $this->prophesize(swoole_http_request::class);
+        $this->request = $this->prophesize(SwooleHttpRequest::class);
         $this->request
             ->rawcontent()
             ->willReturn(self::DEFAULT_CONTENT);

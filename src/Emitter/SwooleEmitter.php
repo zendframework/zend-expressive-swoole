@@ -10,7 +10,7 @@ declare(strict_types=1);
 namespace Zend\Expressive\Swoole\Emitter;
 
 use Psr\Http\Message\ResponseInterface;
-use swoole_http_response;
+use Swoole\Http\Response as SwooleHttpResponse;
 use Zend\Diactoros\Response\SapiEmitterTrait;
 use Zend\HttpHandlerRunner\Emitter\EmitterInterface;
 
@@ -24,11 +24,11 @@ class SwooleEmitter implements EmitterInterface
     const CHUNK_SIZE = 2097152; // 2 MB
 
     /**
-     * @var SwooleResponse
+     * @var SwooleHttpResponse
      */
     private $swooleResponse;
 
-    public function __construct(swoole_http_response $response)
+    public function __construct(SwooleHttpResponse $response)
     {
         $this->swooleResponse = $response;
     }

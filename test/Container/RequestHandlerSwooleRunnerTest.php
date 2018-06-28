@@ -12,7 +12,7 @@ namespace ZendTest\Expressive\Swoole\Container;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Psr\Http\Server\RequestHandlerInterface;
-use swoole_http_server;
+use Swoole\Http\Server as SwooleHttpServer;
 use Zend\Expressive\Swoole\Container\RequestHandlerSwooleRunner;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
@@ -27,7 +27,7 @@ class RequestHandlerSwooleRunnerTest extends TestCase
         $this->serverRequestError = function () {
             return $this->prophesize(ServerRequestErrorResponseGenerator::class)->reveal();
         };
-        $this->swooleHttpServer = $this->createMock(swoole_http_server::class);
+        $this->swooleHttpServer = $this->createMock(SwooleHttpServer::class);
     }
 
     public function testConstructor()

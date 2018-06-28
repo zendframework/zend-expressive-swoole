@@ -12,7 +12,7 @@ namespace Zend\Expressive\Swoole\Stream;
 use InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
-use swoole_http_request;
+use Swoole\Http\Request as SwooleHttpRequest;
 
 use function strlen;
 use function substr;
@@ -24,7 +24,7 @@ use const SEEK_SET;
 final class SwooleStream implements StreamInterface
 {
     /**
-     * Memoized body content, as pulled via swoole_http_request::rawContent().
+     * Memoized body content, as pulled via SwooleHttpRequest::rawContent().
      *
      * @var string
      */
@@ -46,12 +46,10 @@ final class SwooleStream implements StreamInterface
 
     /**
      * Swoole request containing the body contents.
-     *
-     * @var swoole_http_request
      */
     private $request;
 
-    public function __construct(swoole_http_request $request)
+    public function __construct(SwooleHttpRequest $request)
     {
         $this->request = $request;
     }

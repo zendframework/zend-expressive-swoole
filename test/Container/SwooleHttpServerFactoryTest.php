@@ -11,7 +11,7 @@ namespace ZendTest\Expressive\Swoole\Container;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
-use swoole_http_server;
+use Swoole\Http\Server as SwooleHttpServer;
 use Zend\Expressive\Swoole\Container\SwooleHttpServerFactory;
 
 class SwooleHttpServerFactoryTest extends TestCase
@@ -31,7 +31,7 @@ class SwooleHttpServerFactoryTest extends TestCase
     {
         $swooleHttpServer = ($this->swooleFactory)($this->container->reveal());
 
-        $this->assertInstanceOf(swoole_http_server::class, $swooleHttpServer);
+        $this->assertInstanceOf(SwooleHttpServer::class, $swooleHttpServer);
         $this->assertEquals(SwooleHttpServerFactory::DEFAULT_HOST, $swooleHttpServer->host);
         $this->assertEquals(SwooleHttpServerFactory::DEFAULT_PORT, $swooleHttpServer->port);
     }
@@ -50,7 +50,7 @@ class SwooleHttpServerFactoryTest extends TestCase
 
         $swooleHttpServer = ($this->swooleFactory)($this->container->reveal());
 
-        $this->assertInstanceOf(swoole_http_server::class, $swooleHttpServer);
+        $this->assertInstanceOf(SwooleHttpServer::class, $swooleHttpServer);
         $this->assertEquals('localhost', $swooleHttpServer->host);
         $this->assertEquals(9501, $swooleHttpServer->port);
     }

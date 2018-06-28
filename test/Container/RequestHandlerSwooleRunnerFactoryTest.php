@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use swoole_http_server;
+use Swoole\Http\Server as SwooleHttpServer;
 use Zend\Expressive\ApplicationPipeline;
 use Zend\Expressive\Response\ServerRequestErrorResponseGenerator;
 use Zend\Expressive\Swoole\Container\RequestHandlerSwooleRunner;
@@ -30,7 +30,7 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
 
         $this->serverRequestError = $this->prophesize(ServerRequestErrorResponseGenerator::class);
         // used createMock instead of prophesize for issue
-        $this->swooleHttpServer = $this->createMock(swoole_http_server::class);
+        $this->swooleHttpServer = $this->createMock(SwooleHttpServer::class);
 
         $this->container = $this->prophesize(ContainerInterface::class);
         $this->container
@@ -47,7 +47,7 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
                 return $this->serverRequestError->reveal();
             });
         $this->container
-            ->get(swoole_http_server::class)
+            ->get(SwooleHttpServer::class)
             ->willReturn($this->swooleHttpServer);
     }
 

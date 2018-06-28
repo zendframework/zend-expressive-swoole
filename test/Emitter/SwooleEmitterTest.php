@@ -10,7 +10,7 @@ declare(strict_types=1);
 namespace ZendTest\Expressive\Swoole\Emitter;
 
 use PHPUnit\Framework\TestCase;
-use swoole_http_response;
+use Swoole\Http\Response as SwooleHttpResponse;
 use Zend\Diactoros\Response;
 use Zend\Expressive\Swoole\Emitter\SwooleEmitter;
 
@@ -18,7 +18,7 @@ class SwooleEmitterTest extends TestCase
 {
     public function setUp()
     {
-        $this->swooleResponse = $this->prophesize(swoole_http_response::class);
+        $this->swooleResponse = $this->prophesize(SwooleHttpResponse::class);
         $this->emitter = new SwooleEmitter($this->swooleResponse->reveal());
     }
 

@@ -10,11 +10,10 @@ declare(strict_types=1);
 namespace Zend\Expressive\Swoole\Container;
 
 use Psr\Container\ContainerInterface;
-use swoole_http_request;
+use Swoole\Http\Request as SwooleHttpRequest;
 use Zend\Diactoros\ServerRequest;
 use Zend\Expressive\Swoole\Stream\SwooleStream;
 
-use function Zend\Diactoros\parseCookieHeader;
 use function Zend\Diactoros\marshalMethodFromSapi;
 use function Zend\Diactoros\marshalProtocolVersionFromSapi;
 use function Zend\Diactoros\marshalUriFromSapi;
@@ -29,7 +28,7 @@ class ServerRequestSwooleFactory
 {
     public function __invoke(ContainerInterface $container) : callable
     {
-        return function (swoole_http_request $request) {
+        return function (SwooleHttpRequest $request) {
             // Aggregate values from Swoole request object
             $get     = $request->get ?? [];
             $post    = $request->post ?? [];
@@ -41,8 +40,7 @@ class ServerRequestSwooleFactory
             // Normalize SAPI params
             $server = array_change_key_case($server, CASE_UPPER);
 
-            // Create request
-            $request = new ServerRequest(
+            return new ServerRequest(
                 $server,
                 normalizeUploadedFiles($files),
                 marshalUriFromSapi($server, $headers),
@@ -54,14 +52,6 @@ class ServerRequestSwooleFactory
                 $post,
                 marshalProtocolVersionFromSapi($server)
             );
-
-            if (empty($cookie) && $request->hasHeader('Cookie')) {
-                $request = $request->withCookieParams(
-                    parseCookieHeader($request->getHeaderLine('Cookie'))
-                );
-            }
-
-            return $request;
         };
     }
 }

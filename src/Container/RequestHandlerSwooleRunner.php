@@ -12,7 +12,7 @@ namespace Zend\Expressive\Swoole\Container;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use swoole_http_server;
+use Swoole\Http\Server as SwooleHttpServer;
 use Throwable;
 use Zend\Expressive\Swoole\Emitter\SwooleEmitter;
 use Zend\HttpHandlerRunner\Emitter\EmitterInterface;
@@ -31,7 +31,6 @@ use Zend\HttpHandlerRunner\RequestHandlerRunner;
  */
 class RequestHandlerSwooleRunner extends RequestHandlerRunner
 {
-
     /**
      * A request handler to run as the application.
      *
@@ -68,7 +67,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         RequestHandlerInterface $handler,
         callable $serverRequestFactory,
         callable $serverRequestErrorResponseGenerator,
-        swoole_http_server $swooleHttpServer
+        SwooleHttpServer $swooleHttpServer
     ) {
         $this->handler = $handler;
 

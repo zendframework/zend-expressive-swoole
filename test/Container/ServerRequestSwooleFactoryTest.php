@@ -14,7 +14,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\UriInterface;
-use swoole_http_request;
+use Swoole\Http\Request as SwooleHttpRequest;
 use Zend\Expressive\Swoole\Container\ServerRequestSwooleFactory;
 use Zend\Expressive\Swoole\Stream\SwooleStream;
 
@@ -33,7 +33,7 @@ class ServerRequestSwooleFactoryTest extends TestCase
 
     public function testInvoke()
     {
-        $swooleRequest = $this->createMock(swoole_http_request::class);
+        $swooleRequest = $this->createMock(SwooleHttpRequest::class);
 
         $swooleRequest->server = [
             'path_info' => '/',
@@ -53,7 +53,10 @@ class ServerRequestSwooleFactoryTest extends TestCase
             'bar' => 'baz',
         ];
 
-        $swooleRequest->cookie = [];
+        $swooleRequest->cookie = [
+            'yummy_cookie' => 'choco',
+            'tasty_cookie' => 'strawberry',
+        ];
 
         $swooleRequest->files = [
             [
