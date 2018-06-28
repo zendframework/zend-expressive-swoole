@@ -18,24 +18,43 @@ $ composer require zendframework/zend-expressive-swoole
 
 ## Configuration
 
-By default, Swoole executes the HTTP server with host `127.0.0.1` on port
-`8080`. You can change these values using a `/config/autoload/swoole.local.php`
-file with the following data:
+After installing zend-expressive-swoole, you will need to first enable the
+component, and then optionally configure it.
+
+We recommend adding a new configuration file to your autoload directory,
+`config/autoload/swoole.local.php`. To begin with, use the following contents:
 
 ```php
-return [
-    'swoole' => [
-        'host' => 'insert the hostname to use',
-        'port' => // insert a integer number
-    ]
-];
+<?php
+
+use Zend\Expressive\Swoole\ConfigProvider;
+
+return array_merge((new ConfigProvider())(), []);
 ```
 
-Or you can change the `config` key of your service manager.
+The above will setup the Swoole integration for your application.
+
+By default, Swoole executes the HTTP server with host `127.0.0.1` on port
+`8080`. You can change these values via configuration. Assuming you have the
+above, modify it to read as follows:
+
+```php
+<?php
+
+use Zend\Expressive\Swoole\ConfigProvider;
+
+return array_merge((new ConfigProvider())(), [
+    'swoole' => [
+        'host' => 'insert hostname to use here',
+        'port' => 80, // use an integer value here
+    ],
+]);
+```
 
 ## Execute
 
-You can run an Expressive application with Swoole using the following command:
+Once you have performed the configuration steps as outlined above, you can run
+an Expressive application with Swoole using the following command:
 
 ```bash
 php public/index.php
