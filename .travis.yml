@@ -35,6 +35,7 @@ matrix:
         - DEPS=latest
 
 before_install:
+  - ./.travis/install_swoole.sh
   - if [[ $TEST_COVERAGE != 'true' ]]; then phpenv config-rm xdebug.ini || return 0 ; fi
 
 install:
