@@ -41,11 +41,13 @@ class SwooleHttpServerFactoryTest extends TestCase
         $config = [
             'swoole' => [
                 'host' => 'localhost',
-                'port' => 9501
-            ]
+                'port' => 9501,
+            ],
         ];
-        $this->container->get('config')
+        $this->container
+            ->get('config')
             ->willReturn($config);
+
         $swooleHttpServer = ($this->swooleFactory)($this->container->reveal());
 
         $this->assertInstanceOf(swoole_http_server::class, $swooleHttpServer);
