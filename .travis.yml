@@ -5,6 +5,7 @@ language: php
 cache:
   directories:
     - $HOME/.composer/cache
+    - ${TRAVIS_BUILD_DIR}/.travis/module-cache
 
 env:
   global:
@@ -35,7 +36,8 @@ matrix:
         - DEPS=latest
 
 before_install:
-  - ./.travis/install_swoole.sh
+  - sh -c "mkdir -p ${TRAVIS_BUILD_DIR}/.travis/module-cache/$(php-config --vernum)"
+  - MODULES="swoole.so:swoole" ./.travis/modulecache.sh
   - if [[ $TEST_COVERAGE != 'true' ]]; then phpenv config-rm xdebug.ini || return 0 ; fi
 
 install:
