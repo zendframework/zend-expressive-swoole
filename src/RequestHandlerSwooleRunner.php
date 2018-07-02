@@ -7,14 +7,13 @@
 
 declare(strict_types=1);
 
-namespace Zend\Expressive\Swoole\Container;
+namespace Zend\Expressive\Swoole;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Swoole\Http\Server as SwooleHttpServer;
 use Throwable;
-use Zend\Expressive\Swoole\Emitter\SwooleEmitter;
 use Zend\HttpHandlerRunner\Emitter\EmitterInterface;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 

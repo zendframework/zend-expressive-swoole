@@ -7,13 +7,13 @@
 
 declare(strict_types=1);
 
-namespace ZendTest\Expressive\Swoole\Stream;
+namespace ZendTest\Expressive\Swoole;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
 use Swoole\Http\Request as SwooleHttpRequest;
-use Zend\Expressive\Swoole\Stream\SwooleStream;
+use Zend\Expressive\Swoole\SwooleStream;
 
 class SwooleStreamTest extends TestCase
 {

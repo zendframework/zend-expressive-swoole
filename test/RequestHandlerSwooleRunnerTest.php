@@ -7,13 +7,13 @@
 
 declare(strict_types=1);
 
-namespace ZendTest\Expressive\Swoole\Container;
+namespace ZendTest\Expressive\Swoole;
 
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Psr\Http\Server\RequestHandlerInterface;
 use Swoole\Http\Server as SwooleHttpServer;
-use Zend\Expressive\Swoole\Container\RequestHandlerSwooleRunner;
+use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
 class RequestHandlerSwooleRunnerTest extends TestCase

@@ -7,13 +7,13 @@
 
 declare(strict_types=1);
 
-namespace ZendTest\Expressive\Swoole\Container;
+namespace ZendTest\Expressive\Swoole;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Process;
-use Zend\Expressive\Swoole\Container\SwooleHttpServerFactory;
+use Zend\Expressive\Swoole\SwooleHttpServerFactory;
 
 class SwooleHttpServerFactoryTest extends TestCase
 {

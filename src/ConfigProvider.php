@@ -26,9 +26,9 @@ class ConfigProvider
     {
         return [
             'factories'  => [
-                ServerRequestInterface::class => Container\ServerRequestSwooleFactory::class,
-                RequestHandlerRunner::class   => Container\RequestHandlerSwooleRunnerFactory::class,
-                SwooleHttpServer::class       => Container\SwooleHttpServerFactory::class
+                ServerRequestInterface::class => ServerRequestSwooleFactory::class,
+                RequestHandlerRunner::class   => RequestHandlerSwooleRunnerFactory::class,
+                SwooleHttpServer::class       => SwooleHttpServerFactory::class
             ]
         ];
     }

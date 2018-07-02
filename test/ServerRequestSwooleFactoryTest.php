@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-namespace ZendTest\Expressive\Swoole\Container;
+namespace ZendTest\Expressive\Swoole;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -15,8 +15,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\UriInterface;
 use Swoole\Http\Request as SwooleHttpRequest;
-use Zend\Expressive\Swoole\Container\ServerRequestSwooleFactory;
-use Zend\Expressive\Swoole\Stream\SwooleStream;
+use Zend\Expressive\Swoole\ServerRequestSwooleFactory;
+use Zend\Expressive\Swoole\SwooleStream;
 
 class ServerRequestSwooleFactoryTest extends TestCase
 {

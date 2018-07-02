@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-namespace Zend\Expressive\Swoole\Stream;
+namespace Zend\Expressive\Swoole;
 
 use InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;

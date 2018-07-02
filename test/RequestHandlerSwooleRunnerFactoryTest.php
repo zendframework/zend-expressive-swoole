@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-namespace ZendTest\Expressive\Swoole\Container;
+namespace ZendTest\Expressive\Swoole;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -16,8 +16,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Swoole\Http\Server as SwooleHttpServer;
 use Zend\Expressive\ApplicationPipeline;
 use Zend\Expressive\Response\ServerRequestErrorResponseGenerator;
-use Zend\Expressive\Swoole\Container\RequestHandlerSwooleRunner;
-use Zend\Expressive\Swoole\Container\RequestHandlerSwooleRunnerFactory;
+use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
+use Zend\Expressive\Swoole\RequestHandlerSwooleRunnerFactory;
 
 class RequestHandlerSwooleRunnerFactoryTest extends TestCase
 {

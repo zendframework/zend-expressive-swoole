@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-namespace Zend\Expressive\Swoole\Container;
+namespace Zend\Expressive\Swoole;
 
 use Psr\Container\ContainerInterface;
 use Swoole\Http\Server as SwooleHttpServer;

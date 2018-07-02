@@ -7,12 +7,11 @@
 
 declare(strict_types=1);
 
-namespace Zend\Expressive\Swoole\Container;
+namespace Zend\Expressive\Swoole;
 
 use Psr\Container\ContainerInterface;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Zend\Diactoros\ServerRequest;
-use Zend\Expressive\Swoole\Stream\SwooleStream;
 
 use function Zend\Diactoros\marshalMethodFromSapi;
 use function Zend\Diactoros\marshalProtocolVersionFromSapi;

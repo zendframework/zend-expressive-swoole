@@ -7,12 +7,12 @@
 
 declare(strict_types=1);
 
-namespace ZendTest\Expressive\Swoole\Emitter;
+namespace ZendTest\Expressive\Swoole;
 
 use PHPUnit\Framework\TestCase;
 use Swoole\Http\Response as SwooleHttpResponse;
 use Zend\Diactoros\Response;
-use Zend\Expressive\Swoole\Emitter\SwooleEmitter;
+use Zend\Expressive\Swoole\SwooleEmitter;
 
 class SwooleEmitterTest extends TestCase
 {
