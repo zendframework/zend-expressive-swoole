@@ -12,6 +12,7 @@ namespace ZendTest\Expressive\Swoole\Container;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Swoole\Http\Server as SwooleHttpServer;
+use Swoole\Process;
 use Zend\Expressive\Swoole\Container\SwooleHttpServerFactory;
 
 class SwooleHttpServerFactoryTest extends TestCase
@@ -29,11 +30,19 @@ class SwooleHttpServerFactoryTest extends TestCase
 
     public function testInvokeWithoutConfig()
     {
-        $swooleHttpServer = ($this->swooleFactory)($this->container->reveal());
+        $process = new Process(function ($worker) {
+            $server = ($this->swooleFactory)($this->container->reveal());
+            $worker->write(sprintf('%s:%d', $server->host, $server->port));
+            $worker->exit(0);
+        }, true, 1);
+        $process->start();
+        $data = $process->read();
+        Process::wait(true);
 
-        $this->assertInstanceOf(SwooleHttpServer::class, $swooleHttpServer);
-        $this->assertEquals(SwooleHttpServerFactory::DEFAULT_HOST, $swooleHttpServer->host);
-        $this->assertEquals(SwooleHttpServerFactory::DEFAULT_PORT, $swooleHttpServer->port);
+        $this->assertSame(
+            sprintf('%s:%d', SwooleHttpServerFactory::DEFAULT_HOST, SwooleHttpServerFactory::DEFAULT_PORT),
+            $data
+        );
     }
 
     public function testInvokeWithConfig()
@@ -48,10 +57,15 @@ class SwooleHttpServerFactoryTest extends TestCase
             ->get('config')
             ->willReturn($config);
 
-        $swooleHttpServer = ($this->swooleFactory)($this->container->reveal());
+        $process = new Process(function ($worker) {
+            $server = ($this->swooleFactory)($this->container->reveal());
+            $worker->write(sprintf('%s:%d', $server->host, $server->port));
+            $worker->exit(0);
+        }, true, 1);
+        $process->start();
+        $data = $process->read();
+        Process::wait(true);
 
-        $this->assertInstanceOf(SwooleHttpServer::class, $swooleHttpServer);
-        $this->assertEquals('localhost', $swooleHttpServer->host);
-        $this->assertEquals(9501, $swooleHttpServer->port);
+        $this->assertSame('localhost:9501', $data);
     }
 }

@@ -1,5 +1,5 @@
 #!/bin/bash
-pecl install swoole-2.2.0 << EOF
+pecl install << EOF
 `#enable debug/trace log support? [no] :`
 `#enable sockets support? [no] :`y
 `#enable openssl support? [no] :`
