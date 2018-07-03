@@ -1,5 +1,5 @@
 #!/bin/bash
-pecl install << EOF
+pecl install swoole << EOF
 `#enable debug/trace log support? [no] :`
 `#enable sockets support? [no] :`y
 `#enable openssl support? [no] :`
