@@ -20,9 +20,15 @@ class SwooleHttpServerFactory
     public function __invoke(ContainerInterface $container) : SwooleHttpServer
     {
         $config = $container->get('config');
-        $host = $config['swoole']['host'] ?? static::DEFAULT_HOST;
-        $port = $config['swoole']['port'] ?? static::DEFAULT_PORT;
+        $host = $config['swoole_http_server']['host'] ?? static::DEFAULT_HOST;
+        $port = $config['swoole_http_server']['port'] ?? static::DEFAULT_PORT;
+        $mode = $config['swoole_http_server']['mode'] ?? SWOOLE_BASE;
+        $protocol = $config['swoole_http_server']['protocol'] ?? SWOOLE_SOCK_TCP;
 
-        return new SwooleHttpServer($host, $port);
+        $server = new SwooleHttpServer($host, $port, $mode, $protocol);
+        if (isset($config['swoole_http_server']['options'])) {
+            $server->set($config['swoole_http_server']['options']);
+        }
+        return $server;
     }
 }

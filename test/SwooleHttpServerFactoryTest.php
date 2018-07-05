@@ -48,7 +48,7 @@ class SwooleHttpServerFactoryTest extends TestCase
     public function testInvokeWithConfig()
     {
         $config = [
-            'swoole' => [
+            'swoole_http_server' => [
                 'host' => 'localhost',
                 'port' => 9501,
             ],
