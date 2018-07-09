@@ -1,27 +1,27 @@
 # Swoole
 
-[Swoole](https://www.swoole.co.uk/) is a PECL extension to develop asynchronous
-applications in PHP. It enables PHP developers to write high-performance,
-scalable, concurrent TCP, UDP, Unix socket, HTTP, Websocket services without
-too much knowledge about non-blocking I/O programming and low-level Linux
-kernel.
+[Swoole](https://www.swoole.co.uk/) is a PECL extension for developing
+asynchronous applications in PHP. It enables PHP developers to write
+high-performance, scalable, concurrent TCP, UDP, Unix socket, HTTP, or Websocket
+services without requiring in-depth knowledge about non-blocking I/O programming
+or the low-level Linux kernel.
 
 ## Install swoole
 
-You can install the *Swoole* extensions on Linux or Mac environments using the
+You can install the Swoole extension on Linux or Mac environments using the
 following commands:
 
 ```bash
 pecl install swoole
 ```
 
-The Swoole PECL extension is available [here](https://pecl.php.net/package/swoole).
+For more information on the extension, [visit its package details on PECL](https://pecl.php.net/package/swoole).
 
 ## Swoole with Expressive
 
-Zend-expressive-swoole enables an Expressive application to be executed with
+zend-expressive-swoole enables an Expressive application to be executed with
 the [Swoole](https://www.swoole.co.uk/) extension. This means you can run the
-application from the command line, **without the usage of a web server**.
+application from the command line, **without requiring a web server**.
 
 You can run the application using the following command:
 
@@ -29,8 +29,9 @@ You can run the application using the following command:
 php public/index.php
 ```
 
-This command will executes Swoole at `localhost` on port `8080`. You can change
-the host address and the port using a configuration file, as follows:
+This command will execute Swoole on `localhost` via port `8080`. You can change
+the host address and/or host name as well as the port using a configuration
+file, as follows:
 
 ```php
 // config/autoload/swoole.local.php
@@ -42,9 +43,9 @@ return [
 ];
 ```
 
-You can also configure the `swoole_http_server` using an `options` key to
-specify all the Swoole settings. For instance, here is reported the
-configuration of a HTTP server using **SSL**:
+You can also configure the Swoole HTTP server using an `options` key to specify
+any accepted Swoole settings. For instance, the following configuration
+demonstrates enabling SSL:
 
 ```php
 // config/autoload/swoole.local.php

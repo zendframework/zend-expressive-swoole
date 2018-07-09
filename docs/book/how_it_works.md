@@ -1,20 +1,20 @@
 # How it works
 
-When you run an Expressive application using Swoole you will execute PHP from
-the command line interface, **without the usage of a web server**.
+When you run an Expressive application using Swoole, you will execute PHP from
+the command line interface, **without using a web server**.
 
-This sounds a bit strange in PHP and it's more familiar to [Node.js](https://nodejs.org)
-developers. We can say that Swoole enables PHP to be executed as Node.js.
+This sounds a bit strange in PHP, though it will be familiar to [Node.js](https://nodejs.org)
+developers; the execution model under Swoole is similar to that technology.
 
-The HTTP server of Swoole is a PHP class that offers some callbacks on events,
-using the `on(string $name, callable $action)` function.
+The HTTP server of Swoole is a PHP class that offers callbacks on a number of events,
+using the `on(string $name, callable $action)` method.
 
 The request handler implemented in `zend-expressive-swoole` is a runner that
 enables the execution of an Expressive application inside the `on('request')`
-event of `swoole_http_server`. This runner is implemented in the
+event of `Swoole\Http\Server`. This runner is implemented in the
 `Zend\Expressive\Swoole\RequestHandlerSwooleRunner` class.
 
-Here is reported the core idea:
+The basic implementation looks similar to the following:
 
 ```php
 public function run() : void
@@ -31,47 +31,51 @@ public function run() : void
             $request->server['request_method'],
             $request->server['request_uri']
         );
-        $emit = new SwooleEmitter($response);
+        $emitter = new SwooleEmitter($response);
         try {
             $psr7Request = ($this->serverRequestFactory)($request);
         } catch (Throwable $e) {
             // Error in generating the request
-            $this->emitMarshalServerRequestException($emit, $e);
+            $this->emitMarshalServerRequestException($emitter, $e);
             return;
         }
-        $emit->emit($this->handler->handle($psr7Request));
+        $emitter->emit($this->handler->handle($psr7Request));
     });
+
     $this->swooleHttpServer->start();
 }
 ```
 
-We implemented a translator from *swoole_http_request* (`$request`) to [PSR-7](https://www.php-fig.org/psr/psr-7/)
-request (`$psr7Request`) using `Zend\Expressive\Swoole\ServerRequestSwooleFactory`.
+This package provides a bridge between `Swoole\Http\Request` (`$request`) and
+[PSR-7](https://www.php-fig.org/psr/psr-7/) requests (`$psr7Request`;
+specifically as implemented by [zend-diactoros](https://docs.zendframework.com/zend-diactoros))
+via the class `Zend\Expressive\Swoole\ServerRequestSwooleFactory`.
 
-We also implemented a specific emitter for Swoole that converts a PSR-7 response
-in *swoole_http_response*. This emitter is implemented in `Zend\Expressive\Swoole\SwooleEmitter`.
+It also provides a Swoole-specific emitter, `Zend\Expressive\Swoole\SwooleEmitter`,
+that converts a PSR-7 response to a `Swoole\Http\Response` instance.
 
-When you run an Expressive application using `zend-expressive-swoole`, you will
+When you run an Expressive application using zend-expressive-swoole, you will
 notice a bunch of PHP processes running. By default, Swoole executes 4 *worker*
 processes, 1 *manager* process and 1 *master* process, for a total of 6 PHP
 processes.
 
 ![Swoole processes](images/diagram_swoole.png)
 
-The advantages of this architecture are many: it's very light and simple, just
-PHP processes running; it offers a service layer that is able to restart a
-worker automatically, if it's not responding; it allows to execute multiple HTTP
-requests in parallel; it's built for scaling.
+The advantages of this architecture are many: it's very light and simple (just
+PHP processes running); it offers a service layer that is able to restart a
+worker automatically if it's not responding; and it allows executing multiple
+HTTP requests in parallel. The architecture is built for scaling.
 
 ## Performance
 
-We did a benchmark running the default [zend-expressive-skeleton](https://github.com/zendframework/zend-expressive-skeleton)
+The ZF developers performed a benchmark running the default [zend-expressive-skeleton](https://github.com/zendframework/zend-expressive-skeleton)
 application with Swoole 2.1.1, nginx 1.12.1, and Apache 2.4.27 (with mod_php)
 using PHP 7.2.3.
 
-The results shown that **Expressive with Swoole runs 4x faster than nginx or
-Apache**.
+The results shown demonstrate that **Expressive with Swoole runs 4x faster than
+nginx or Apache**.
 
-This impressive result comes mainly for to the shared memory approach of
-Swoole. Unlike traditional apache/php-fpm stuff, the memory allocated in Swoole
-will not be freed after a request.
+This impressive result is primarily due to the shared memory approach of Swoole.
+Unlike traditional apache/php-fpm usage, the memory allocated in Swoole will not
+be freed after a request. This allows application configuration and artifacts
+(such as middleware and handlers) to persist between requests and processes.
