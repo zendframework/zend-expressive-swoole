@@ -9,7 +9,7 @@ developers; the execution model under Swoole is similar to that technology.
 The HTTP server of Swoole is a PHP class that offers callbacks on a number of events,
 using the `on(string $name, callable $action)` method.
 
-The request handler implemented in `zend-expressive-swoole` is a runner that
+The request handler implemented in zend-expressive-swoole is a runner that
 enables the execution of an Expressive application inside the `on('request')`
 event of `Swoole\Http\Server`. This runner is implemented in the
 `Zend\Expressive\Swoole\RequestHandlerSwooleRunner` class.
