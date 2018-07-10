@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Swoole support for Expressive">  
+    <link rel="shortcut icon" href="../img/favicon.ico">
+
+    <title>Introduction - zend-expressive-swoole</title>
+
+    <link rel="stylesheet" href="../css/styles-f773ae3616.css">
+</head>
+<body id="page-top">
+
+    
+    <div class="navbar navbar-default" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+
+            
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            
+            <span class="navbar-brand">
+                <a class="logo-link" href="https://framework.zend.com/" data-tooltip data-placement="bottom" title="Go to the ZF homepage">
+                    <img src="../img/zend-framework-logo.svg" height="28" alt="Zend Framework">
+                </a>
+            </span>
+        </div>
+
+        <div class="navbar-collapse collapse">
+
+            
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="https://framework.zend.com/about">About</a>
+                </li>
+                <li>
+                    <a href="https://framework.zend.com/downloads">Install</a>
+                </li>
+                <li class="active">
+                    <a href="https://docs.zendframework.com">Documentation</a>
+                </li>
+                <li>
+                    <a href="https://www.zend.com/en/services/training">Training</a>
+                </li>
+                <li>
+                    <a href="https://framework.zend.com/blog">Blog</a>
+                </li>
+                <li>
+                    <a href="https://framework.zend.com/participate">Participate</a>
+                </li>
+            </ul>
+
+            
+            
+                <div class="nav navbar-nav navbar-collapse visible-xs-block ">
+                    
+    <div class="subnavigation hidden-print">
+        <h4 class="subnavigation__title">
+            <a href="..">zend-expressive-swoole</a>
+        </h4>
+
+        <h5 class="subnavigation__subtitle">Table of Contents</h5>
+
+        <ul class="subnavigation__list">
+            
+                
+                    <li class="subnavigation__list-item ">
+                        <a href=".." class="subnavigation__link">zend-expressive-swoole</a>
+                    </li>
+                
+            
+                
+                    <li class="subnavigation__list-item subnavigation__list-item--active">
+                        <a href="./" class="subnavigation__link">Introduction</a>
+                    </li>
+                
+            
+                
+                    <li class="subnavigation__list-item ">
+                        <a href="../how_it_works/" class="subnavigation__link">How it works</a>
+                    </li>
+                
+            
+        </ul>
+    </div>
+
+                </div>
+            
+
+            
+            <div class="nav navbar-nav navbar-collapse visible-xs-block">
+                <div class="component-selector">
+    <h4 class="component-selector__title">Components</h4>
+    <h5 class="component-selector__subtitle">Find documentation…</h5>
+    <select class="form-control component-selector__control">
+        <option value="/">Overview</option>
+        <optgroup label="Components"></optgroup>
+    </select>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+    <header class="header">
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="col-xs-8">
+                <h1 class="header__title">
+                    Documentation
+
+                    
+                        <small class="header__subtitle">zend-expressive-swoole</small>
+                    
+                </h1>
+            </div>
+
+            
+            <div class="col-xs-4 text-right">
+                
+                    <a href="#" class="header__link header__link--search" data-toggle="modal" data-target="#mkdocs_search_modal" title="Open search">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                    <a href="https://github.com/zendframework/zend-expressive-swoole/" class="header__link header__link--github" title="Go to repository of zend-expressive-swoole">
+                        <i class="fa fa-github"></i> GitHub
+                    </a>
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 col-xs-12 content" role="main">
+            <!-- content:begin -->
+                
+                    <ol class="breadcrumb" role="navigation" aria-label="breadcrumbs navigation">
+  <li><a href="https://framework.zend.com/">Home</a></li>
+  <li><a href="https://docs.zendframework.com/">Docs</a></li>
+  <li><a href="..">zend-expressive-swoole</a></li>
+  
+    
+  
+  <li class="active">Introduction</li>
+</ol>
+
+
+    
+    
+
+    
+    
+        <div class="toc">
+            <h6 class="toc__headline">In This Article</h6>
+            <ul class="toc__list">
+                
+                    <li class="toc__entry">
+                        <a href="#install-swoole" class="toc__link">Install swoole</a>
+                    </li>
+                
+                    <li class="toc__entry">
+                        <a href="#install-zend-expressive-swoole" class="toc__link">Install zend-expressive-swoole</a>
+                    </li>
+                
+                    <li class="toc__entry">
+                        <a href="#swoole-with-expressive" class="toc__link">Swoole with Expressive</a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+
+
+    <h1 id="swoole">Swoole</h1>
+<p><a href="https://www.swoole.co.uk/">Swoole</a> is a PECL extension for developing
+asynchronous applications in PHP. It enables PHP developers to write
+high-performance, scalable, concurrent TCP, UDP, Unix socket, HTTP, or Websocket
+services without requiring in-depth knowledge about non-blocking I/O programming
+or the low-level Linux kernel.</p>
+<h2 id="install-swoole">Install swoole</h2>
+<p>You can install the Swoole extension on Linux or Mac environments using the
+following commands:</p>
+<pre class="codehilite"><code class="language-bash">$ pecl install swoole</code></pre>
+
+<p>For more information on the extension, <a href="https://pecl.php.net/package/swoole">visit its package details on PECL</a>.</p>
+<h2 id="install-zend-expressive-swoole">Install zend-expressive-swoole</h2>
+<p>To install ths package, use <a href="https://getcomposer.org/">Composer</a>:</p>
+<pre class="codehilite"><code class="language-bash">$ composer install zendframework/zend-expressive-swoole</code></pre>
+
+<h2 id="swoole-with-expressive">Swoole with Expressive</h2>
+<p>zend-expressive-swoole enables an Expressive application to be executed with
+the <a href="https://www.swoole.co.uk/">Swoole</a> extension. This means you can run the
+application from the command line, <strong>without requiring a web server</strong>.</p>
+<p>You can run the application using the following command:</p>
+<pre class="codehilite"><code class="language-bash">$ php public/index.php</code></pre>
+
+<p>This command will execute Swoole on <code>localhost</code> via port <code>8080</code>.</p>
+<blockquote>
+<h3 id="expressive-skeleton-versions-prior-to-310">Expressive skeleton versions prior to 3.1.0</h3>
+<p>The above will work immediately after installing zend-expressive-swoole if you
+are using a version of <a href="https://github.com/zendframework/zend-expressive-skeleton">zend-expressive-skeleton</a>
+from 3.1.0 or later.</p>
+<p>For applications based on previous versions of the skeleton, you will need to
+create a configuration file such as <code>config/autoload/zend-expressive-swoole.global.php</code>
+or <code>config/autoload/zend-expressive-swoole.local.php</code> with the following
+contents:</p>
+<pre class="codehilite"><code class="language-php">&lt;?php
+use Zend\Expressive\Swoole\ConfigProvider;
+
+return (new ConfigProvider())();</code></pre>
+
+</blockquote>
+<p>You can change the host address and/or host name as well as the port using a
+configuration file, as follows:</p>
+<pre class="codehilite"><code class="language-php">// In config/autoload/swoole.local.php:
+return [
+    'zend-expressive-swoole' =&gt; [
+        'swoole-http-server' =&gt; [
+            'host' =&gt; '192.168.0.1',
+            'port' =&gt; 9501,
+        ],
+    ],
+];</code></pre>
+
+<p>You can also configure the Swoole HTTP server using an <code>options</code> key to specify
+any accepted Swoole settings. For instance, the following configuration
+demonstrates enabling SSL:</p>
+<pre class="codehilite"><code class="language-php">// config/autoload/swoole.local.php
+return [
+    'zend-expressive-swoole' =&gt; [
+        'swoole-http-server' =&gt; [
+            'host' =&gt; '192.168.0.1',
+            'port' =&gt; 9501,
+            'mode' =&gt; SWOOLE_BASE,
+            'protocol' =&gt; SWOOLE_SOCK_TCP | SWOOLE_SSL,
+            'options' =&gt; [
+                'ssl_cert_file' =&gt; 'path/to/ssl.crt',
+                'ssl_key_file' =&gt; 'path/to/ssl.key',
+            ],
+        ],
+    ],
+];</code></pre>
+
+
+
+    <nav>
+    <ul class="page-nav hidden-print">
+
+        
+        <li class="page-nav__item">
+            
+                <a rel="prev" class="page-nav__link page-nav__link--prev" href="..">
+                    <i class="fa fa-chevron-left"></i> Previous
+                </a>
+            
+        </li>
+
+        
+        <li class="page-nav__item">
+            
+                <a rel="next" class="page-nav__link page-nav__link--next" href="../how_it_works/">
+                    Next <i class="fa fa-chevron-right"></i>
+                </a>
+            
+        </li>
+    </ul>
+</nav>
+
+
+<div class="help-wanted">
+    <p>
+        Found a mistake or want to contribute to the documentation?
+        <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/book/intro.md" target="_blank" class="help-wanted__link">
+            Edit this page on GitHub!
+        </a>
+    </p>
+</div>
+                
+            <!-- content:end -->
+            </div>
+            <div class="col-md-3 col-xs-12 sidebar">
+                
+                    <div class="component-selector">
+    <h4 class="component-selector__title">Components</h4>
+    <h5 class="component-selector__subtitle">Find documentation…</h5>
+    <select class="form-control component-selector__control">
+        <option value="/">Overview</option>
+        <optgroup label="Components"></optgroup>
+    </select>
+</div>
+                    
+    <div class="subnavigation hidden-print">
+        <h4 class="subnavigation__title">
+            <a href="..">zend-expressive-swoole</a>
+        </h4>
+
+        <h5 class="subnavigation__subtitle">Table of Contents</h5>
+
+        <ul class="subnavigation__list">
+            
+                
+                    <li class="subnavigation__list-item ">
+                        <a href=".." class="subnavigation__link">zend-expressive-swoole</a>
+                    </li>
+                
+            
+                
+                    <li class="subnavigation__list-item subnavigation__list-item--active">
+                        <a href="./" class="subnavigation__link">Introduction</a>
+                    </li>
+                
+            
+                
+                    <li class="subnavigation__list-item ">
+                        <a href="../how_it_works/" class="subnavigation__link">How it works</a>
+                    </li>
+                
+            
+        </ul>
+    </div>
+
+                
+            </div>
+        </div>
+    </div>
+
+    
+    <footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9">
+                <h5>Zend Framework</h5>
+                <ul>
+                    <li><a href="https://framework.zend.com/">framework.zend.com</a></li>
+                    <li><a href="https://docs.zendframework.com">docs.zendframework.com</a></li>
+                    <li><a href="https://packages.zendframework.com">packages.zendframework.com</a></li>
+                    <li><a href="https://apigility.org">apigility.org</a></li>
+                    <li><a href="https://getexpressive.org/">getexpressive.org</a></li>
+                </ul>
+            </div>
+        </div>
+
+        
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <a class="footer__button" href="#page-top"><i class="fa fa-chevron-up" aria-hidden="true"></i></a>
+            </div>
+        </div>
+
+        <div class="row">
+
+            
+            <div class="col-md-9">
+                <h4 class="footer__headline">Copyright</h4>
+                <p>&copy; 2006-2018 by <a href="https://www.zend.com/">Zend</a>, a <a href="https://www.roguewave.com/">Rogue Wave Company</a>.</p>
+            </div>
+
+            
+            <div class="col-md-3">
+                <h4 class="footer__headline">Support</h4>
+                <ul class="support__list">
+                    <li class="support__list-item">
+                        <a href="https://discourse.zendframework.com" class="support__link" title="Forum"><i class="fa fa-comments"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://zendframework-slack.herokuapp.com" class="support__link" title="Chat"><i class="fa fa-slack"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://github.com/zendframework" class="support__link" title="Github"><i class="fa fa-github"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://twitter.com/zfdevteam" class="support__link" title="Twitter"><i class="fa fa-twitter"></i></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <script>
+        var base_url = '..',
+            siteName = 'zend-expressive-swoole';
+    </script>
+    <script src="../js/scripts-5141b2abfe.js"></script>
+        <script src="../search/require.js"></script>
+        <script src="../search/search.js"></script>
+
+    
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        From here you can search these documents. Enter your search terms below.
+                    </p>
+                    <form role="form">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                        </div>
+                    </form>
+                    <div id="mkdocs-search-results"></div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</body>
+
+
+</html>
