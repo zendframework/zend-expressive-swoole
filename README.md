@@ -44,12 +44,22 @@ above, modify it to read as follows:
 use Zend\Expressive\Swoole\ConfigProvider;
 
 return array_merge((new ConfigProvider())(), [
-    'swoole' => [
-        'host' => 'insert hostname to use here',
-        'port' => 80, // use an integer value here
+    'zend-expressive-swoole' => [
+        'swoole-http-server' => [
+            'host' => 'insert hostname to use here',
+            'port' => 80, // use an integer value here
+        ],
     ],
 ]);
 ```
+
+> ### Expressive skeleton 3.1.0 and later
+>
+> If you have built your application on the 3.1.0 or later version of the
+> Expressive skeleton, you do not need to instantiate and invoke the package's
+> `ConfigProvider`, as the skeleton supports it out of the box.
+>
+> You will only need to provide any additional configuration of the HTTP server.
 
 ## Execute
 
