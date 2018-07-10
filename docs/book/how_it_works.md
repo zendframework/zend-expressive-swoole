@@ -72,8 +72,8 @@ The ZF developers performed a benchmark running the default [zend-expressive-ske
 application with Swoole 4.0.1, nginx 1.12.1, and Apache 2.4.27 (with mod_php)
 using PHP 7.2.7.
 
-The results shown demonstrate that **Expressive with Swoole runs 4 to 5 times
-faster than nginx or Apache**.
+The results demonstrated that **Expressive with Swoole runs 4 to 5 times faster
+than nginx or Apache**.
 
 This impressive result is primarily due to the shared memory approach of Swoole.
 Unlike traditional apache/php-fpm usage, the memory allocated in Swoole will not
