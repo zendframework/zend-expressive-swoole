@@ -4,7 +4,7 @@ pages:
     - index.md
     - Introduction: intro.md
     - "How it works": how_it_works.md
-site_name: 'Swoole Expressive'
+site_name: 'zend-expressive-swoole'
 site_description: 'Swoole support for Expressive'
 repo_url: 'https://github.com/zendframework/zend-expressive-swoole'
 copyright: 'Copyright (c) 2018 <a href="https://www.zend.com/">Zend Technologies USA Inc.</a>'
