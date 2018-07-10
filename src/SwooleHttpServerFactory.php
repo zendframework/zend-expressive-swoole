@@ -20,14 +20,15 @@ class SwooleHttpServerFactory
     public function __invoke(ContainerInterface $container) : SwooleHttpServer
     {
         $config = $container->get('config');
-        $host = $config['swoole_http_server']['host'] ?? static::DEFAULT_HOST;
-        $port = $config['swoole_http_server']['port'] ?? static::DEFAULT_PORT;
-        $mode = $config['swoole_http_server']['mode'] ?? SWOOLE_BASE;
-        $protocol = $config['swoole_http_server']['protocol'] ?? SWOOLE_SOCK_TCP;
+        $swooleConfig = $config['zend-expressive-swoole']['swoole-http-server'] ?? null;
+        $host = $swooleConfig['host'] ?? static::DEFAULT_HOST;
+        $port = $swooleConfig['port'] ?? static::DEFAULT_PORT;
+        $mode = $swooleConfig['mode'] ?? SWOOLE_BASE;
+        $protocol = $swooleConfig['protocol'] ?? SWOOLE_SOCK_TCP;
 
         $server = new SwooleHttpServer($host, $port, $mode, $protocol);
-        if (isset($config['swoole_http_server']['options'])) {
-            $server->set($config['swoole_http_server']['options']);
+        if (isset($swooleConfig['options'])) {
+            $server->set($swooleConfig['options']);
         }
         return $server;
     }

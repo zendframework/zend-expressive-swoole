@@ -69,11 +69,11 @@ HTTP requests in parallel. The architecture is built for scaling.
 ## Performance
 
 The ZF developers performed a benchmark running the default [zend-expressive-skeleton](https://github.com/zendframework/zend-expressive-skeleton)
-application with Swoole 2.1.1, nginx 1.12.1, and Apache 2.4.27 (with mod_php)
-using PHP 7.2.3.
+application with Swoole 4.0.1, nginx 1.12.1, and Apache 2.4.27 (with mod_php)
+using PHP 7.2.7.
 
-The results shown demonstrate that **Expressive with Swoole runs 4x faster than
-nginx or Apache**.
+The results shown demonstrate that **Expressive with Swoole runs 4 to 5 times
+faster than nginx or Apache**.
 
 This impressive result is primarily due to the shared memory approach of Swoole.
 Unlike traditional apache/php-fpm usage, the memory allocated in Swoole will not

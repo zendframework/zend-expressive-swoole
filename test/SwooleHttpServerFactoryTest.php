@@ -48,10 +48,12 @@ class SwooleHttpServerFactoryTest extends TestCase
     public function testInvokeWithConfig()
     {
         $config = [
-            'swoole_http_server' => [
-                'host' => 'localhost',
-                'port' => 9501,
-            ],
+            'zend-expressive-swoole' => [
+                'swoole-http-server' => [
+                    'host' => 'localhost',
+                    'port' => 9501,
+                ]
+            ]
         ];
         $this->container
             ->get('config')
