@@ -22,7 +22,7 @@ For more information on the extension, [visit its package details on PECL](https
 To install ths package, use [Composer](https://getcomposer.org/):
 
 ```bash
-$ composer install zendframework/zend-expressive-swoole
+$ composer require zendframework/zend-expressive-swoole
 ```
 
 ## Swoole with Expressive
