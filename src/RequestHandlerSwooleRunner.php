@@ -12,6 +12,8 @@ namespace Zend\Expressive\Swoole;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Swoole\Http\Request as SwooleHttpRequest;
+use Swoole\Http\Response as SwooleHttpResponse;
 use Swoole\Http\Server as SwooleHttpServer;
 use Throwable;
 use Zend\HttpHandlerRunner\Emitter\EmitterInterface;
@@ -30,6 +32,19 @@ use Zend\HttpHandlerRunner\RequestHandlerRunner;
  */
 class RequestHandlerSwooleRunner extends RequestHandlerRunner
 {
+    /**
+     * Default static file extensions supported
+     */
+    const DEFAULT_STATIC_EXTS = [
+        'css'  => 'text/css',
+        'js'   => 'text/javascript',
+        'png'  => 'image/png',
+        'gif'  => 'image/gif',
+        'jpg'  => 'image/jpg',
+        'jpeg' => 'image/jpg',
+        'mp4'  => 'video/mp4'
+    ];
+
     /**
      * A request handler to run as the application.
      *
@@ -62,11 +77,29 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
      */
     private $swooleHttpServer;
 
+    /**
+     * @var array
+     */
+    private $allowedStatic;
+
+    /**
+     * @var string
+     */
+    private $docRoot;
+
+    /**
+     * Cache the file extensions (type) for valid static file
+     *
+     * @var array
+     */
+    private $cacheTypeFile = [];
+
     public function __construct(
         RequestHandlerInterface $handler,
         callable $serverRequestFactory,
         callable $serverRequestErrorResponseGenerator,
-        SwooleHttpServer $swooleHttpServer
+        SwooleHttpServer $swooleHttpServer,
+        array $config
     ) {
         $this->handler = $handler;
 
@@ -81,6 +114,9 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
             };
 
         $this->swooleHttpServer = $swooleHttpServer;
+
+        $this->allowedStatic = $config['static_files'] ?? self::DEFAULT_STATIC_EXTS;
+        $this->docRoot = $config['options']['document_root'] ?? getcwd() . '/public';
     }
 
     /**
@@ -88,36 +124,78 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
      */
     public function run() : void
     {
-        $this->swooleHttpServer->on('start', function ($server) {
-            printf("Swoole is running at %s:%s\n", $server->host, $server->port);
-        });
-
-        $this->swooleHttpServer->on('request', function ($request, $response) {
-            printf(
-                "%s - %s - %s %s\n",
-                date('Y-m-d H:i:sO', time()),
-                $request->server['remote_addr'],
-                $request->server['request_method'],
-                $request->server['request_uri']
-            );
-            $emit = new SwooleEmitter($response);
-            try {
-                $psr7Request = ($this->serverRequestFactory)($request);
-            } catch (Throwable $e) {
-                // Error in generating the request
-                $this->emitMarshalServerRequestException($emit, $e);
-                return;
-            }
-            $emit->emit($this->handler->handle($psr7Request));
-        });
+        $this->swooleHttpServer->on('start', [$this, 'onStart']);
+        $this->swooleHttpServer->on('request', [$this, 'onRequest']);
         $this->swooleHttpServer->start();
     }
 
+    /**
+     * On start event for swoole http server
+     */
+    public function onStart(SwooleHttpServer $server) : void
+    {
+        printf("Swoole is running at %s:%s\n", $server->host, $server->port);
+    }
+
+    /**
+     * On HTTP request event for swoole http server
+     */
+    public function onRequest(
+        SwooleHttpRequest $request,
+        SwooleHttpResponse $response
+    ) {
+        printf(
+            "%s - %s - %s %s\n",
+            date('Y-m-d H:i:sO', time()),
+            $request->server['remote_addr'],
+            $request->server['request_method'],
+            $request->server['request_uri']
+        );
+        if ($this->getStaticResource($request, $response)) {
+            return;
+        }
+        $emit = new SwooleEmitter($response);
+        try {
+            $psr7Request = ($this->serverRequestFactory)($request);
+        } catch (Throwable $e) {
+            // Error in generating the request
+            $this->emitMarshalServerRequestException($emit, $e);
+            return;
+        }
+        $emit->emit($this->handler->handle($psr7Request));
+    }
+
+    /**
+     * Emit marshal server request exception
+     */
     private function emitMarshalServerRequestException(
         EmitterInterface $emitter,
         Throwable $exception
     ) : void {
         $response = ($this->serverRequestErrorResponseGenerator)($exception);
         $emitter->emit($response);
+    }
+
+    /**
+     * Get a static resource, if any, and set the swoole HTTP response
+     */
+    private function getStaticResource(
+        SwooleHttpRequest $request,
+        SwooleHttpResponse $response
+    ) : bool {
+        $staticFile = $this->docRoot . $request->server['request_uri'];
+        if (! isset($cacheTypeFile[$staticFile])) {
+            if (! file_exists($staticFile)) {
+                return false;
+            }
+            $type = pathinfo($staticFile, PATHINFO_EXTENSION);
+            if (! isset($this->allowedStatic[$type])) {
+                return false;
+            }
+            $cacheTypeFile[$staticFile] = $this->allowedStatic[$type];
+        }
+        $response->header('Content-Type', $cacheTypeFile[$staticFile]);
+        $response->sendfile($staticFile);
+        return true;
     }
 }

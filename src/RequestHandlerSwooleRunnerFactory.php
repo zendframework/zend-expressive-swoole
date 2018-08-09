@@ -19,11 +19,14 @@ class RequestHandlerSwooleRunnerFactory
 {
     public function __invoke(ContainerInterface $container) : RequestHandlerSwooleRunner
     {
+        $config = $container->get('config');
+
         return new RequestHandlerSwooleRunner(
             $container->get(ApplicationPipeline::class),
             $container->get(ServerRequestInterface::class),
             $container->get(ServerRequestErrorResponseGenerator::class),
-            $container->get(SwooleHttpServer::class)
+            $container->get(SwooleHttpServer::class),
+            $config['zend-expressive-swoole']['swoole-http-server'] ?? []
         );
     }
 }

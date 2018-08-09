@@ -49,6 +49,9 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
         $this->container
             ->get(SwooleHttpServer::class)
             ->willReturn($this->swooleHttpServer);
+        $this->container
+            ->get('config')
+            ->willReturn([]);
     }
 
     public function testConstructor()

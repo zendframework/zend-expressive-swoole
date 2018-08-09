@@ -93,3 +93,37 @@ return [
     ],
 ];
 ```
+
+We also support static file by default, serving the extensions type reported
+in `Zend\Expressive\Swoole\RequestHandlerSwooleRunner::DEFAULT_STATIC_EXTS`
+constant array.
+You can set the *document root* and the static extension types using the
+following configuration settings:
+
+```php
+// config/autoload/swoole.local.php
+use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
+
+return [
+    'zend-expressive-swoole' => [
+        'swoole-http-server' => [
+            'host' => '192.168.0.1',
+            'port' => 9501,
+            'static_files' => array_merge(
+                RequestHandlerSwooleRunner::DEFAULT_STATIC_EXTS,
+                [ 'foo' => 'text/foo' ],
+            ),
+            'options' => [
+                'document_root' => 'path/to/document/root'
+            ]
+        ],
+    ],
+];
+```
+
+In this example, we added a `.foo` as static file to the default extensions.
+
+> ### Security warning
+>
+> Never add `php` as static extension if you want to avoid expose the source
+> code of your PHP application.
