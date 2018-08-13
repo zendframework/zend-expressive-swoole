@@ -184,7 +184,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         SwooleHttpResponse $response
     ) : bool {
         $staticFile = $this->docRoot . $request->server['request_uri'];
-        if (! isset($cacheTypeFile[$staticFile])) {
+        if (! isset($this->cacheTypeFile[$staticFile])) {
             if (! file_exists($staticFile)) {
                 return false;
             }
@@ -192,9 +192,9 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
             if (! isset($this->allowedStatic[$type])) {
                 return false;
             }
-            $cacheTypeFile[$staticFile] = $this->allowedStatic[$type];
+            $this->cacheTypeFile[$staticFile] = $this->allowedStatic[$type];
         }
-        $response->header('Content-Type', $cacheTypeFile[$staticFile]);
+        $response->header('Content-Type', $this->cacheTypeFile[$staticFile]);
         $response->sendfile($staticFile);
         return true;
     }

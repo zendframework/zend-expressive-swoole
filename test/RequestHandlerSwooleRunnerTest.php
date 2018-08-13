@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use ReflectionClass;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Http\Response as SwooleHttpResponse;
 use Swoole\Http\Server as SwooleHttpServer;
@@ -23,8 +24,6 @@ use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
 class RequestHandlerSwooleRunnerTest extends TestCase
 {
-    protected $output;
-
     public function setUp()
     {
         $this->requestHandler = $this->prophesize(RequestHandlerInterface::class);
@@ -160,5 +159,36 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             ->shouldHaveBeenCalled();
 
         $this->expectOutputRegex("/127\.0\.0\.1 - GET \/image\.png\R$/");
+    }
+
+    public function testInternalCacheStaticFile()
+    {
+        $runner = new RequestHandlerSwooleRunner(
+            $this->requestHandler->reveal(),
+            $this->serverRequestFactory,
+            $this->serverRequestError,
+            $this->swooleHttpServer,
+            $this->config
+        );
+
+        $reflector = new ReflectionClass($runner);
+        $cacheTypeFile = $reflector->getProperty('cacheTypeFile');
+        $cacheTypeFile->setAccessible(true);
+
+        $request = $this->prophesize(SwooleHttpRequest::class)->reveal();
+        $request->server = [
+            'request_uri'    => '/image.png',
+            'remote_addr'    => '127.0.0.1',
+            'request_method' => 'GET'
+        ];
+        $response = $this->prophesize(SwooleHttpResponse::class);
+
+        $runner->onRequest($request, $response->reveal());
+
+        $this->expectOutputRegex("/127\.0\.0\.1 - GET \/image\.png\R$/");
+        $this->assertEquals(
+            [__DIR__ . '/TestAsset/image.png' => 'image/png'],
+            $cacheTypeFile->getValue($runner)
+        );
     }
 }
