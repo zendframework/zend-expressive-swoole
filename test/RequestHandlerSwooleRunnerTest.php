@@ -102,7 +102,8 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             ->withAddedHeader('Content-Type', $contentType);
         $psr7Response->getBody()->write($content);
 
-        $this->requestHandler->handle(Argument::type(ServerRequestInterface::class))
+        $this->requestHandler
+            ->handle(Argument::type(ServerRequestInterface::class))
             ->willReturn($psr7Response);
 
         $runner = new RequestHandlerSwooleRunner(
@@ -123,11 +124,14 @@ class RequestHandlerSwooleRunnerTest extends TestCase
 
         $runner->onRequest($request, $response->reveal());
 
-        $response->status(200)
+        $response
+            ->status(200)
             ->shouldHaveBeenCalled();
-        $response->end($content)
+        $response
+            ->end($content)
             ->shouldHaveBeenCalled();
-        $response->header('Content-Type', $contentType)
+        $response
+            ->header('Content-Type', $contentType)
             ->shouldHaveBeenCalled();
 
         $this->expectOutputRegex("/127\.0\.0\.1 - GET \/\R$/");
@@ -153,9 +157,11 @@ class RequestHandlerSwooleRunnerTest extends TestCase
 
         $runner->onRequest($request, $response->reveal());
 
-        $response->header('Content-Type', 'image/png')
+        $response
+            ->header('Content-Type', 'image/png')
             ->shouldHaveBeenCalled();
-        $response->sendfile(__DIR__ . '/TestAsset/image.png')
+        $response
+            ->sendfile(__DIR__ . '/TestAsset/image.png')
             ->shouldHaveBeenCalled();
 
         $this->expectOutputRegex("/127\.0\.0\.1 - GET \/image\.png\R$/");

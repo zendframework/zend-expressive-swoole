@@ -16,6 +16,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Swoole\Http\Server as SwooleHttpServer;
 use Zend\Expressive\ApplicationPipeline;
 use Zend\Expressive\Response\ServerRequestErrorResponseGenerator;
+use Zend\Expressive\Swoole\Exception\InvalidConfigException;
 use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
 use Zend\Expressive\Swoole\RequestHandlerSwooleRunnerFactory;
 
@@ -69,21 +70,19 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
                 'zend-expressive-swoole' => [
                     'swoole-http-server' => [
                         'options' => [
-                            'document_root' => __DIR__ . '/TestAsset'
-                        ]
-                    ]
-                ]
+                            'document_root' => __DIR__ . '/TestAsset',
+                        ],
+                    ],
+                ],
             ]);
         $result = $request($this->container->reveal());
         $this->assertInstanceOf(RequestHandlerSwooleRunner::class, $result);
     }
 
-    /**
-     * @expectedException Zend\Expressive\Swoole\Exception\InvalidConfigException
-     */
     public function testInvokeWithoutDocumentRoot()
     {
         $request = new RequestHandlerSwooleRunnerFactory();
+        $this->expectException(InvalidConfigException::class);
         $result = $request($this->container->reveal());
     }
 }
