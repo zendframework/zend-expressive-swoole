@@ -16,6 +16,7 @@ use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Http\Response as SwooleHttpResponse;
 use Swoole\Http\Server as SwooleHttpServer;
 use Throwable;
+use Zend\Expressive\Swoole\Exception;
 use Zend\HttpHandlerRunner\Emitter\EmitterInterface;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
@@ -170,6 +171,12 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
 
         $this->allowedStatic = $config['static_files'] ?? self::DEFAULT_STATIC_EXTS;
         $this->docRoot = $config['options']['document_root'] ?? getcwd() . '/public';
+        if (! file_exists($this->docRoot)) {
+            throw new Exception\InvalidConfigException(sprintf(
+                "The document_root %s doesn't exist. Please check your configuration",
+                $this->docRoot
+            ));
+        }
     }
 
     /**

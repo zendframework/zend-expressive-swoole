@@ -63,7 +63,27 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
     public function testInvoke()
     {
         $request = new RequestHandlerSwooleRunnerFactory();
+        $this->container
+            ->get('config')
+            ->willReturn([
+                'zend-expressive-swoole' => [
+                    'swoole-http-server' => [
+                        'options' => [
+                            'document_root' => __DIR__ . '/TestAsset'
+                        ]
+                    ]
+                ]
+            ]);
         $result = $request($this->container->reveal());
         $this->assertInstanceOf(RequestHandlerSwooleRunner::class, $result);
+    }
+
+    /**
+     * @expectedException Zend\Expressive\Swoole\Exception\InvalidConfigException
+     */
+    public function testInvokeWithoutDocumentRoot()
+    {
+        $request = new RequestHandlerSwooleRunnerFactory();
+        $result = $request($this->container->reveal());
     }
 }
