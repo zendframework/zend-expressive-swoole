@@ -22,7 +22,7 @@ For more information on the extension, [visit its package details on PECL](https
 To install ths package, use [Composer](https://getcomposer.org/):
 
 ```bash
-$ composer install zendframework/zend-expressive-swoole
+$ composer require zendframework/zend-expressive-swoole
 ```
 
 ## Swoole with Expressive
@@ -72,6 +72,8 @@ return [
 ];
 ```
 
+### Providing additional Swoole configuration
+
 You can also configure the Swoole HTTP server using an `options` key to specify
 any accepted Swoole settings. For instance, the following configuration
 demonstrates enabling SSL:
@@ -93,3 +95,46 @@ return [
     ],
 ];
 ```
+
+### Serving static files
+
+We also support serving static files. By default, we only serve files with
+extensions in the whitelist defined in the constant
+`Zend\Expressive\Swoole\RequestHandlerSwooleRunner::DEFAULT_STATIC_EXTS`, which
+is derived from a [list of common web MIME types maintained by Mozilla](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types).
+You can set the `document root` and the allowed extension types for static file
+resources using the following configuration settings:
+
+```php
+// config/autoload/swoole.local.php
+use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
+
+return [
+    'zend-expressive-swoole' => [
+        'swoole-http-server' => [
+            'host' => '192.168.0.1',
+            'port' => 9501,
+            'static_files' => array_merge(
+                RequestHandlerSwooleRunner::DEFAULT_STATIC_EXTS,
+                [ 'foo' => 'text/foo' ]
+            ),
+            'options' => [
+                'document_root' => 'path/to/document/root',
+            ],
+        ],
+    ],
+];
+```
+
+In the above example, we added support for the file extension `.foo`.
+
+> ### Security warning
+>
+> Never add `php` as an allowed static file extension, as doing so could expose the source
+> code of your PHP application!
+
+> ### Document root
+>
+> If no `document_root` configuration is present, the default is to use
+> `getcwd() . '/public'`. If either the configured or default document root
+> does not exist, we raise an exception.

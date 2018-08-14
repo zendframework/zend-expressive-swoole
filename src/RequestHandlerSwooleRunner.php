@@ -12,8 +12,11 @@ namespace Zend\Expressive\Swoole;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Swoole\Http\Request as SwooleHttpRequest;
+use Swoole\Http\Response as SwooleHttpResponse;
 use Swoole\Http\Server as SwooleHttpServer;
 use Throwable;
+use Zend\Expressive\Swoole\Exception;
 use Zend\HttpHandlerRunner\Emitter\EmitterInterface;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
@@ -30,6 +33,72 @@ use Zend\HttpHandlerRunner\RequestHandlerRunner;
  */
 class RequestHandlerSwooleRunner extends RequestHandlerRunner
 {
+    /**
+     * Default static file extensions supported
+     * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
+     */
+    public const DEFAULT_STATIC_EXTS = [
+        '7z'    => 'application/x-7z-compressed',
+        'aac'   => 'audio/aac',
+        'arc'   => 'application/octet-stream',
+        'avi'   => 'video/x-msvideo',
+        'azw'   => 'application/vnd.amazon.ebook',
+        'bin'   => 'application/octet-stream',
+        'bmp'   => 'image/bmp',
+        'bz'    => 'application/x-bzip',
+        'bz2'   => 'application/x-bzip2',
+        'css'   => 'text/css',
+        'csv'   => 'text/csv',
+        'doc'   => 'application/msword',
+        'docx'  => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'eot'   => 'application/vnd.ms-fontobject',
+        'epub'  => 'application/epub+zip',
+        'es'    => 'application/ecmascript',
+        'gif'   => 'image/gif',
+        'htm'   => 'text/html',
+        'html'  => 'text/html',
+        'ico'   => 'image/x-icon',
+        'jpg'   => 'image/jpg',
+        'jpeg'  => 'image/jpg',
+        'js'    => 'text/javascript',
+        'json'  => 'application/json',
+        'mp4'   => 'video/mp4',
+        'mpeg'  => 'video/mpeg',
+        'odp'   => 'application/vnd.oasis.opendocument.presentation',
+        'ods'   => 'application/vnd.oasis.opendocument.spreadsheet',
+        'odt'   => 'application/vnd.oasis.opendocument.text',
+        'oga'   => 'audio/ogg',
+        'ogv'   => 'video/ogg',
+        'ogx'   => 'application/ogg',
+        'otf'   => 'font/otf',
+        'pdf'   => 'application/pdf',
+        'png'   => 'image/png',
+        'ppt'   => 'application/vnd.ms-powerpoint',
+        'pptx'  => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'rar'   => 'application/x-rar-compressed',
+        'rtf'   => 'application/rtf',
+        'svg'   => 'image/svg+xml',
+        'swf'   => 'application/x-shockwave-flash',
+        'tar'   => 'application/x-tar',
+        'tif'   => 'image/tiff',
+        'tiff'  => 'image/tiff',
+        'ts'    => 'application/typescript',
+        'ttf'   => 'font/ttf',
+        'txt'   => 'text/plain',
+        'wav'   => 'audio/wav',
+        'weba'  => 'audio/webm',
+        'webm'  => 'video/webm',
+        'webp'  => 'image/webp',
+        'woff'  => 'font/woff',
+        'woff2' => 'font/woff2',
+        'xhtml' => 'application/xhtml+xml',
+        'xls'   => 'application/vnd.ms-excel',
+        'xlsx'  => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'xml'   => 'application/xml',
+        'xul'   => 'application/vnd.mozilla.xul+xml',
+        'zip'   => 'application/zip',
+    ];
+
     /**
      * A request handler to run as the application.
      *
@@ -62,11 +131,33 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
      */
     private $swooleHttpServer;
 
+    /**
+     * @var array
+     */
+    private $allowedStatic;
+
+    /**
+     * @var string
+     */
+    private $docRoot;
+
+    /**
+     * Cache the file extensions (type) for valid static file
+     *
+     * @var array
+     */
+    private $cacheTypeFile = [];
+
+    /**
+     * @throws Exception\InvalidConfigException if the configured or default
+     *     document root does not exist.
+     */
     public function __construct(
         RequestHandlerInterface $handler,
         callable $serverRequestFactory,
         callable $serverRequestErrorResponseGenerator,
-        SwooleHttpServer $swooleHttpServer
+        SwooleHttpServer $swooleHttpServer,
+        array $config
     ) {
         $this->handler = $handler;
 
@@ -81,6 +172,15 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
             };
 
         $this->swooleHttpServer = $swooleHttpServer;
+
+        $this->allowedStatic = $config['static_files'] ?? self::DEFAULT_STATIC_EXTS;
+        $this->docRoot = $config['options']['document_root'] ?? getcwd() . '/public';
+        if (! file_exists($this->docRoot)) {
+            throw new Exception\InvalidConfigException(sprintf(
+                "The document_root %s doesn't exist. Please check your configuration",
+                $this->docRoot
+            ));
+        }
     }
 
     /**
@@ -88,36 +188,92 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
      */
     public function run() : void
     {
-        $this->swooleHttpServer->on('start', function ($server) {
-            printf("Swoole is running at %s:%s\n", $server->host, $server->port);
-        });
-
-        $this->swooleHttpServer->on('request', function ($request, $response) {
-            printf(
-                "%s - %s - %s %s\n",
-                date('Y-m-d H:i:sO', time()),
-                $request->server['remote_addr'],
-                $request->server['request_method'],
-                $request->server['request_uri']
-            );
-            $emit = new SwooleEmitter($response);
-            try {
-                $psr7Request = ($this->serverRequestFactory)($request);
-            } catch (Throwable $e) {
-                // Error in generating the request
-                $this->emitMarshalServerRequestException($emit, $e);
-                return;
-            }
-            $emit->emit($this->handler->handle($psr7Request));
-        });
+        $this->swooleHttpServer->on('start', [$this, 'onStart']);
+        $this->swooleHttpServer->on('request', [$this, 'onRequest']);
         $this->swooleHttpServer->start();
     }
 
+    /**
+     * On start event for swoole http server
+     */
+    public function onStart(SwooleHttpServer $server) : void
+    {
+        printf("Swoole is running at %s:%s\n", $server->host, $server->port);
+    }
+
+    /**
+     * On HTTP request event for swoole http server
+     */
+    public function onRequest(
+        SwooleHttpRequest $request,
+        SwooleHttpResponse $response
+    ) {
+        printf(
+            "%s - %s - %s %s\n",
+            date('Y-m-d H:i:sO', time()),
+            $request->server['remote_addr'],
+            $request->server['request_method'],
+            $request->server['request_uri']
+        );
+        if ($this->getStaticResource($request, $response)) {
+            return;
+        }
+        $emitter = new SwooleEmitter($response);
+        try {
+            $psr7Request = ($this->serverRequestFactory)($request);
+        } catch (Throwable $e) {
+            // Error in generating the request
+            $this->emitMarshalServerRequestException($emitter, $e);
+            return;
+        }
+        $emitter->emit($this->handler->handle($psr7Request));
+    }
+
+    /**
+     * Emit marshal server request exception
+     */
     private function emitMarshalServerRequestException(
         EmitterInterface $emitter,
         Throwable $exception
     ) : void {
         $response = ($this->serverRequestErrorResponseGenerator)($exception);
         $emitter->emit($response);
+    }
+
+    /**
+     * Get a static resource, if any, and set the swoole HTTP response.
+     */
+    private function getStaticResource(
+        SwooleHttpRequest $request,
+        SwooleHttpResponse $response
+    ) : bool {
+        $staticFile = $this->docRoot . $request->server['request_uri'];
+        if (! isset($this->cacheTypeFile[$staticFile])
+            && ! $this->cacheFile($staticFile)
+        ) {
+            return false;
+        }
+
+        $response->header('Content-Type', $this->cacheTypeFile[$staticFile]);
+        $response->sendfile($staticFile);
+        return true;
+    }
+
+    /**
+     * Attempt to cache a static file resource.
+     */
+    private function cacheFile(string $fileName) : bool
+    {
+        $type = pathinfo($fileName, PATHINFO_EXTENSION);
+        if (! isset($this->allowedStatic[$type])) {
+            return false;
+        }
+
+        if (! file_exists($fileName)) {
+            return false;
+        }
+
+        $this->cacheTypeFile[$fileName] = $this->allowedStatic[$type];
+        return true;
     }
 }

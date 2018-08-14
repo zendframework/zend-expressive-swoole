@@ -6,7 +6,10 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Added
 
-- Nothing.
+- [#5](https://github.com/zendframework/zend-expressive-swoole/pull/5) adds the ability to serve static file resources from your
+  configured document root. For information on the default capabilities, as well
+  as how to configure the functionality, please see
+  https://docs.zendframework.com/zend-expressive-swoole/intro/#serving-static-files.
 
 ### Changed
 
