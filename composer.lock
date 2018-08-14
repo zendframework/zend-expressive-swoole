@@ -8,33 +8,31 @@
     "packages": [
         {
             "name": "dflydev/fig-cookies",
-            "version": "v2.0.0",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dflydev/dflydev-fig-cookies.git",
-                "reference": "a59857139b9e30978b5b802b3631b5eaf34e8c66"
+                "reference": "56133681a2d0055f110c1fa51b88c129bc6ce1c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dflydev/dflydev-fig-cookies/zipball/a59857139b9e30978b5b802b3631b5eaf34e8c66",
-                "reference": "a59857139b9e30978b5b802b3631b5eaf34e8c66",
+                "url": "https://api.github.com/repos/dflydev/dflydev-fig-cookies/zipball/56133681a2d0055f110c1fa51b88c129bc6ce1c9",
+                "reference": "56133681a2d0055f110c1fa51b88c129bc6ce1c9",
                 "shasum": ""
             },
             "require": {
-                "ext-pcre": "*",
-                "php": "^7.2",
-                "psr/http-message": "^1"
+                "php": ">=5.4",
+                "psr/http-message": "~1.0"
             },
             "require-dev": {
-                "doctrine/coding-standard": "^4",
-                "phpstan/phpstan": "^0.10.1",
-                "phpunit/phpunit": "^7.2.6",
-                "squizlabs/php_codesniffer": "^3.3"
+                "codeclimate/php-test-reporter": "~0.1@dev",
+                "phpunit/phpunit": "~4.5",
+                "squizlabs/php_codesniffer": "~2.3"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.0.x-dev"
+                    "dev-master": "1.0.x-dev"
                 }
             },
             "autoload": {
@@ -58,7 +56,7 @@
                 "psr-7",
                 "psr7"
             ],
-            "time": "2018-07-11T06:54:37+00:00"
+            "time": "2015-06-03T01:35:56+00:00"
         },
         {
             "name": "fig/http-message-util",
@@ -2270,7 +2268,7 @@
     "minimum-stability": "stable",
     "stability-flags": [],
     "prefer-stable": false,
-    "prefer-lowest": false,
+    "prefer-lowest": true,
     "platform": {
         "php": "^7.1",
         "ext-swoole": "*"
