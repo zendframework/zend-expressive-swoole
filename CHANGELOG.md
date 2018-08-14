@@ -13,7 +13,11 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Changed
 
-- Nothing.
+- [#9](https://github.com/zendframework/zend-expressive-swoole/pull/9) modifies how the `RequestHandlerSwooleRunner` provides logging
+  output.  Previously, it used `printf()` directly. Now it uses a [PSR-3
+  logger](https://www.php-fig.org/psr/psr-3/) instance, defaulting to an
+  internal implementation that writes to STDOUT. The logger may be provided
+  during instantiation, or via the `Psr\Log\LoggerInterface` service.
 
 ### Deprecated
 
