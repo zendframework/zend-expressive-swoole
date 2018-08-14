@@ -237,6 +237,7 @@ return [
     ],
 ];</code></pre>
 
+<h3 id="providing-additional-swoole-configuration">Providing additional Swoole configuration</h3>
 <p>You can also configure the Swoole HTTP server using an <code>options</code> key to specify
 any accepted Swoole settings. For instance, the following configuration
 demonstrates enabling SSL:</p>
@@ -255,6 +256,43 @@ return [
         ],
     ],
 ];</code></pre>
+
+<h3 id="serving-static-files">Serving static files</h3>
+<p>We also support serving static files. By default, we only serve files with
+extensions in the whitelist defined in the constant
+<code>Zend\Expressive\Swoole\RequestHandlerSwooleRunner::DEFAULT_STATIC_EXTS</code>, which
+is derived from a <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types">list of common web MIME types maintained by Mozilla</a>.
+You can set the <code>document root</code> and the allowed extension types for static file
+resources using the following configuration settings:</p>
+<pre class="codehilite"><code class="language-php">// config/autoload/swoole.local.php
+use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
+
+return [
+    'zend-expressive-swoole' =&gt; [
+        'swoole-http-server' =&gt; [
+            'host' =&gt; '192.168.0.1',
+            'port' =&gt; 9501,
+            'static_files' =&gt; array_merge(
+                RequestHandlerSwooleRunner::DEFAULT_STATIC_EXTS,
+                [ 'foo' =&gt; 'text/foo' ]
+            ),
+            'options' =&gt; [
+                'document_root' =&gt; 'path/to/document/root',
+            ],
+        ],
+    ],
+];</code></pre>
+
+<p>In the above example, we added support for the file extension <code>.foo</code>.</p>
+<blockquote>
+<h3 id="security-warning">Security warning</h3>
+<p>Never add <code>php</code> as an allowed static file extension, as doing so could expose the source
+code of your PHP application!</p>
+<h3 id="document-root">Document root</h3>
+<p>If no <code>document_root</code> configuration is present, the default is to use
+<code>getcwd() . '/public'</code>. If either the configured or default document root
+does not exist, we raise an exception.</p>
+</blockquote>
 
 
 
