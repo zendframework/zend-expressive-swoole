@@ -72,6 +72,8 @@ return [
 ];
 ```
 
+### Providing additional Swoole configuration
+
 You can also configure the Swoole HTTP server using an `options` key to specify
 any accepted Swoole settings. For instance, the following configuration
 demonstrates enabling SSL:
@@ -94,11 +96,14 @@ return [
 ];
 ```
 
-We also support static file by default, serving the extensions type reported
-in `Zend\Expressive\Swoole\RequestHandlerSwooleRunner::DEFAULT_STATIC_EXTS`
-constant array.
-You can set the *document root* and the static extension types using the
-following configuration settings:
+### Serving static files
+
+We also support serving static files. By default, we only serve files with
+extensions in the whitelist defined in the constant
+`Zend\Expressive\Swoole\RequestHandlerSwooleRunner::DEFAULT_STATIC_EXTS`, which
+is derived from a [list of common web MIME types maintained by Mozilla](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types).
+You can set the `document root` and the allowed extension types for static file
+resources using the following configuration settings:
 
 ```php
 // config/autoload/swoole.local.php
@@ -111,19 +116,25 @@ return [
             'port' => 9501,
             'static_files' => array_merge(
                 RequestHandlerSwooleRunner::DEFAULT_STATIC_EXTS,
-                [ 'foo' => 'text/foo' ],
+                [ 'foo' => 'text/foo' ]
             ),
             'options' => [
-                'document_root' => 'path/to/document/root'
-            ]
+                'document_root' => 'path/to/document/root',
+            ],
         ],
     ],
 ];
 ```
 
-In this example, we added a `.foo` as static file to the default extensions.
+In the above example, we added support for the file extension `.foo`.
 
 > ### Security warning
 >
-> Never add `php` as static extension if you want to avoid expose the source
-> code of your PHP application.
+> Never add `php` as an allowed static file extension, as doing so could expose the source
+> code of your PHP application!
+
+> ### Document root
+>
+> If no `document_root` configuration is present, the default is to use
+> `getcwd() . '/public'`. If either the configured or default document root
+> does not exist, we raise an exception.
