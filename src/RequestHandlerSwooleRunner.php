@@ -37,7 +37,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
      * Default static file extensions supported
      * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
      */
-    const DEFAULT_STATIC_EXTS = [
+    public const DEFAULT_STATIC_EXTS = [
         '7z'    => 'application/x-7z-compressed',
         'aac'   => 'audio/aac',
         'arc'   => 'application/octet-stream',
@@ -77,7 +77,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         'pptx'  => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         'rar'   => 'application/x-rar-compressed',
         'rtf'   => 'application/rtf',
-        'swg'   => 'image/svg+xml',
+        'svg'   => 'image/svg+xml',
         'swf'   => 'application/x-shockwave-flash',
         'tar'   => 'application/x-tar',
         'tif'   => 'image/tiff',
@@ -89,14 +89,14 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         'weba'  => 'audio/webm',
         'webm'  => 'video/webm',
         'webp'  => 'image/webp',
-        'woof'  => 'font/woff',
-        'woof2' => 'font/woff2',
+        'woff'  => 'font/woff',
+        'woff2' => 'font/woff2',
         'xhtml' => 'application/xhtml+xml',
         'xls'   => 'application/vnd.ms-excel',
         'xlsx'  => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'xml'   => 'application/xml',
         'xul'   => 'application/vnd.mozilla.xul+xml',
-        'zip'   => 'application/zip'
+        'zip'   => 'application/zip',
     ];
 
     /**
@@ -214,15 +214,15 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         if ($this->getStaticResource($request, $response)) {
             return;
         }
-        $emit = new SwooleEmitter($response);
+        $emitter = new SwooleEmitter($response);
         try {
             $psr7Request = ($this->serverRequestFactory)($request);
         } catch (Throwable $e) {
             // Error in generating the request
-            $this->emitMarshalServerRequestException($emit, $e);
+            $this->emitMarshalServerRequestException($emitter, $e);
             return;
         }
-        $emit->emit($this->handler->handle($psr7Request));
+        $emitter->emit($this->handler->handle($psr7Request));
     }
 
     /**
@@ -237,25 +237,39 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     }
 
     /**
-     * Get a static resource, if any, and set the swoole HTTP response
+     * Get a static resource, if any, and set the swoole HTTP response.
      */
     private function getStaticResource(
         SwooleHttpRequest $request,
         SwooleHttpResponse $response
     ) : bool {
         $staticFile = $this->docRoot . $request->server['request_uri'];
-        if (! isset($this->cacheTypeFile[$staticFile])) {
-            if (! file_exists($staticFile)) {
-                return false;
-            }
-            $type = pathinfo($staticFile, PATHINFO_EXTENSION);
-            if (! isset($this->allowedStatic[$type])) {
-                return false;
-            }
-            $this->cacheTypeFile[$staticFile] = $this->allowedStatic[$type];
+        if (! isset($this->cacheTypeFile[$staticFile])
+            && ! $this->cacheFile($staticFile)
+        ) {
+            return false;
         }
+
         $response->header('Content-Type', $this->cacheTypeFile[$staticFile]);
         $response->sendfile($staticFile);
+        return true;
+    }
+
+    /**
+     * Attempt to cache a static file resource.
+     */
+    private function cacheFile(string $fileName) : bool
+    {
+        $type = pathinfo($fileName, PATHINFO_EXTENSION);
+        if (! isset($this->allowedStatic[$type])) {
+            return false;
+        }
+
+        if (! file_exists($fileName)) {
+            return false;
+        }
+
+        $this->cacheTypeFile[$fileName] = $this->allowedStatic[$type];
         return true;
     }
 }
