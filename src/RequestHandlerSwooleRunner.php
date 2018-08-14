@@ -148,6 +148,10 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
      */
     private $cacheTypeFile = [];
 
+    /**
+     * @throws Exception\InvalidConfigException if the configured or default
+     *     document root does not exist.
+     */
     public function __construct(
         RequestHandlerInterface $handler,
         callable $serverRequestFactory,
