@@ -13,12 +13,14 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\LoggerInterface;
 use Swoole\Http\Server as SwooleHttpServer;
 use Zend\Expressive\ApplicationPipeline;
 use Zend\Expressive\Response\ServerRequestErrorResponseGenerator;
 use Zend\Expressive\Swoole\Exception\InvalidConfigException;
 use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
 use Zend\Expressive\Swoole\RequestHandlerSwooleRunnerFactory;
+use Zend\Expressive\Swoole\StdoutLogger;
 
 class RequestHandlerSwooleRunnerFactoryTest extends TestCase
 {
@@ -55,15 +57,19 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
             ->willReturn([]);
     }
 
-    public function testConstructor()
+    public function configureAbsentLoggerService()
     {
-        $request = new RequestHandlerSwooleRunnerFactory();
-        $this->assertInstanceOf(RequestHandlerSwooleRunnerFactory::class, $request);
+        $this->container
+            ->has(LoggerInterface::class)
+            ->willReturn(false);
+
+        $this->container
+            ->get(LoggerInterface::class)
+            ->shouldNotBeCalled();
     }
 
-    public function testInvoke()
+    public function configureDocumentRoot()
     {
-        $request = new RequestHandlerSwooleRunnerFactory();
         $this->container
             ->get('config')
             ->willReturn([
@@ -75,14 +81,40 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
                     ],
                 ],
             ]);
-        $result = $request($this->container->reveal());
-        $this->assertInstanceOf(RequestHandlerSwooleRunner::class, $result);
     }
 
-    public function testInvokeWithoutDocumentRoot()
+    public function testInvocationWithoutLoggerServiceCreatesInstanceWithDefaultLogger()
     {
-        $request = new RequestHandlerSwooleRunnerFactory();
+        $this->configureAbsentLoggerService();
+        $this->configureDocumentRoot();
+        $factory = new RequestHandlerSwooleRunnerFactory();
+        $runner = $factory($this->container->reveal());
+        $this->assertInstanceOf(RequestHandlerSwooleRunner::class, $runner);
+        $this->assertAttributeInstanceOf(StdoutLogger::class, 'logger', $runner);
+    }
+
+    public function testInvocationWithoutDocumentRootResultsInException()
+    {
+        $this->configureAbsentLoggerService();
+        $factory = new RequestHandlerSwooleRunnerFactory();
         $this->expectException(InvalidConfigException::class);
-        $result = $request($this->container->reveal());
+        $factory($this->container->reveal());
+    }
+
+    public function testFactoryWillUseConfiguredPsr3LoggerWhenPresent()
+    {
+        $this->configureDocumentRoot();
+        $logger = $this->prophesize(LoggerInterface::class)->reveal();
+        $this->container
+            ->has(LoggerInterface::class)
+            ->willReturn(true);
+        $this->container
+            ->get(LoggerInterface::class)
+            ->willReturn($logger);
+
+        $factory = new RequestHandlerSwooleRunnerFactory();
+        $runner = $factory($this->container->reveal());
+        $this->assertInstanceOf(RequestHandlerSwooleRunner::class, $runner);
+        $this->assertAttributeSame($logger, 'logger', $runner);
     }
 }

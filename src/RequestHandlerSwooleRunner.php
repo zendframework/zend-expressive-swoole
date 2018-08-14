@@ -12,6 +12,7 @@ namespace Zend\Expressive\Swoole;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\LoggerInterface;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Http\Response as SwooleHttpResponse;
 use Swoole\Http\Server as SwooleHttpServer;
@@ -19,6 +20,10 @@ use Throwable;
 use Zend\Expressive\Swoole\Exception;
 use Zend\HttpHandlerRunner\Emitter\EmitterInterface;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
+
+use function file_exists;
+use function pathinfo;
+use function sprintf;
 
 /**
  * "Run" a request handler using Swoole.
@@ -100,11 +105,33 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     ];
 
     /**
+     * @var array
+     */
+    private $allowedStatic;
+
+    /**
+     * Cache the file extensions (type) for valid static file
+     *
+     * @var array
+     */
+    private $cacheTypeFile = [];
+
+    /**
+     * @var string
+     */
+    private $docRoot;
+
+    /**
      * A request handler to run as the application.
      *
      * @var RequestHandlerInterface
      */
     private $handler;
+
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
     /**
      * A factory capable of generating an error response in the scenario that
@@ -132,23 +159,6 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     private $swooleHttpServer;
 
     /**
-     * @var array
-     */
-    private $allowedStatic;
-
-    /**
-     * @var string
-     */
-    private $docRoot;
-
-    /**
-     * Cache the file extensions (type) for valid static file
-     *
-     * @var array
-     */
-    private $cacheTypeFile = [];
-
-    /**
      * @throws Exception\InvalidConfigException if the configured or default
      *     document root does not exist.
      */
@@ -157,7 +167,8 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         callable $serverRequestFactory,
         callable $serverRequestErrorResponseGenerator,
         SwooleHttpServer $swooleHttpServer,
-        array $config
+        array $config,
+        LoggerInterface $logger = null
     ) {
         $this->handler = $handler;
 
@@ -177,10 +188,12 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         $this->docRoot = $config['options']['document_root'] ?? getcwd() . '/public';
         if (! file_exists($this->docRoot)) {
             throw new Exception\InvalidConfigException(sprintf(
-                "The document_root %s doesn't exist. Please check your configuration",
+                'The document_root %s does not exist. Please check your configuration.',
                 $this->docRoot
             ));
         }
+
+        $this->logger = $logger ?: new StdoutLogger();
     }
 
     /**
@@ -198,7 +211,10 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
      */
     public function onStart(SwooleHttpServer $server) : void
     {
-        printf("Swoole is running at %s:%s\n", $server->host, $server->port);
+        $this->logger->info('Swoole is running at {host}:{port}', [
+            'host' => $server->host,
+            'port' => $server->port,
+        ]);
     }
 
     /**
@@ -208,17 +224,19 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         SwooleHttpRequest $request,
         SwooleHttpResponse $response
     ) {
-        printf(
-            "%s - %s - %s %s\n",
-            date('Y-m-d H:i:sO', time()),
-            $request->server['remote_addr'],
-            $request->server['request_method'],
-            $request->server['request_uri']
-        );
+        $this->logger->info('{ts} - {remote_addr} - {request_method} {request_uri}', [
+            'ts'             => date('Y-m-d H:i:sO', time()),
+            'remote_addr'    => $request->server['remote_addr'],
+            'request_method' => $request->server['request_method'],
+            'request_uri'    => $request->server['request_uri']
+        ]);
+
         if ($this->getStaticResource($request, $response)) {
             return;
         }
+
         $emitter = new SwooleEmitter($response);
+
         try {
             $psr7Request = ($this->serverRequestFactory)($request);
         } catch (Throwable $e) {
@@ -226,6 +244,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
             $this->emitMarshalServerRequestException($emitter, $e);
             return;
         }
+
         $emitter->emit($this->handler->handle($psr7Request));
     }
 
