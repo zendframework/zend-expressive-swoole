@@ -25,7 +25,9 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#7](https://github.com/zendframework/zend-expressive-swoole/pull/7) fixes how cookies are emitted by the Swoole HTTP server. We now
+  use the server `cookie()` method to set cookies, ensuring that multiple
+  cookies are not squashed into a single `Set-Cookie` header.
 
 ## 0.1.0 - 2018-07-10
 
