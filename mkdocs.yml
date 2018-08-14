@@ -3,6 +3,7 @@ site_dir: docs/html
 pages:
     - index.md
     - Introduction: intro.md
+    - Logging: logging.md
     - "How it works": how_it_works.md
 site_name: 'zend-expressive-swoole'
 site_description: 'Swoole support for Expressive'
