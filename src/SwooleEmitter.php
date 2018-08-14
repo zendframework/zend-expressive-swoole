@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Zend\Expressive\Swoole;
 
+use Dflydev\FigCookies\SetCookies;
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Http\Response as SwooleHttpResponse;
 use Zend\Diactoros\Response\SapiEmitterTrait;
@@ -45,6 +46,7 @@ class SwooleEmitter implements EmitterInterface
         }
         $this->emitStatusCode($response);
         $this->emitHeaders($response);
+        $this->emitCookies($response);
         $this->emitBody($response);
         return true;
     }
@@ -66,7 +68,7 @@ class SwooleEmitter implements EmitterInterface
      */
     private function emitHeaders(ResponseInterface $response)
     {
-        foreach ($response->getHeaders() as $name => $values) {
+        foreach ($response->withoutHeader(SetCookies::SET_COOKIE_HEADER)->getHeaders() as $name => $values) {
             $name = $this->filterHeader($name);
             $this->swooleResponse->header($name, implode(', ', $values));
         }
@@ -91,5 +93,27 @@ class SwooleEmitter implements EmitterInterface
             $this->swooleResponse->write($body->read(static::CHUNK_SIZE));
         }
         $this->swooleResponse->end();
+    }
+
+    /**
+     * Emit the cookies
+     *
+     * @param \Psr\Http\Message\ResponseInterface $response
+     *
+     * @return void
+     */
+    private function emitCookies(ResponseInterface $response): void
+    {
+        foreach (SetCookies::fromResponse($response)->getAll() as $cookie) {
+            $this->swooleResponse->cookie(
+                $cookie->getName(),
+                $cookie->getValue(),
+                $cookie->getExpires(),
+                $cookie->getPath() ?: '/',
+                $cookie->getDomain() ?: '',
+                $cookie->getSecure(),
+                $cookie->getHttpOnly()
+            );
+        }
     }
 }

@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace ZendTest\Expressive\Swoole;
 
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
 use Swoole\Http\Response as SwooleHttpResponse;
 use Zend\Diactoros\Response;
 use Zend\Expressive\Swoole\SwooleEmitter;
@@ -67,7 +68,11 @@ class SwooleEmitterTest extends TestCase
         $response = (new Response())
             ->withStatus(200)
             ->withAddedHeader('Set-Cookie', 'foo=bar')
-            ->withAddedHeader('Set-Cookie', 'bar=baz');
+            ->withAddedHeader('Set-Cookie', 'bar=baz')
+            ->withAddedHeader(
+                'Set-Cookie',
+                'baz=qux; Domain=somecompany.co.uk; Path=/; Expires=Wed, 09 Jun 2021 10:18:14 GMT; Secure; HttpOnly'
+            );
 
         $this->assertTrue($this->emitter->emit($response));
 
@@ -75,7 +80,16 @@ class SwooleEmitterTest extends TestCase
             ->status(200)
             ->shouldHaveBeenCalled();
         $this->swooleResponse
-            ->header('Set-Cookie', 'foo=bar, bar=baz')
+            ->header('Set-Cookie', Argument::any())
+            ->shouldNotBeCalled();
+        $this->swooleResponse
+            ->cookie('foo', 'bar', 0, '/', '', false, false)
+            ->shouldHaveBeenCalled();
+        $this->swooleResponse
+            ->cookie('bar', 'baz', 0, '/', '', false, false)
+            ->shouldHaveBeenCalled();
+        $this->swooleResponse
+            ->cookie('baz', 'qux', 1623233894, '/', 'somecompany.co.uk', true, true)
             ->shouldHaveBeenCalled();
     }
 
