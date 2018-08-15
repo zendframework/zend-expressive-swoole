@@ -10,14 +10,11 @@ declare(strict_types=1);
 namespace Zend\Expressive\Swoole;
 
 use Psr\Container\ContainerInterface;
-use Swoole\Http\Server as SwooleHttpServer;
 
-class SwooleHttpServerFactory
+class ServerFactory
 {
-    const DEFAULT_HOST = '127.0.0.1';
-    const DEFAULT_PORT = 8080;
 
-    public function __invoke(ContainerInterface $container) : SwooleHttpServer
+    public function __invoke(ContainerInterface $container)
     {
         $config = $container->get('config');
         $swooleConfig = $config['zend-expressive-swoole']['swoole-http-server'] ?? null;
@@ -25,11 +22,9 @@ class SwooleHttpServerFactory
         $port = $swooleConfig['port'] ?? static::DEFAULT_PORT;
         $mode = $swooleConfig['mode'] ?? SWOOLE_BASE;
         $protocol = $swooleConfig['protocol'] ?? SWOOLE_SOCK_TCP;
-
-        $server = new SwooleHttpServer($host, $port, $mode, $protocol);
-        if (isset($swooleConfig['options'])) {
-            $server->set($swooleConfig['options']);
-        }
+        $options = $swooleConfig['options'] ?? [];
+        $server = new Server($host, $port, $mode, $protocol, $options);
         return $server;
     }
+
 }
