@@ -37,6 +37,8 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
         $this->server = $this->prophesize(Server::class);
         $this->pidManager = $this->prophesize(PidManager::class);
 
+        $this->logger = $this->prophesize(LoggerInterface::class);
+
         $this->container = $this->prophesize(ContainerInterface::class);
         $this->container
             ->get(ApplicationPipeline::class)
