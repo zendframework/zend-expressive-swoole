@@ -19,7 +19,9 @@ use Swoole\Http\Response as SwooleHttpResponse;
 use Swoole\Http\Server as SwooleHttpServer;
 use Zend\Diactoros\Response;
 use Zend\Expressive\Response\ServerRequestErrorResponseGenerator;
+use Zend\Expressive\Swoole\PidManager;
 use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
+use Zend\Expressive\Swoole\Server;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
 class RequestHandlerSwooleRunnerTest extends TestCase
@@ -33,7 +35,9 @@ class RequestHandlerSwooleRunnerTest extends TestCase
         $this->serverRequestError = function () {
             return $this->prophesize(ServerRequestErrorResponseGenerator::class)->reveal();
         };
-        $this->swooleHttpServer = $this->createMock(SwooleHttpServer::class);
+        $this->server = $this->prophesize(Server::class);
+        $this->server
+        $this->pidManager = $this->prophesize(PidManager::class)->reveal();
         $this->config = [
             'options' => [
                 'document_root' => __DIR__ . '/TestAsset'
@@ -47,8 +51,10 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
-            $this->swooleHttpServer,
-            $this->config
+            $this->server,
+            $this->config,
+            $this->logger,
+            $this->pidManager
         );
         $this->assertInstanceOf(RequestHandlerSwooleRunner::class, $requestHandler);
         $this->assertInstanceOf(RequestHandlerRunner::class, $requestHandler);
@@ -56,24 +62,27 @@ class RequestHandlerSwooleRunnerTest extends TestCase
 
     public function testRun()
     {
-        $this->swooleHttpServer->method('on')
+        $swooleServer = $this->createMock(SwooleHttpServer::class);
+        $swooleServer->method('on')
             ->willReturn(null);
 
-        $this->swooleHttpServer->method('start')
+        $swooleServer->method('start')
             ->willReturn(null);
 
         $requestHandler = new RequestHandlerSwooleRunner(
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
-            $this->swooleHttpServer,
-            $this->config
+            $this->server,
+            $this->config,
+            $this->logger,
+            $this->pidManager
         );
 
-        $this->swooleHttpServer->expects($this->once())
+        $swooleServer->expects($this->once())
             ->method('start');
 
-        $this->swooleHttpServer->expects($this->exactly(2))
+        $swooleServer->expects($this->exactly(2))
             ->method('on');
 
         $requestHandler->run();
@@ -85,11 +94,13 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
-            $this->swooleHttpServer,
-            $this->config
+            $this->server,
+            $this->config,
+            $this->logger,
+            $this->pidManager
         );
 
-        $runner->onStart($this->swooleHttpServer);
+        $runner->onStart($swooleServer = $this->createMock(SwooleHttpServer::class));
         $this->expectOutputString("Swoole is running at :0\n");
     }
 
@@ -110,8 +121,10 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
-            $this->swooleHttpServer,
-            $this->config
+            $this->server,
+            $this->config,
+            $this->logger,
+            $this->pidManager
         );
 
         $request = $this->prophesize(SwooleHttpRequest::class)->reveal();
@@ -143,8 +156,10 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
-            $this->swooleHttpServer,
-            $this->config
+            $this->server,
+            $this->config,
+            $this->logger,
+            $this->pidManager
         );
 
         $request = $this->prophesize(SwooleHttpRequest::class)->reveal();
@@ -173,8 +188,10 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
-            $this->swooleHttpServer,
-            $this->config
+            $this->server,
+            $this->config,
+            $this->logger,
+            $this->pidManager
         );
 
         $reflector = new ReflectionClass($runner);

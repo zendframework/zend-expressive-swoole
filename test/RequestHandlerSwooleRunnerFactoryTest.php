@@ -14,12 +14,13 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
-use Swoole\Http\Server as SwooleHttpServer;
 use Zend\Expressive\ApplicationPipeline;
 use Zend\Expressive\Response\ServerRequestErrorResponseGenerator;
 use Zend\Expressive\Swoole\Exception\InvalidConfigException;
+use Zend\Expressive\Swoole\PidManager;
 use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
 use Zend\Expressive\Swoole\RequestHandlerSwooleRunnerFactory;
+use Zend\Expressive\Swoole\Server;
 use Zend\Expressive\Swoole\StdoutLogger;
 
 class RequestHandlerSwooleRunnerFactoryTest extends TestCase
@@ -33,7 +34,8 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
 
         $this->serverRequestError = $this->prophesize(ServerRequestErrorResponseGenerator::class);
         // used createMock instead of prophesize for issue
-        $this->swooleHttpServer = $this->createMock(SwooleHttpServer::class);
+        $this->server = $this->prophesize(Server::class);
+        $this->pidManager = $this->prophesize(PidManager::class);
 
         $this->container = $this->prophesize(ContainerInterface::class);
         $this->container
@@ -50,8 +52,11 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
                 return $this->serverRequestError->reveal();
             });
         $this->container
-            ->get(SwooleHttpServer::class)
-            ->willReturn($this->swooleHttpServer);
+            ->get(Server::class)
+            ->willReturn($this->server);
+        $this->container
+            ->get(PidManager::class)
+            ->willReturn($this->pidManager->reveal());
         $this->container
             ->get('config')
             ->willReturn([]);

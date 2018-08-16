@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Zend\Expressive\Swoole;
 
 use Psr\Http\Message\ServerRequestInterface;
-use Swoole\Http\Server as SwooleHttpServer;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
 class ConfigProvider

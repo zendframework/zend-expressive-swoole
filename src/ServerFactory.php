@@ -14,6 +14,9 @@ use Psr\Container\ContainerInterface;
 class ServerFactory
 {
 
+    const DEFAULT_HOST = '127.0.0.1';
+    const DEFAULT_PORT = 8080;
+
     public function __invoke(ContainerInterface $container)
     {
         $config = $container->get('config');

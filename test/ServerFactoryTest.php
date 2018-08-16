@@ -11,28 +11,28 @@ namespace ZendTest\Expressive\Swoole;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
-use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Process;
-use Zend\Expressive\Swoole\SwooleHttpServerFactory;
+use Zend\Expressive\Swoole\ServerFactory;
 
-class SwooleHttpServerFactoryTest extends TestCase
+class ServerFactoryTest extends TestCase
 {
     public function setUp()
     {
         $this->container = $this->prophesize(ContainerInterface::class);
-        $this->swooleFactory = new SwooleHttpServerFactory();
+        $this->serverFactory = new ServerFactory();
     }
 
     public function testConstructor()
     {
-        $this->assertInstanceOf(SwooleHttpServerFactory::class, $this->swooleFactory);
+        $this->assertInstanceOf(ServerFactory::class, $this->serverFactory);
     }
 
     public function testInvokeWithoutConfig()
     {
         $process = new Process(function ($worker) {
-            $server = ($this->swooleFactory)($this->container->reveal());
-            $worker->write(sprintf('%s:%d', $server->host, $server->port));
+            $server = ($this->serverFactory)($this->container->reveal());
+            $swooleServer = $server->createSwooleServer();
+            $worker->write(sprintf('%s:%d', $swooleServer->host, $swooleServer->port));
             $worker->exit(0);
         }, true, 1);
         $process->start();
@@ -40,7 +40,7 @@ class SwooleHttpServerFactoryTest extends TestCase
         Process::wait(true);
 
         $this->assertSame(
-            sprintf('%s:%d', SwooleHttpServerFactory::DEFAULT_HOST, SwooleHttpServerFactory::DEFAULT_PORT),
+            sprintf('%s:%d', ServerFactory::DEFAULT_HOST, ServerFactory::DEFAULT_PORT),
             $data
         );
     }
@@ -60,8 +60,9 @@ class SwooleHttpServerFactoryTest extends TestCase
             ->willReturn($config);
 
         $process = new Process(function ($worker) {
-            $server = ($this->swooleFactory)($this->container->reveal());
-            $worker->write(sprintf('%s:%d', $server->host, $server->port));
+            $server = ($this->serverFactory)($this->container->reveal());
+            $swooleServer = $server->createSwooleServer();
+            $worker->write(sprintf('%s:%d', $swooleServer->host, $swooleServer->port));
             $worker->exit(0);
         }, true, 1);
         $process->start();
