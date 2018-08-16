@@ -15,7 +15,7 @@ use Psr\Log\LoggerInterface;
 class PidManagerFactory
 {
 
-    public function __invoke(ContainerInterface $container)
+    public function __invoke(ContainerInterface $container) : PidManager
     {
         $pidFile = '/tmp/zend-swoole.pid';
         $logger = $container->has(LoggerInterface::class)

@@ -18,16 +18,14 @@ class PidManager
     /**
      * @var \Psr\Log\LoggerInterface
      */
-    protected $logger;
+    private $logger;
 
-    protected $pidFile = '';
+    private $pidFile = '';
 
     /**
      * PidManager constructor.
-     *
-     * @param \Psr\Log\LoggerInterface $logger
      */
-    public function __construct($pidFile, LoggerInterface $logger = null)
+    public function __construct(string $pidFile, LoggerInterface $logger = null)
     {
         $this->pidFile = $pidFile;
         $this->logger = $logger ? : new StdoutLogger();
@@ -36,20 +34,27 @@ class PidManager
 
     /**
      * Write master pid and manager pid to pid file
+     *
+     * @throws \RuntimeException When $pidFile is not writable
      */
-    public function write(int $masterPid, int $managerPid)
+    public function write(int $masterPid, int $managerPid) : void
     {
-        file_put_contents($this->getPidFile(), $masterPid . ',' . $managerPid);
+        $pidFile = $this->getPidFile();
+        if (! is_writable($pidFile)) {
+            throw new \RuntimeException(sprintf('Pid file %s is not writable', $pidFile));
+        }
+        file_put_contents($pidFile, $masterPid . ',' . $managerPid);
     }
 
     /**
      * Read master pid and manager pid from pid file
      */
-    public function read(): array
+    public function read() : array
     {
         $pids = [];
-        if (file_exists($this->getPidFile())) {
-            $content = file_get_contents($this->getPidFile());
+        $pidFile = $this->getPidFile();
+        if (is_readable($pidFile)) {
+            $content = file_get_contents($pidFile);
             $pids = explode(',', $content);
         }
         return $pids;
@@ -58,35 +63,21 @@ class PidManager
     /**
      * Delete pid file
      */
-    public function delete(): bool
+    public function delete() : bool
     {
-        if ($this->exist()) {
-            return unlink($this->getPidFile());
+        $pidFile = $this->getPidFile();
+        if (is_writable($pidFile)) {
+            return unlink($pidFile);
         }
         return false;
     }
 
-    /**
-     * Is pid file exist ?
-     */
-    public function exist(): bool
-    {
-        return file_exists($this->getPidFile());
-    }
-
-    /**
-     * @return string
-     */
-    public function getPidFile(): string
+    public function getPidFile() : string
     {
         return $this->pidFile;
     }
 
-    /**
-     * @param string $pidFile
-     * @return PidManager
-     */
-    public function setPidFile($pidFile)
+    public function setPidFile(string $pidFile) : self
     {
         $this->pidFile = $pidFile;
         return $this;

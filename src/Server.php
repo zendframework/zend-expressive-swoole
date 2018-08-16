@@ -17,35 +17,48 @@ class Server
     /**
      * @var string
      */
-    protected $host;
+    private $host;
 
     /**
      * @var int
      */
-    protected $port;
+    private $port;
 
     /**
      * @var int
      */
-    protected $mode;
+    private $mode;
 
     /**
      * @var int
      */
-    protected $protocol;
+    private $protocol;
 
     /**
      * @var array
      */
-    protected $options = [];
+    private $options = [];
 
     /**
      * @var SwooleHttpServer
      */
-    protected $swooleServer;
+    private $swooleServer;
 
-    public function __construct(string $host, int $port, int $mode, int $protocol, array $options)
+    /**
+     * @see https://www.swoole.co.uk/docs/modules/swoole-server-methods#swoole_server-__construct
+     * @see https://www.swoole.co.uk/docs/modules/swoole-server/predefined-constants for $mode and $protocol constant
+     */
+    public function __construct(string $host, int $port, int $mode, int $protocol, array $options = [])
     {
+        if ($port < 1 || $port > 65535) {
+            throw new \InvalidArgumentException('Invalid port');
+        }
+        if (! \in_array($mode, [SWOOLE_BASE, SWOOLE_PROCESS ], true)) {
+            throw new \InvalidArgumentException('Invalid server mode');
+        }
+        if (! \in_array($protocol, [SWOOLE_SOCK_TCP, SWOOLE_SOCK_TCP6, SWOOLE_SOCK_UDP, SWOOLE_SOCK_UDP6, SWOOLE_UNIX_DGRAM, SWOOLE_UNIX_STREAM], true)) {
+            throw new \InvalidArgumentException('Invalid server protocol');
+        }
         $this->host = $host;
         $this->port = $port;
         $this->mode = $mode;
@@ -55,25 +68,23 @@ class Server
 
     /**
      * Create a swoole server instance
+     *
+     * @see https://www.swoole.co.uk/docs/modules/swoole-server-methods#swoole_server-set for server options
      */
     public function createSwooleServer(array $appendOptions = []): SwooleHttpServer
     {
-        if (! $this->swooleServer) {
-            $server = new SwooleHttpServer($this->host, $this->port, $this->mode, $this->protocol);
-            if ($options = array_replace($this->options, $appendOptions)) {
-                $server->set($options);
-            }
-            $this->setSwooleServer($server);
+        if ($this->swooleServer) {
+            return $this->swooleServer;
         }
-        return $this->getSwooleServer();
-    }
-
-    public function getSwooleServer(): SwooleHttpServer
-    {
+        $this->swooleServer = new SwooleHttpServer($this->host, $this->port, $this->mode, $this->protocol);
+        $options = array_replace($this->options, $appendOptions);
+        if ([] !== $options) {
+            $this->swooleServer->set($options);
+        }
         return $this->swooleServer;
     }
 
-    public function setSwooleServer(SwooleHttpServer $swooleServer)
+    public function setSwooleServer(SwooleHttpServer $swooleServer) : self
     {
         $this->swooleServer = $swooleServer;
         return $this;

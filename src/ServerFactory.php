@@ -17,7 +17,7 @@ class ServerFactory
     const DEFAULT_HOST = '127.0.0.1';
     const DEFAULT_PORT = 8080;
 
-    public function __invoke(ContainerInterface $container)
+    public function __invoke(ContainerInterface $container) : Server
     {
         $config = $container->get('config');
         $swooleConfig = $config['zend-expressive-swoole']['swoole-http-server'] ?? null;
@@ -26,7 +26,6 @@ class ServerFactory
         $mode = $swooleConfig['mode'] ?? SWOOLE_BASE;
         $protocol = $swooleConfig['protocol'] ?? SWOOLE_SOCK_TCP;
         $options = $swooleConfig['options'] ?? [];
-        $server = new Server($host, $port, $mode, $protocol, $options);
-        return $server;
+        return new Server($host, $port, $mode, $protocol, $options);
     }
 }

@@ -229,9 +229,9 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
             case 'start':
             default:
                 $this->startServer([
-                    'daemonize' => $opts->getOption('daemonize') ? (bool)$opts->getOption('daemonize') : false,
-                    'dispatch_mode' => $opts->getOption('dispatch_mode') ? (int)$opts->getOption('dispatch_mode') : 3,
-                    'worker_num' => $opts->getOption('worker_num') ? (int)$opts->getOption('worker_num') : 1,
+                    'daemonize' => $opts->getOption('daemonize') ? (bool) $opts->getOption('daemonize') : false,
+                    'dispatch_mode' => $opts->getOption('dispatch_mode') ? (int) $opts->getOption('dispatch_mode') : 3,
+                    'worker_num' => $opts->getOption('worker_num') ? (int) $opts->getOption('worker_num') : 1,
                 ]);
                 break;
         }
@@ -242,7 +242,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
      *
      * @param array $options Swoole server options
      */
-    public function startServer(array $options = [])
+    public function startServer(array $options = []) : void
     {
         $swooleServer = $this->server->createSwooleServer($options);
         $swooleServer->on('start', [$this, 'onStart']);
@@ -253,7 +253,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     /**
      * Stop swoole server
      */
-    public function stopServer()
+    public function stopServer() : void
     {
         if (! $this->isRunning()) {
             $this->logger->info('Server is not running yet');
@@ -264,21 +264,21 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         $result = SwooleProcess::kill((int)$masterPid);
         $startTime = time();
         while (! $result) {
-            if (SwooleProcess::kill((int)$masterPid, 0)) {
-                if (time() - $startTime >= 60) {
-                    $result = false;
-                    break;
-                }
-                usleep(10000);
+            if (! SwooleProcess::kill((int)$masterPid, 0)) {
                 continue;
             }
+            if (time() - $startTime >= 60) {
+                $result = false;
+                break;
+            }
+            usleep(10000);
         }
         if (! $result) {
             $this->logger->info('Server stop failure');
-        } else {
-            $this->pidManager->delete();
-            $this->logger->info('Server stopped');
+            return;
         }
+        $this->pidManager->delete();
+        $this->logger->info('Server stopped');
     }
 
     /**
@@ -314,7 +314,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     public function onRequest(
         SwooleHttpRequest $request,
         SwooleHttpResponse $response
-    ) {
+    ) : void {
         $this->logger->info('{ts} - {remote_addr} - {request_method} {request_uri}', [
             'ts'             => date('Y-m-d H:i:sO', time()),
             'remote_addr'    => $request->server['remote_addr'],
