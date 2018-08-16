@@ -125,9 +125,13 @@ class RequestHandlerSwooleRunnerTest extends TestCase
     {
         $content = 'Content!';
         $contentType = 'text/plain';
+        $etag = 'W/"5b757e4a-1d54"';
+        $lastModified = 'Thursday 16-Aug-18 13:38:18 GMT';
         $psr7Response = (new Response())
             ->withStatus(200)
-            ->withAddedHeader('Content-Type', $contentType);
+            ->withAddedHeader('Content-Type', $contentType)
+            ->withAddedHeader('ETag', $etag)
+            ->withAddedHeader('Last-Modified', $lastModified);
         $psr7Response->getBody()->write($content);
 
         $this->requestHandler
@@ -163,6 +167,12 @@ class RequestHandlerSwooleRunnerTest extends TestCase
         $response
             ->header('Content-Type', $contentType)
             ->shouldHaveBeenCalled();
+        $response
+            ->header('ETag', $etag)
+            ->shouldHaveBeenCalled();
+        $response
+            ->header('Last-Modified', $lastModified)
+            ->shouldHaveBeenCalled();
 
         $this->expectOutputRegex("/127\.0\.0\.1 - GET \/\R$/");
     }
@@ -179,7 +189,7 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             $this->pidManager
         );
 
-        $request = $this->prophesize(SwooleHttpRequest::class)->reveal();
+        $request = $this->prophesize(SwooleHttpRequest::class);
         $request->server = [
             'request_uri'    => '/image.png',
             'remote_addr'    => '127.0.0.1',
@@ -187,10 +197,16 @@ class RequestHandlerSwooleRunnerTest extends TestCase
         ];
         $response = $this->prophesize(SwooleHttpResponse::class);
 
-        $runner->onRequest($request, $response->reveal());
+        $runner->onRequest($request->reveal(), $response->reveal());
 
         $response
             ->header('Content-Type', 'image/png')
+            ->shouldHaveBeenCalled();
+        $response
+            ->header('ETag', 'W/"5b757e4a-1d54"')
+            ->shouldHaveBeenCalled();
+        $response
+            ->header('Last-Modified', 'Thursday 16-Aug-18 13:38:18 GMT')
             ->shouldHaveBeenCalled();
         $response
             ->sendfile(__DIR__ . '/TestAsset/image.png')
@@ -215,7 +231,7 @@ class RequestHandlerSwooleRunnerTest extends TestCase
         $cacheTypeFile = $reflector->getProperty('cacheTypeFile');
         $cacheTypeFile->setAccessible(true);
 
-        $request = $this->prophesize(SwooleHttpRequest::class)->reveal();
+        $request = $this->prophesize(SwooleHttpRequest::class);
         $request->server = [
             'request_uri'    => '/image.png',
             'remote_addr'    => '127.0.0.1',
@@ -223,7 +239,7 @@ class RequestHandlerSwooleRunnerTest extends TestCase
         ];
         $response = $this->prophesize(SwooleHttpResponse::class);
 
-        $runner->onRequest($request, $response->reveal());
+        $runner->onRequest($request->reveal(), $response->reveal());
 
         $this->expectOutputRegex("/127\.0\.0\.1 - GET \/image\.png\R$/");
         $this->assertEquals(

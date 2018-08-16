@@ -370,7 +370,35 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
             return false;
         }
 
-        $response->header('Content-Type', $this->cacheTypeFile[$staticFile]);
+        $response->header('Content-Type', $this->cacheTypeFile[$staticFile], true);
+
+        // Handle ETag and Last-Modified header
+        $lastModifiedTime = filemtime($staticFile) ?? 0;
+        $fileSize = filesize($staticFile) ?? 0;
+        $lastModifiedTimeDateFormatted = gmstrftime ('%A %d-%b-%y %T %Z', $lastModifiedTime);
+        $etag = '';
+
+        $response->header('Last-Modified', $lastModifiedTimeDateFormatted, true);
+        if ($lastModifiedTime && $fileSize) {
+            $etag = 'W/"' . dechex($lastModifiedTime) . '-' . dechex($fileSize) . '"';
+            $response->header('ETag', $etag, true);
+        }
+        $ifMatch = $request->header['if-match'] ?? '';
+        $ifNoneMatch = $request->header['if-none-match'] ?? '';
+        $clientEtag = $ifMatch ?: $ifNoneMatch;
+        if ($clientEtag && $etag && $clientEtag === $etag) {
+            $response->status(304);
+            $response->end();
+            return true;
+        }
+
+        $ifModifiedSince = $request->header['if-modified-since'] ?? '';
+        if ($ifModifiedSince && $ifModifiedSince === $lastModifiedTimeDateFormatted) {
+            $response->status(304);
+            $response->end();
+            return true;
+        }
+
         $response->sendfile($staticFile);
         return true;
     }
