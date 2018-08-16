@@ -36,7 +36,6 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             return $this->prophesize(ServerRequestErrorResponseGenerator::class)->reveal();
         };
         $this->server = $this->prophesize(Server::class);
-        $this->server
         $this->pidManager = $this->prophesize(PidManager::class)->reveal();
         $this->config = [
             'options' => [
