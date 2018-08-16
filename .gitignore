@@ -5,11 +5,4 @@
 /vendor/
 /zf-mkdoc-theme.tgz
 /zf-mkdoc-theme/
-/.idea/composerJson.xml
-/.idea/encodings.xml
-/.idea/misc.xml
-/.idea/modules.xml
-/.idea/php.xml
-/.idea/vcs.xml
-/.idea/workspace.xml
-/.idea/zend-expressive-swoole.iml
+/.idea/
