@@ -221,7 +221,8 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
             'dispatch_mode=i' => 'set dispatch_mode',
         ]);
         $args = $opts->getArguments();
-        switch ($args[0]) {
+        $action = $args[0] ?? null;
+        switch ($action) {
             case 'stop':
                 $this->stopServer();
                 break;

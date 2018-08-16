@@ -90,8 +90,8 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             ->method('on');
 
         // Clear command options, like phpunit --colors=always
-        $_SERVER['argc'] = 0;
-        $_SERVER['argv'] = [];
+        $_SERVER['argv'] = [$_SERVER['argv'][0]];
+        $_SERVER['argc'] = 1;
         $requestHandler->run();
     }
 
