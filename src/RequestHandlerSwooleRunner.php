@@ -137,11 +137,15 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     private $logger;
 
     /**
+     * A manager to handle pid about the application.
+     *
      * @var \Zend\Expressive\Swoole\PidManager
      */
     private $pidManager;
 
     /**
+     * A server manager for swoole server
+     *
      * @var \Zend\Expressive\Swoole\Server
      */
     private $server;
@@ -234,6 +238,8 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
 
     /**
      * Start swoole server
+     *
+     * @param array $options Swoole server options
      */
     public function startServer(array $options = [])
     {
