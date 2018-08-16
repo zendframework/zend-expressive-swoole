@@ -29,5 +29,4 @@ class ServerFactory
         $server = new Server($host, $port, $mode, $protocol, $options);
         return $server;
     }
-
 }

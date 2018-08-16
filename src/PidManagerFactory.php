@@ -23,5 +23,4 @@ class PidManagerFactory
             : null;
         return new PidManager($pidFile, $logger);
     }
-
 }

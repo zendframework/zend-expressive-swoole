@@ -91,5 +91,4 @@ class PidManager
         $this->pidFile = $pidFile;
         return $this;
     }
-
 }

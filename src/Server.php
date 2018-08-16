@@ -78,5 +78,4 @@ class Server
         $this->swooleServer = $swooleServer;
         return $this;
     }
-
 }
