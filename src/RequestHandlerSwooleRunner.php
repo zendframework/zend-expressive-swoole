@@ -290,10 +290,9 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         if ($managerPid) {
             // Swoole process mode
             return $masterPid && $managerPid && SwooleProcess::kill((int)$managerPid, 0);
-        } else {
-            // Swoole base mode, no manager process
-            return $masterPid && SwooleProcess::kill((int)$masterPid, 0);
         }
+        // Swoole base mode, no manager process
+        return $masterPid && SwooleProcess::kill((int)$masterPid, 0);
     }
 
     /**
