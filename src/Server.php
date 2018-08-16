@@ -56,7 +56,14 @@ class Server
         if (! \in_array($mode, [SWOOLE_BASE, SWOOLE_PROCESS ], true)) {
             throw new \InvalidArgumentException('Invalid server mode');
         }
-        if (! \in_array($protocol, [SWOOLE_SOCK_TCP, SWOOLE_SOCK_TCP6, SWOOLE_SOCK_UDP, SWOOLE_SOCK_UDP6, SWOOLE_UNIX_DGRAM, SWOOLE_UNIX_STREAM], true)) {
+        if (! \in_array($protocol, [
+            SWOOLE_SOCK_TCP,
+            SWOOLE_SOCK_TCP6,
+            SWOOLE_SOCK_UDP,
+            SWOOLE_SOCK_UDP6,
+            SWOOLE_UNIX_DGRAM,
+            SWOOLE_UNIX_STREAM
+        ], true)) {
             throw new \InvalidArgumentException('Invalid server protocol');
         }
         $this->host = $host;
