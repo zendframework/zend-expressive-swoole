@@ -35,9 +35,12 @@ class RequestHandlerSwooleRunnerTest extends TestCase
         $this->serverRequestError = function () {
             return $this->prophesize(ServerRequestErrorResponseGenerator::class)->reveal();
         };
-        $server = $this->createMock(Server::class);
-        $server->method('createSwooleServer')->willReturn($this->createMock(SwooleHttpServer::class));
-        $this->server = $server;
+        $server = $this->prophesize(Server::class);
+        $server->createSwooleServer([
+            'daemonize' => false,
+            'worker_num' => 1
+        ])->willReturn($this->createMock(SwooleHttpServer::class));
+        $this->server = $server->reveal();
 
         $this->logger = null;
 
@@ -66,7 +69,10 @@ class RequestHandlerSwooleRunnerTest extends TestCase
 
     public function testRun()
     {
-        $swooleServer = $this->server->createSwooleServer();
+        $swooleServer = $this->server->createSwooleServer([
+            'daemonize' => false,
+            'worker_num' => 1
+        ]);
         $swooleServer->method('on')
             ->willReturn(null);
 

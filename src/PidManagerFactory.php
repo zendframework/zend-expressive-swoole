@@ -12,12 +12,16 @@ namespace Zend\Expressive\Swoole;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
+use function sys_get_temp_dir;
+
 class PidManagerFactory
 {
 
     public function __invoke(ContainerInterface $container) : PidManager
     {
-        $pidFile = '/tmp/zend-swoole.pid';
+        $config = $container->get('config');
+        $defaultPidFile = sys_get_temp_dir() . '/zend-swoole.pid';
+        $pidFile = $config['zend-expressive-swoole']['swoole-http-server']['options']['pid_file'] ?: $defaultPidFile;
         $logger = $container->has(LoggerInterface::class)
             ? $container->get(LoggerInterface::class)
             : null;

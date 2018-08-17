@@ -22,11 +22,6 @@ class ServerFactoryTest extends TestCase
         $this->serverFactory = new ServerFactory();
     }
 
-    public function testConstructor()
-    {
-        $this->assertInstanceOf(ServerFactory::class, $this->serverFactory);
-    }
-
     public function testInvokeWithoutConfig()
     {
         $process = new Process(function ($worker) {
@@ -70,5 +65,48 @@ class ServerFactoryTest extends TestCase
         Process::wait(true);
 
         $this->assertSame('localhost:9501', $data);
+    }
+
+    public function testInvokeWithOptions()
+    {
+        $host = 'localhost';
+        $port = 9501;
+        $options = [
+            'daemonize' => false,
+            'worker_num' => 1,
+            'dispatch_mode' => 3,
+        ];
+        $config = [
+            'zend-expressive-swoole' => [
+                'swoole-http-server' => [
+                    'host' => $host,
+                    'port' => $port,
+                    'options' => $options,
+                ]
+            ]
+        ];
+        $this->container
+            ->get('config')
+            ->willReturn($config);
+
+        $process = new Process(function ($worker) {
+            $server = ($this->serverFactory)($this->container->reveal());
+            $swooleServer = $server->createSwooleServer();
+            $worker->write(serialize([
+                'host' => $swooleServer->host,
+                'port' => $swooleServer->port,
+                'options' => $swooleServer->setting,
+            ]));
+            $worker->exit(0);
+        }, true, 1);
+        $process->start();
+        $data = unserialize($process->read());
+        Process::wait(true);
+
+        $this->assertSame([
+            'host' => $host,
+            'port' => $port,
+            'options' => $options,
+        ], $data);
     }
 }

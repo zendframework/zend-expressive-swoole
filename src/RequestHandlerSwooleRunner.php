@@ -139,14 +139,14 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     /**
      * A manager to handle pid about the application.
      *
-     * @var \Zend\Expressive\Swoole\PidManager
+     * @var PidManager
      */
     private $pidManager;
 
     /**
      * A server manager for swoole server
      *
-     * @var \Zend\Expressive\Swoole\Server
+     * @var Server
      */
     private $server;
 
@@ -206,7 +206,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
             ));
         }
 
-        $this->logger = $logger ? : new StdoutLogger();
+        $this->logger = $logger ?: new StdoutLogger();
         $this->pidManager = $pidManager;
     }
 
@@ -216,9 +216,8 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     public function run() : void
     {
         $opts = new Getopt([
-            'daemonize|d'  => 'daemonize the swoole server process',
-            'worker_num|n=i' => 'set worker nums',
-            'dispatch_mode=i' => 'set dispatch_mode',
+            'd|daemonize'  => 'Daemonize the swoole server process',
+            'n|worker_num|num_worker=i' => 'The number of the worker process.',
         ]);
         $args = $opts->getArguments();
         $action = $args[0] ?? null;
@@ -230,7 +229,6 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
             default:
                 $this->startServer([
                     'daemonize' => $opts->getOption('daemonize') ? (bool) $opts->getOption('daemonize') : false,
-                    'dispatch_mode' => $opts->getOption('dispatch_mode') ? (int) $opts->getOption('dispatch_mode') : 3,
                     'worker_num' => $opts->getOption('worker_num') ? (int) $opts->getOption('worker_num') : 1,
                 ]);
                 break;
@@ -261,10 +259,10 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         }
         [$masterPid, ] = $this->pidManager->read();
         $this->logger->info('Server stopping ...');
-        $result = SwooleProcess::kill((int)$masterPid);
+        $result = SwooleProcess::kill((int) $masterPid);
         $startTime = time();
         while (! $result) {
-            if (! SwooleProcess::kill((int)$masterPid, 0)) {
+            if (! SwooleProcess::kill((int) $masterPid, 0)) {
                 continue;
             }
             if (time() - $startTime >= 60) {
@@ -289,10 +287,10 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         [$masterPid, $managerPid] = $this->pidManager->read();
         if ($managerPid) {
             // Swoole process mode
-            return $masterPid && $managerPid && SwooleProcess::kill((int)$managerPid, 0);
+            return $masterPid && $managerPid && SwooleProcess::kill((int) $managerPid, 0);
         }
         // Swoole base mode, no manager process
-        return $masterPid && SwooleProcess::kill((int)$masterPid, 0);
+        return $masterPid && SwooleProcess::kill((int) $masterPid, 0);
     }
 
     /**

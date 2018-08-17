@@ -10,9 +10,33 @@ declare(strict_types=1);
 namespace Zend\Expressive\Swoole;
 
 use Swoole\Http\Server as SwooleHttpServer;
+use Zend\Expressive\Swoole\Exception\InvalidArgumentException;
+
+use function in_array;
+use function array_replace;
 
 class Server
 {
+
+    /**
+     * Swoole server supported modes
+     */
+    const MODES = [
+        SWOOLE_BASE,
+        SWOOLE_PROCESS
+    ];
+
+    /**
+     * Swoole server supported protocols
+     */
+    const PROTOCOLS = [
+        SWOOLE_SOCK_TCP,
+        SWOOLE_SOCK_TCP6,
+        SWOOLE_SOCK_UDP,
+        SWOOLE_SOCK_UDP6,
+        SWOOLE_UNIX_DGRAM,
+        SWOOLE_UNIX_STREAM
+    ];
 
     /**
      * @var string
@@ -51,20 +75,13 @@ class Server
     public function __construct(string $host, int $port, int $mode, int $protocol, array $options = [])
     {
         if ($port < 1 || $port > 65535) {
-            throw new \InvalidArgumentException('Invalid port');
+            throw new InvalidArgumentException('Invalid port');
         }
-        if (! \in_array($mode, [SWOOLE_BASE, SWOOLE_PROCESS ], true)) {
-            throw new \InvalidArgumentException('Invalid server mode');
+        if (! in_array($mode, static::MODES, true)) {
+            throw new InvalidArgumentException('Invalid server mode');
         }
-        if (! \in_array($protocol, [
-            SWOOLE_SOCK_TCP,
-            SWOOLE_SOCK_TCP6,
-            SWOOLE_SOCK_UDP,
-            SWOOLE_SOCK_UDP6,
-            SWOOLE_UNIX_DGRAM,
-            SWOOLE_UNIX_STREAM
-        ], true)) {
-            throw new \InvalidArgumentException('Invalid server protocol');
+        if (! in_array($protocol, static::PROTOCOLS, true)) {
+            throw new InvalidArgumentException('Invalid server protocol');
         }
         $this->host = $host;
         $this->port = $port;
@@ -89,11 +106,5 @@ class Server
             $this->swooleServer->set($options);
         }
         return $this->swooleServer;
-    }
-
-    public function setSwooleServer(SwooleHttpServer $swooleServer) : self
-    {
-        $this->swooleServer = $swooleServer;
-        return $this;
     }
 }

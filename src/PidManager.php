@@ -9,26 +9,34 @@ declare(strict_types=1);
 
 namespace Zend\Expressive\Swoole;
 
-use function file_put_contents;
 use Psr\Log\LoggerInterface;
+use Zend\Expressive\Swoole\Exception\RuntimeException;
+
+use function file_put_contents;
+use function file_get_contents;
+use function sprintf;
+use function explode;
+use function is_readable;
+use function is_writable;
+use function unlink;
 
 class PidManager
 {
 
     /**
-     * @var \Psr\Log\LoggerInterface
+     * @var LoggerInterface
      */
     private $logger;
 
+    /**
+     * @var string
+     */
     private $pidFile = '';
 
-    /**
-     * PidManager constructor.
-     */
     public function __construct(string $pidFile, LoggerInterface $logger = null)
     {
         $this->pidFile = $pidFile;
-        $this->logger = $logger ? : new StdoutLogger();
+        $this->logger = $logger ?: new StdoutLogger();
     }
 
 
@@ -39,22 +47,22 @@ class PidManager
      */
     public function write(int $masterPid, int $managerPid) : void
     {
-        $pidFile = $this->getPidFile();
-        if (! is_writable($pidFile)) {
-            throw new \RuntimeException(sprintf('Pid file %s is not writable', $pidFile));
+        if (! is_writable($this->pidFile)) {
+            throw new RuntimeException(sprintf('Pid file %s is not writable', $this->pidFile));
         }
-        file_put_contents($pidFile, $masterPid . ',' . $managerPid);
+        file_put_contents($this->pidFile, $masterPid . ',' . $managerPid);
     }
 
     /**
      * Read master pid and manager pid from pid file
+     *
+     * @return array [masterPid, managerPid]
      */
     public function read() : array
     {
         $pids = [];
-        $pidFile = $this->getPidFile();
-        if (is_readable($pidFile)) {
-            $content = file_get_contents($pidFile);
+        if (is_readable($this->pidFile)) {
+            $content = file_get_contents($this->pidFile);
             $pids = explode(',', $content);
         }
         return $pids;
@@ -65,21 +73,9 @@ class PidManager
      */
     public function delete() : bool
     {
-        $pidFile = $this->getPidFile();
-        if (is_writable($pidFile)) {
-            return unlink($pidFile);
+        if (is_writable($this->pidFile)) {
+            return unlink($this->pidFile);
         }
         return false;
-    }
-
-    public function getPidFile() : string
-    {
-        return $this->pidFile;
-    }
-
-    public function setPidFile(string $pidFile) : self
-    {
-        $this->pidFile = $pidFile;
-        return $this;
     }
 }
