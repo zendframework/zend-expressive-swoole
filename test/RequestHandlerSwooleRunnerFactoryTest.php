@@ -20,7 +20,7 @@ use Zend\Expressive\Swoole\Exception\InvalidConfigException;
 use Zend\Expressive\Swoole\PidManager;
 use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
 use Zend\Expressive\Swoole\RequestHandlerSwooleRunnerFactory;
-use Zend\Expressive\Swoole\Server;
+use Zend\Expressive\Swoole\ServerFactory;
 use Zend\Expressive\Swoole\StdoutLogger;
 
 class RequestHandlerSwooleRunnerFactoryTest extends TestCase
@@ -33,8 +33,7 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
         $this->serverRequest = $this->prophesize(ServerRequestInterface::class);
 
         $this->serverRequestError = $this->prophesize(ServerRequestErrorResponseGenerator::class);
-        // used createMock instead of prophesize for issue
-        $this->server = $this->prophesize(Server::class);
+        $this->serverFactory = $this->prophesize(ServerFactory::class);
         $this->pidManager = $this->prophesize(PidManager::class);
 
         $this->logger = $this->prophesize(LoggerInterface::class);
@@ -42,7 +41,7 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
         $this->container = $this->prophesize(ContainerInterface::class);
         $this->container
             ->get(ApplicationPipeline::class)
-            ->willReturn($this->applicationPipeline->reveal());
+            ->will([$this->applicationPipeline, 'reveal']);
         $this->container
             ->get(ServerRequestInterface::class)
             ->willReturn(function () {
@@ -51,14 +50,14 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
         $this->container
             ->get(ServerRequestErrorResponseGenerator::class)
             ->willReturn(function () {
-                return $this->serverRequestError->reveal();
+                $this->serverRequestError->reveal();
             });
         $this->container
-            ->get(Server::class)
-            ->willReturn($this->server);
+            ->get(ServerFactory::class)
+            ->will([$this->serverFactory, 'reveal']);
         $this->container
             ->get(PidManager::class)
-            ->willReturn($this->pidManager->reveal());
+            ->will([$this->pidManager, 'reveal']);
         $this->container
             ->get('config')
             ->willReturn([]);
@@ -111,17 +110,16 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
     public function testFactoryWillUseConfiguredPsr3LoggerWhenPresent()
     {
         $this->configureDocumentRoot();
-        $logger = $this->prophesize(LoggerInterface::class)->reveal();
         $this->container
             ->has(LoggerInterface::class)
             ->willReturn(true);
         $this->container
             ->get(LoggerInterface::class)
-            ->willReturn($logger);
+            ->will([$this->logger, 'reveal']);
 
         $factory = new RequestHandlerSwooleRunnerFactory();
         $runner = $factory($this->container->reveal());
         $this->assertInstanceOf(RequestHandlerSwooleRunner::class, $runner);
-        $this->assertAttributeSame($logger, 'logger', $runner);
+        $this->assertAttributeSame($this->logger->reveal(), 'logger', $runner);
     }
 }

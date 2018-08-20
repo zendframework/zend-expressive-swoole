@@ -9,9 +9,6 @@ declare(strict_types=1);
 
 namespace Zend\Expressive\Swoole;
 
-use Psr\Log\LoggerInterface;
-use Zend\Expressive\Swoole\Exception\RuntimeException;
-
 use function file_put_contents;
 use function file_get_contents;
 use function sprintf;
@@ -22,33 +19,25 @@ use function unlink;
 
 class PidManager
 {
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
     /**
      * @var string
      */
     private $pidFile = '';
 
-    public function __construct(string $pidFile, LoggerInterface $logger = null)
+    public function __construct(string $pidFile)
     {
         $this->pidFile = $pidFile;
-        $this->logger = $logger ?: new StdoutLogger();
     }
-
 
     /**
      * Write master pid and manager pid to pid file
      *
-     * @throws \RuntimeException When $pidFile is not writable
+     * @throws Exception\RuntimeException When $pidFile is not writable
      */
     public function write(int $masterPid, int $managerPid) : void
     {
         if (! is_writable($this->pidFile)) {
-            throw new RuntimeException(sprintf('Pid file %s is not writable', $this->pidFile));
+            throw new Exception\RuntimeException(sprintf('Pid file "%s" is not writable', $this->pidFile));
         }
         file_put_contents($this->pidFile, $masterPid . ',' . $managerPid);
     }
@@ -56,7 +45,10 @@ class PidManager
     /**
      * Read master pid and manager pid from pid file
      *
-     * @return array [masterPid, managerPid]
+     * @return string[] {
+     *     @var string $masterPid
+     *     @var string $managerPid
+     * }
      */
     public function read() : array
     {

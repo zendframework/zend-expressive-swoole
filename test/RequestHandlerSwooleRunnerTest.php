@@ -21,7 +21,7 @@ use Zend\Diactoros\Response;
 use Zend\Expressive\Response\ServerRequestErrorResponseGenerator;
 use Zend\Expressive\Swoole\PidManager;
 use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
-use Zend\Expressive\Swoole\Server;
+use Zend\Expressive\Swoole\ServerFactory;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
 class RequestHandlerSwooleRunnerTest extends TestCase
@@ -29,22 +29,26 @@ class RequestHandlerSwooleRunnerTest extends TestCase
     public function setUp()
     {
         $this->requestHandler = $this->prophesize(RequestHandlerInterface::class);
+
         $this->serverRequestFactory = function () {
             return $this->prophesize(ServerRequestInterface::class)->reveal();
         };
+
         $this->serverRequestError = function () {
             return $this->prophesize(ServerRequestErrorResponseGenerator::class)->reveal();
         };
-        $server = $this->prophesize(Server::class);
-        $server->createSwooleServer([
+
+        $serverFactory = $this->prophesize(ServerFactory::class);
+        $serverFactory->createSwooleServer([
             'daemonize' => false,
             'worker_num' => 1
         ])->willReturn($this->createMock(SwooleHttpServer::class));
-        $this->server = $server->reveal();
+        $this->serverFactory = $serverFactory->reveal();
 
         $this->logger = null;
 
         $this->pidManager = $this->prophesize(PidManager::class)->reveal();
+
         $this->config = [
             'options' => [
                 'document_root' => __DIR__ . '/TestAsset'
@@ -58,7 +62,7 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
-            $this->server,
+            $this->serverFactory,
             $this->config,
             $this->logger,
             $this->pidManager
@@ -69,7 +73,7 @@ class RequestHandlerSwooleRunnerTest extends TestCase
 
     public function testRun()
     {
-        $swooleServer = $this->server->createSwooleServer([
+        $swooleServer = $this->serverFactory->createSwooleServer([
             'daemonize' => false,
             'worker_num' => 1
         ]);
@@ -83,7 +87,7 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
-            $this->server,
+            $this->serverFactory,
             $this->config,
             $this->logger,
             $this->pidManager
@@ -107,7 +111,7 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
-            $this->server,
+            $this->serverFactory,
             $this->config,
             $this->logger,
             $this->pidManager
@@ -134,7 +138,7 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
-            $this->server,
+            $this->serverFactory,
             $this->config,
             $this->logger,
             $this->pidManager
@@ -169,7 +173,7 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
-            $this->server,
+            $this->serverFactory,
             $this->config,
             $this->logger,
             $this->pidManager
@@ -201,7 +205,7 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
-            $this->server,
+            $this->serverFactory,
             $this->config,
             $this->logger,
             $this->pidManager

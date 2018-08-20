@@ -144,11 +144,11 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     private $pidManager;
 
     /**
-     * A server manager for swoole server
+     * Factory for creating an HTTP server instance.
      *
-     * @var Server
+     * @var ServerFactory
      */
-    private $server;
+    private $serverFactory;
 
     /**
      * A factory capable of generating an error response in the scenario that
@@ -178,7 +178,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         RequestHandlerInterface $handler,
         callable $serverRequestFactory,
         callable $serverRequestErrorResponseGenerator,
-        Server $server,
+        ServerFactory $serverFactory,
         array $config,
         LoggerInterface $logger = null,
         PidManager $pidManager
@@ -195,7 +195,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
                 return $serverRequestErrorResponseGenerator($exception);
             };
 
-        $this->server = $server;
+        $this->serverFactory = $serverFactory;
 
         $this->allowedStatic = $config['static_files'] ?? self::DEFAULT_STATIC_EXTS;
         $this->docRoot = $config['options']['document_root'] ?? getcwd() . '/public';
@@ -242,7 +242,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
      */
     public function startServer(array $options = []) : void
     {
-        $swooleServer = $this->server->createSwooleServer($options);
+        $swooleServer = $this->serverFactory->createSwooleServer($options);
         $swooleServer->on('start', [$this, 'onStart']);
         $swooleServer->on('request', [$this, 'onRequest']);
         $swooleServer->start();

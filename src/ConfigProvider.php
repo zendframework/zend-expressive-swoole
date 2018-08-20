@@ -27,7 +27,7 @@ class ConfigProvider
             'factories'  => [
                 ServerRequestInterface::class => ServerRequestSwooleFactory::class,
                 RequestHandlerRunner::class   => RequestHandlerSwooleRunnerFactory::class,
-                Server::class                 => ServerFactory::class,
+                ServerFactory::class          => ServerFactoryFactory::class,
                 PidManager::class             => PidManagerFactory::class,
             ],
         ];

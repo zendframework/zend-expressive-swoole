@@ -11,5 +11,4 @@ namespace Zend\Expressive\Swoole\Exception;
 
 class InvalidArgumentException extends \InvalidArgumentException implements ExceptionInterface
 {
-
 }

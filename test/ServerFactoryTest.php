@@ -1,7 +1,7 @@
 <?php
 /**
  * @see       https://github.com/zendframework/zend-expressive-swoole for the canonical source repository
- * @copyright Copyright (c) 2018 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2018 Zend Technologies USA Inc. (https://www.zend.com)
  * @license   https://github.com/zendframework/zend-expressive-swoole/blob/master/LICENSE.md New BSD License
  */
 
@@ -10,102 +10,73 @@ declare(strict_types=1);
 namespace ZendTest\Expressive\Swoole;
 
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
+use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Process;
 use Zend\Expressive\Swoole\ServerFactory;
 
+use const SWOOLE_BASE;
+use const SWOOLE_SOCK_TCP;
+
 class ServerFactoryTest extends TestCase
 {
-    public function setUp()
-    {
-        $this->container = $this->prophesize(ContainerInterface::class);
-        $this->serverFactory = new ServerFactory();
-    }
-
-    public function testInvokeWithoutConfig()
+    public function testCreateSwooleServerCreatesAndReturnsASwooleHttpServerInstance()
     {
         $process = new Process(function ($worker) {
-            $server = ($this->serverFactory)($this->container->reveal());
-            $swooleServer = $server->createSwooleServer();
-            $worker->write(sprintf('%s:%d', $swooleServer->host, $swooleServer->port));
+            $factory = new ServerFactory('0.0.0.0', 65535, SWOOLE_BASE, SWOOLE_SOCK_TCP);
+            $server = $factory->createSwooleServer();
+            $worker->write(sprintf('%s:%d', $server->host, $server->port));
             $worker->exit(0);
         }, true, 1);
+
         $process->start();
         $data = $process->read();
         Process::wait(true);
 
-        $this->assertSame(
-            sprintf('%s:%d', ServerFactory::DEFAULT_HOST, ServerFactory::DEFAULT_PORT),
-            $data
-        );
+        $this->assertSame('0.0.0.0:65535', $data);
     }
 
-    public function testInvokeWithConfig()
+    public function testSubsequentCallsToCreateSwooleServerReturnSameInstance()
     {
-        $config = [
-            'zend-expressive-swoole' => [
-                'swoole-http-server' => [
-                    'host' => 'localhost',
-                    'port' => 9501,
-                ]
-            ]
-        ];
-        $this->container
-            ->get('config')
-            ->willReturn($config);
-
         $process = new Process(function ($worker) {
-            $server = ($this->serverFactory)($this->container->reveal());
-            $swooleServer = $server->createSwooleServer();
-            $worker->write(sprintf('%s:%d', $swooleServer->host, $swooleServer->port));
+            $factory = new ServerFactory('0.0.0.0', 65535, SWOOLE_BASE, SWOOLE_SOCK_TCP);
+            $server = $factory->createSwooleServer();
+            $server2 = $factory->createSwooleServer();
+            $message = $server2 === $server ? 'SAME' : 'NOT SAME';
+            $worker->write($message);
             $worker->exit(0);
         }, true, 1);
+
         $process->start();
         $data = $process->read();
         Process::wait(true);
 
-        $this->assertSame('localhost:9501', $data);
+        $this->assertSame('SAME', $data);
     }
 
-    public function testInvokeWithOptions()
+    public function testCreateSwooleServerWillUseProvidedAppendOptionsWhenCreatingInstance()
     {
-        $host = 'localhost';
-        $port = 9501;
         $options = [
             'daemonize' => false,
             'worker_num' => 1,
-            'dispatch_mode' => 3,
         ];
-        $config = [
-            'zend-expressive-swoole' => [
-                'swoole-http-server' => [
-                    'host' => $host,
-                    'port' => $port,
-                    'options' => $options,
-                ]
-            ]
-        ];
-        $this->container
-            ->get('config')
-            ->willReturn($config);
-
-        $process = new Process(function ($worker) {
-            $server = ($this->serverFactory)($this->container->reveal());
-            $swooleServer = $server->createSwooleServer();
+        $process = new Process(function ($worker) use ($options) {
+            $factory = new ServerFactory('0.0.0.0', 65535, SWOOLE_BASE, SWOOLE_SOCK_TCP);
+            $server = $factory->createSwooleServer($options);
             $worker->write(serialize([
-                'host' => $swooleServer->host,
-                'port' => $swooleServer->port,
-                'options' => $swooleServer->setting,
+                'host' => $server->host,
+                'port' => $server->port,
+                'options' => $server->setting,
             ]));
             $worker->exit(0);
         }, true, 1);
+
         $process->start();
         $data = unserialize($process->read());
         Process::wait(true);
 
         $this->assertSame([
-            'host' => $host,
-            'port' => $port,
+            'host' => '0.0.0.0',
+            'port' => 65535,
             'options' => $options,
         ], $data);
     }

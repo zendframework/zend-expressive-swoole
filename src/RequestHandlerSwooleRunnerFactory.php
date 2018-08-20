@@ -28,7 +28,7 @@ class RequestHandlerSwooleRunnerFactory
             $container->get(ApplicationPipeline::class),
             $container->get(ServerRequestInterface::class),
             $container->get(ServerRequestErrorResponseGenerator::class),
-            $container->get(Server::class),
+            $container->get(ServerFactory::class),
             $config['zend-expressive-swoole']['swoole-http-server'] ?? [],
             $logger,
             $container->get(PidManager::class)
