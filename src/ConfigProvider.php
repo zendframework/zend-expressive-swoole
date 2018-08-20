@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Zend\Expressive\Swoole;
 
 use Psr\Http\Message\ServerRequestInterface;
-use Swoole\Http\Server as SwooleHttpServer;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
 class ConfigProvider
@@ -28,8 +27,9 @@ class ConfigProvider
             'factories'  => [
                 ServerRequestInterface::class => ServerRequestSwooleFactory::class,
                 RequestHandlerRunner::class   => RequestHandlerSwooleRunnerFactory::class,
-                SwooleHttpServer::class       => SwooleHttpServerFactory::class
-            ]
+                ServerFactory::class          => ServerFactoryFactory::class,
+                PidManager::class             => PidManagerFactory::class,
+            ],
         ];
     }
 }

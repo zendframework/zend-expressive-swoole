@@ -6,11 +6,19 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Added
 
-- Nothing.
+- [#11](https://github.com/zendframework/zend-expressive-swoole/pull/11) adds the following console actions and options when starting the
+  server via `public/index.php`:
+  - `start` will start the server; it may be omitted, as this is the default action.
+  - `stop` will stop the server
+  - `--dameonize|-d` tells the server to daemonize itself when `start` is called.
+  - `--num_workers|n` tells the server how many workers to spawn when starting (defaults to 1).
 
 ### Changed
 
-- Nothing.
+- [#11](https://github.com/zendframework/zend-expressive-swoole/pull/11) modifies how the Swoole HTTP server is started and managed, to
+  allow for both starting and stopping the server, as well as ensuring that when
+  a process dies and is restarted, no errors are emitted on creation of a new
+  HTTP server instance.
 
 ### Deprecated
 

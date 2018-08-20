@@ -9,11 +9,6 @@ declare(strict_types=1);
 
 namespace Zend\Expressive\Swoole\Exception;
 
-use Throwable;
-
-/**
- * Marker interface for package-specific exceptions
- */
-interface ExceptionInterface extends Throwable
+class InvalidArgumentException extends \InvalidArgumentException implements ExceptionInterface
 {
 }

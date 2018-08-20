@@ -16,7 +16,9 @@ use Psr\Log\LoggerInterface;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Http\Response as SwooleHttpResponse;
 use Swoole\Http\Server as SwooleHttpServer;
+use Swoole\Process as SwooleProcess;
 use Throwable;
+use Zend\Console\Getopt;
 use Zend\Expressive\Swoole\Exception;
 use Zend\HttpHandlerRunner\Emitter\EmitterInterface;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
@@ -40,6 +42,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
 {
     /**
      * Default static file extensions supported
+     *
      * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
      */
     public const DEFAULT_STATIC_EXTS = [
@@ -134,6 +137,20 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     private $logger;
 
     /**
+     * A manager to handle pid about the application.
+     *
+     * @var PidManager
+     */
+    private $pidManager;
+
+    /**
+     * Factory for creating an HTTP server instance.
+     *
+     * @var ServerFactory
+     */
+    private $serverFactory;
+
+    /**
      * A factory capable of generating an error response in the scenario that
      * the $serverRequestFactory raises an exception during generation of the
      * request instance.
@@ -154,11 +171,6 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     private $serverRequestFactory;
 
     /**
-     * @var swoole_http_server
-     */
-    private $swooleHttpServer;
-
-    /**
      * @throws Exception\InvalidConfigException if the configured or default
      *     document root does not exist.
      */
@@ -166,9 +178,10 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         RequestHandlerInterface $handler,
         callable $serverRequestFactory,
         callable $serverRequestErrorResponseGenerator,
-        SwooleHttpServer $swooleHttpServer,
+        ServerFactory $serverFactory,
         array $config,
-        LoggerInterface $logger = null
+        LoggerInterface $logger = null,
+        PidManager $pidManager
     ) {
         $this->handler = $handler;
 
@@ -182,7 +195,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
                 return $serverRequestErrorResponseGenerator($exception);
             };
 
-        $this->swooleHttpServer = $swooleHttpServer;
+        $this->serverFactory = $serverFactory;
 
         $this->allowedStatic = $config['static_files'] ?? self::DEFAULT_STATIC_EXTS;
         $this->docRoot = $config['options']['document_root'] ?? getcwd() . '/public';
@@ -194,6 +207,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         }
 
         $this->logger = $logger ?: new StdoutLogger();
+        $this->pidManager = $pidManager;
     }
 
     /**
@@ -201,9 +215,82 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
      */
     public function run() : void
     {
-        $this->swooleHttpServer->on('start', [$this, 'onStart']);
-        $this->swooleHttpServer->on('request', [$this, 'onRequest']);
-        $this->swooleHttpServer->start();
+        $opts = new Getopt([
+            'd|daemonize'  => 'Daemonize the swoole server process',
+            'n|num_workers=i' => 'The number of the worker processes to start.',
+        ]);
+        $args = $opts->getArguments();
+        $action = $args[0] ?? null;
+        switch ($action) {
+            case 'stop':
+                $this->stopServer();
+                break;
+            case 'start':
+            default:
+                $this->startServer([
+                    'daemonize' => $opts->getOption('daemonize') ? (bool) $opts->getOption('daemonize') : false,
+                    'worker_num' => $opts->getOption('num_workers') ? (int) $opts->getOption('num_workers') : 1,
+                ]);
+                break;
+        }
+    }
+
+    /**
+     * Start swoole server
+     *
+     * @param array $options Swoole server options
+     */
+    public function startServer(array $options = []) : void
+    {
+        $swooleServer = $this->serverFactory->createSwooleServer($options);
+        $swooleServer->on('start', [$this, 'onStart']);
+        $swooleServer->on('request', [$this, 'onRequest']);
+        $swooleServer->start();
+    }
+
+    /**
+     * Stop swoole server
+     */
+    public function stopServer() : void
+    {
+        if (! $this->isRunning()) {
+            $this->logger->info('Server is not running yet');
+            return;
+        }
+        [$masterPid, ] = $this->pidManager->read();
+        $this->logger->info('Server stopping ...');
+        $result = SwooleProcess::kill((int) $masterPid);
+        $startTime = time();
+        while (! $result) {
+            if (! SwooleProcess::kill((int) $masterPid, 0)) {
+                continue;
+            }
+            if (time() - $startTime >= 60) {
+                $result = false;
+                break;
+            }
+            usleep(10000);
+        }
+        if (! $result) {
+            $this->logger->info('Server stop failure');
+            return;
+        }
+        $this->pidManager->delete();
+        $this->logger->info('Server stopped');
+    }
+
+    /**
+     * Is swoole server running ?
+     */
+    public function isRunning() : bool
+    {
+        [$masterPid, $managerPid] = $this->pidManager->read();
+        if ($managerPid) {
+            // Swoole process mode
+            return $masterPid && $managerPid && SwooleProcess::kill((int) $managerPid, 0);
+        }
+        // Swoole base mode, no manager process
+        return $masterPid && SwooleProcess::kill((int) $masterPid, 0);
     }
 
     /**
@@ -211,6 +298,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
      */
     public function onStart(SwooleHttpServer $server) : void
     {
+        $this->pidManager->write($server->master_pid, $server->manager_pid);
         $this->logger->info('Swoole is running at {host}:{port}', [
             'host' => $server->host,
             'port' => $server->port,
@@ -223,7 +311,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     public function onRequest(
         SwooleHttpRequest $request,
         SwooleHttpResponse $response
-    ) {
+    ) : void {
         $this->logger->info('{ts} - {remote_addr} - {request_method} {request_uri}', [
             'ts'             => date('Y-m-d H:i:sO', time()),
             'remote_addr'    => $request->server['remote_addr'],
