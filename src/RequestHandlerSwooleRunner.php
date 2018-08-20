@@ -217,7 +217,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     {
         $opts = new Getopt([
             'd|daemonize'  => 'Daemonize the swoole server process',
-            'n|worker_num|num_worker=i' => 'The number of the worker process.',
+            'n|num_workers=i' => 'The number of the worker processes to start.',
         ]);
         $args = $opts->getArguments();
         $action = $args[0] ?? null;
@@ -229,7 +229,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
             default:
                 $this->startServer([
                     'daemonize' => $opts->getOption('daemonize') ? (bool) $opts->getOption('daemonize') : false,
-                    'worker_num' => $opts->getOption('worker_num') ? (int) $opts->getOption('worker_num') : 1,
+                    'worker_num' => $opts->getOption('num_workers') ? (int) $opts->getOption('num_workers') : 1,
                 ]);
                 break;
         }
