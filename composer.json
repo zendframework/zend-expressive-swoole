@@ -28,7 +28,6 @@
         "psr/http-message-implementation": "^1.0",
         "psr/http-server-handler": "^1.0",
         "psr/log": "^1.0",
-        "zendframework/zend-console": "^2.7",
         "zendframework/zend-diactoros": "^1.8",
         "zendframework/zend-expressive": "^3.0.2",
         "zendframework/zend-httphandlerrunner": "^1.0.1"
