@@ -406,17 +406,17 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     private function getCompressionEncoding(SwooleHttpRequest $request) : array
     {
         $acceptEncodings = explode(',', $request->header['accept-encoding']);
-        foreach ($acceptEncodings as $acceptEncoding) {
+        foreach ($acceptEncodings ?? [] as $acceptEncoding) {
             $acceptEncoding = trim($acceptEncoding);
             if ('gzip' === $acceptEncoding) {
                 return [
                     'gzip',
-                    ZLIB_ENCODING_DEFLATE
+                    ZLIB_ENCODING_GZIP
                 ];
             } elseif ('deflate' === $acceptEncoding) {
                 return [
                     'deflate',
-                    ZLIB_ENCODING_GZIP
+                    ZLIB_ENCODING_DEFLATE
                 ];
             }
         }
