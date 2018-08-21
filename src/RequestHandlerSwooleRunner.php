@@ -23,9 +23,10 @@ use Zend\HttpHandlerRunner\Emitter\EmitterInterface;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
 use function file_exists;
+use function getcwd;
 use function pathinfo;
 use function sprintf;
-use function getcwd;
+use function trim;
 
 /**
  * "Run" a request handler using Swoole.
@@ -375,7 +376,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         // Handle ETag and Last-Modified header
         $lastModifiedTime = filemtime($staticFile) ?? 0;
         $fileSize = filesize($staticFile) ?? 0;
-        $lastModifiedTimeDateFormatted = gmstrftime ('%A %d-%b-%y %T %Z', $lastModifiedTime);
+        $lastModifiedTimeDateFormatted = trim(gmstrftime('%A %d-%b-%y %T %Z', $lastModifiedTime));
         $etag = '';
 
         $response->header('Last-Modified', $lastModifiedTimeDateFormatted, true);

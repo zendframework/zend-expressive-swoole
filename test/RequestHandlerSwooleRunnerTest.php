@@ -200,13 +200,13 @@ class RequestHandlerSwooleRunnerTest extends TestCase
         $runner->onRequest($request->reveal(), $response->reveal());
 
         $response
-            ->header('Content-Type', 'image/png')
+            ->header('Content-Type', 'image/png', true)
             ->shouldHaveBeenCalled();
         $response
-            ->header('ETag', 'W/"5b757e4a-1d54"')
+            ->header('Last-Modified', 'Wednesday 15-Aug-18 08:24:35', true)
             ->shouldHaveBeenCalled();
         $response
-            ->header('Last-Modified', 'Thursday 16-Aug-18 13:38:18 GMT')
+            ->header('ETag', 'W/"5b73e343-1d54"', true)
             ->shouldHaveBeenCalled();
         $response
             ->sendfile(__DIR__ . '/TestAsset/image.png')
