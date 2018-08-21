@@ -365,10 +365,10 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         SwooleHttpResponse $response
     ) : bool {
         $server = $request->server;
-        if ($server['request_method'] !== 'GET' || $server['request_method'] !== 'HEAD') {
+        if ($server['request_method'] !== 'GET' && $server['request_method'] !== 'HEAD') {
             return false;
         }
-        $staticFile = $this->docRoot . $request->server['request_uri'];
+        $staticFile = $this->docRoot . $server['request_uri'];
         if (! isset($this->cacheTypeFile[$staticFile])
             && ! $this->cacheFile($staticFile)
         ) {
