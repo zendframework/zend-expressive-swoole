@@ -109,6 +109,12 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     ];
 
     /**
+     * ETag validation type
+     */
+    const WEAK_VALIDATION = 'weak';
+    const STRONG_VALIDATION = 'strong';
+
+    /**
      * @var array
      */
     private $allowedStatic;
@@ -131,6 +137,15 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
      * @var string
      */
     private $docRoot;
+
+    /**
+     * ETag type
+     * 'weak' means Weak Validation
+     * 'strong' means Strong Validation
+     *
+     * @var string
+     */
+    private $etagValidationType;
 
     /**
      * A request handler to run as the application.
@@ -205,6 +220,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
 
         $this->serverFactory = $serverFactory;
 
+        $this->etagValidationType = $config['etag_type'] ?? self::WEAK_VALIDATION;
         $this->allowedStatic = $config['static_files'] ?? self::DEFAULT_STATIC_EXTS;
         $this->docRoot = $config['options']['document_root'] ?? getcwd() . '/public';
         if (! file_exists($this->docRoot)) {
@@ -380,14 +396,26 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         // Handle ETag and Last-Modified header
         $lastModifiedTime = filemtime($staticFile) ?? 0;
         $fileSize = filesize($staticFile) ?? 0;
-        $lastModifiedTimeDateFormatted = trim(gmstrftime('%A %d-%b-%y %T %Z', $lastModifiedTime));
-        $etag = '';
 
+        // Set Last-Modified header
+        $lastModifiedTimeDateFormatted = trim(gmstrftime('%A %d-%b-%y %T %Z', $lastModifiedTime));
         $response->header('Last-Modified', $lastModifiedTimeDateFormatted, true);
-        if ($lastModifiedTime && $fileSize) {
-            $etag = 'W/"' . dechex($lastModifiedTime) . '-' . dechex($fileSize) . '"';
-            $response->header('ETag', $etag, true);
+
+        // Set ETag header
+        $etag = '';
+        switch ($this->etagValidationType) {
+            case self::WEAK_VALIDATION:
+                if ($lastModifiedTime && $fileSize) {
+                    $etag = 'W/"' . dechex($lastModifiedTime) . '-' . dechex($fileSize) . '"';
+                }
+                break;
+            case self::STRONG_VALIDATION:
+                $etag = md5(file_get_contents($staticFile));
+                break;
         }
+        $etag && $response->header('ETag', $etag, true);
+
+        // Handle ETag header of client
         $ifMatch = $request->header['if-match'] ?? '';
         $ifNoneMatch = $request->header['if-none-match'] ?? '';
         $clientEtag = $ifMatch ?: $ifNoneMatch;
@@ -425,4 +453,5 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         $this->cacheTypeFile[$fileName] = $this->allowedStatic[$type];
         return true;
     }
+
 }
