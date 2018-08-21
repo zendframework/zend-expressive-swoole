@@ -18,7 +18,6 @@ use Swoole\Http\Response as SwooleHttpResponse;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Process as SwooleProcess;
 use Throwable;
-use Zend\Console\Getopt;
 use Zend\Expressive\Swoole\Exception;
 use Zend\HttpHandlerRunner\Emitter\EmitterInterface;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
@@ -215,21 +214,20 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
      */
     public function run() : void
     {
-        $opts = new Getopt([
-            'd|daemonize'  => 'Daemonize the swoole server process',
-            'n|num_workers=i' => 'The number of the worker processes to start.',
-        ]);
-        $args = $opts->getArguments();
-        $action = $args[0] ?? null;
-        switch ($action) {
-            case 'stop':
+        $commandLine = new CommandLine();
+        $options = $commandLine->parse();
+        switch ($options->getAction()) {
+            case CommandLineOptions::ACTION_HELP:
+                $commandLine->emitHelpAndExit();
+                break;
+            case CommandLineOptions::ACTION_STOP:
                 $this->stopServer();
                 break;
-            case 'start':
+            case CommandLineOptions::ACTION_START:
             default:
                 $this->startServer([
-                    'daemonize' => $opts->getOption('daemonize') ? (bool) $opts->getOption('daemonize') : false,
-                    'worker_num' => $opts->getOption('num_workers') ? (int) $opts->getOption('num_workers') : 1,
+                    'daemonize' => $options->daemonize(),
+                    'worker_num' => $options->getNumberOfWorkers(),
                 ]);
                 break;
         }
