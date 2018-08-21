@@ -139,9 +139,8 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     private $docRoot;
 
     /**
-     * ETag type
-     * 'weak' means Weak Validation
-     * 'strong' means Strong Validation
+     * ETag validation type, 'weak' means Weak Validation, 'strong' means Strong Validation,
+     * other value will not response ETag header.
      *
      * @var string
      */
