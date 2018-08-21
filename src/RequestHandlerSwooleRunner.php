@@ -452,5 +452,4 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         $this->cacheTypeFile[$fileName] = $this->allowedStatic[$type];
         return true;
     }
-
 }
