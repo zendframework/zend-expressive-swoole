@@ -25,12 +25,8 @@ use Zend\HttpHandlerRunner\RequestHandlerRunner;
 use function date;
 use function dechex;
 use function file_exists;
-use function file_get_contents;
-use function filemtime;
-use function filesize;
-use function getcwd;
-use function gmstrftime;
-use function md5;
+use function function_exists;
+use function gzcompress;
 use function pathinfo;
 use function sprintf;
 use function time;
@@ -57,6 +53,14 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
      * @var string
      */
     private $cwd;
+
+    /**
+     * Enable the gzip of response content. The range is 0 to 9, the higher the number, the
+     * higher the compression level, 0 means disable gzip function.
+     *
+     * @var int
+     */
+    private $gzip;
 
     /**
      * A request handler to run as the application.
@@ -135,6 +139,8 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
             };
 
         $this->serverFactory = $serverFactory;
+
+        $this->gzip = (int) ($config['gzip']['level'] ?? 0);
 
         $this->pidManager = $pidManager;
         $this->staticResourceHandler = $staticResourceHandler;
@@ -281,5 +287,88 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     ) : void {
         $response = ($this->serverRequestErrorResponseGenerator)($exception);
         $emitter->emit($response);
+    }
+
+    /**
+     * Get a static resource, if any, and set the swoole HTTP response.
+     */
+    private function getStaticResource(
+        SwooleHttpRequest $request,
+        SwooleHttpResponse $response
+    ) : bool {
+        $staticFile = $this->docRoot . $request->server['request_uri'];
+        if (! isset($this->cacheTypeFile[$staticFile])
+            && ! $this->cacheFile($staticFile)
+        ) {
+            return false;
+        }
+
+        $response->header('Content-Type', $this->cacheTypeFile[$staticFile]);
+
+        // Handle Gzip
+        if ($this->isGzipAvailable($request)) {
+            [$contentEncoding, $compressionEncoding] = $this->getCompressionEncoding($request);
+            if ($contentEncoding && $compressionEncoding) {
+                $data = gzcompress(file_get_contents($staticFile), $this->gzip, $compressionEncoding);
+                $response->header('Content-Encoding', $contentEncoding, true);
+                $response->end($data);
+                return true;
+            }
+        }
+
+        $response->sendfile($staticFile);
+        return true;
+    }
+
+    /**
+     * Is gzip available for current request
+     */
+    private function isGzipAvailable(SwooleHttpRequest $request): bool
+    {
+        return $this->gzip > 0
+            && function_exists('gzcompress')
+            && isset($request->header['accept-encoding']);
+    }
+
+    /**
+     * Get gzcompress compression encoding
+     */
+    private function getCompressionEncoding(SwooleHttpRequest $request) : array
+    {
+        $acceptEncoding = $request->header['accept-encoding'];
+        $explodedAcceptEncoding = explode(',', $acceptEncoding);
+        foreach ($explodedAcceptEncoding as $encoding) {
+            $encoding = trim($encoding);
+            if ('gzip' === $encoding) {
+                return [
+                    'gzip',
+                    ZLIB_ENCODING_DEFLATE
+                ];
+            } elseif ('deflate' === $encoding) {
+                return [
+                    'deflate',
+                    ZLIB_ENCODING_GZIP
+                ];
+            }
+        }
+        return [];
+    }
+
+    /**
+     * Attempt to cache a static file resource.
+     */
+    private function cacheFile(string $fileName) : bool
+    {
+        $type = pathinfo($fileName, PATHINFO_EXTENSION);
+        if (! isset($this->allowedStatic[$type])) {
+            return false;
+        }
+
+        if (! file_exists($fileName)) {
+            return false;
+        }
+
+        $this->cacheTypeFile[$fileName] = $this->allowedStatic[$type];
+        return true;
     }
 }
