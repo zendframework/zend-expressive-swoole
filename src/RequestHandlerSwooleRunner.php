@@ -22,11 +22,20 @@ use Zend\Expressive\Swoole\Exception;
 use Zend\HttpHandlerRunner\Emitter\EmitterInterface;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
+use function date;
+use function dechex;
 use function file_exists;
+use function file_get_contents;
+use function filemtime;
+use function filesize;
 use function getcwd;
+use function gmstrftime;
+use function md5;
 use function pathinfo;
 use function sprintf;
+use function time;
 use function trim;
+use function usleep;
 
 /**
  * "Run" a request handler using Swoole.
