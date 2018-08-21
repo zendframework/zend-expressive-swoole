@@ -202,11 +202,15 @@ class RequestHandlerSwooleRunnerTest extends TestCase
         $response
             ->header('Content-Type', 'image/png', true)
             ->shouldHaveBeenCalled();
+        $staticFile = './test/TestAsset/image.png';
+        $lastModifiedTime = filemtime($staticFile) ?? 0;
+        $fileSize = filesize($staticFile) ?? 0;
         $response
-            ->header('Last-Modified', 'Wednesday 15-Aug-18 08:24:35', true)
+            ->header('Last-Modified', trim(gmstrftime('%A %d-%b-%y %T %Z', $lastModifiedTime)), true)
             ->shouldHaveBeenCalled();
+        $etag = 'W/"' . dechex($lastModifiedTime) . '-' . dechex($fileSize) . '"';
         $response
-            ->header('ETag', 'W/"5b73e343-1d54"', true)
+            ->header('ETag', $etag, true)
             ->shouldHaveBeenCalled();
         $response
             ->sendfile(__DIR__ . '/TestAsset/image.png')
