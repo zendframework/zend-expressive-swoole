@@ -85,7 +85,7 @@ EOH;
     /**
      * @var callable
      */
-    private $exit = 'exit';
+    private $exit;
 
     /**
      * @var array[string, mixed]
@@ -129,6 +129,11 @@ EOH;
         $arguments = $arguments ?: $this->discoverArguments();
         $this->commandName = array_shift($arguments);
         $this->arguments = $arguments;
+
+        // This allows us to mock the exit built-in when testing
+        $this->exit = function (int $status) : void {
+            exit($status);
+        };
     }
 
     public function parse() : ?CommandLineOptions
