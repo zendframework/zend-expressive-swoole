@@ -312,7 +312,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
                 $response->header('Content-Encoding', $contentEncoding, true);
                 $response->header('Connection', 'close', true);
                 $handle = fopen($staticFile, 'rb');
-                $params = array('level' => $this->gzip, 'window' => $compressionEncoding, 'memory' => 9);
+                $params = ['level' => $this->gzip, 'window' => $compressionEncoding, 'memory' => 9];
                 stream_filter_append($handle, 'zlib.deflate', STREAM_FILTER_READ, $params);
                 while (feof($handle) !== true) {
                     $response->write(fgets($handle, 4096));
