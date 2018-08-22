@@ -379,9 +379,16 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         if ($this->isGzipAvailable($request)) {
             [$contentEncoding, $compressionEncoding] = $this->getCompressionEncoding($request);
             if ($contentEncoding && $compressionEncoding) {
-                $data = gzcompress(file_get_contents($staticFile), $this->gzip, $compressionEncoding);
                 $response->header('Content-Encoding', $contentEncoding, true);
-                $response->end($data);
+                $response->header('Connection', 'close', true);
+                $handle = fopen($staticFile, 'rb');
+                $params = array('level' => $this->gzip, 'window' => $compressionEncoding, 'memory' => 9);
+                stream_filter_append($handle, 'zlib.deflate', STREAM_FILTER_READ, $params);
+                while (feof($handle) !== true) {
+                    $response->write(fgets($handle, 4096));
+                }
+                fclose($handle);
+                $response->end();
                 return true;
             }
         }
