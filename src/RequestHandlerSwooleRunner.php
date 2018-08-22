@@ -402,6 +402,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         $response->header('Content-Type', $this->cacheTypeFile[$staticFile], true);
 
         // Handle ETag and Last-Modified header
+        clearstatcache();
         $lastModifiedTime = filemtime($staticFile) ?? 0;
         $fileSize = filesize($staticFile) ?? 0;
 
