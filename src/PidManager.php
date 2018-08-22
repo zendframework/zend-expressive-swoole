@@ -36,7 +36,7 @@ class PidManager
      */
     public function write(int $masterPid, int $managerPid) : void
     {
-        if (! is_writable($this->pidFile)) {
+        if (! is_writable($this->pidFile) && ! is_writable(dirname($this->pidFile))) {
             throw new Exception\RuntimeException(sprintf('Pid file "%s" is not writable', $this->pidFile));
         }
         file_put_contents($this->pidFile, $masterPid . ',' . $managerPid);
