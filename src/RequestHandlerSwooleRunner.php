@@ -333,7 +333,6 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     private function isGzipAvailable(SwooleHttpRequest $request): bool
     {
         return $this->gzip > 0
-            && function_exists('gzcompress')
             && isset($request->header['accept-encoding']);
     }
 
