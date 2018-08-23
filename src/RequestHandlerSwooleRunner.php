@@ -25,6 +25,7 @@ use Zend\HttpHandlerRunner\RequestHandlerRunner;
 use function file_exists;
 use function pathinfo;
 use function sprintf;
+use function getcwd;
 
 /**
  * "Run" a request handler using Swoole.
