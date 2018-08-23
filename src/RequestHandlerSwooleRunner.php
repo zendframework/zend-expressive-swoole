@@ -120,8 +120,8 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     /**
      * ETag validation type
      */
-    const WEAK_VALIDATION = 'weak';
-    const STRONG_VALIDATION = 'strong';
+    public const WEAK_VALIDATION = 'weak';
+    public const STRONG_VALIDATION = 'strong';
 
     /**
      * @var array
