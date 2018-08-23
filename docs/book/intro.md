@@ -19,7 +19,7 @@ For more information on the extension, [visit its package details on PECL](https
 
 ## Install zend-expressive-swoole
 
-To install ths package, use [Composer](https://getcomposer.org/):
+To install this package, use [Composer](https://getcomposer.org/):
 
 ```bash
 $ composer require zendframework/zend-expressive-swoole
