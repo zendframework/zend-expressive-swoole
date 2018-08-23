@@ -22,6 +22,7 @@ use Zend\Expressive\Response\ServerRequestErrorResponseGenerator;
 use Zend\Expressive\Swoole\PidManager;
 use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
 use Zend\Expressive\Swoole\ServerFactory;
+use Zend\Expressive\Swoole\StaticResourceHandlerInterface;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
 class RequestHandlerSwooleRunnerTest extends TestCase
@@ -38,6 +39,8 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             return $this->prophesize(ServerRequestErrorResponseGenerator::class)->reveal();
         };
 
+        $this->pidManager = $this->prophesize(PidManager::class)->reveal();
+
         $serverFactory = $this->prophesize(ServerFactory::class);
         $serverFactory->createSwooleServer([
             'daemonize' => false,
@@ -45,9 +48,9 @@ class RequestHandlerSwooleRunnerTest extends TestCase
         ])->willReturn($this->createMock(SwooleHttpServer::class));
         $this->serverFactory = $serverFactory->reveal();
 
-        $this->logger = null;
+        $this->staticResourceHandler = $this->prophesize(StaticResourceHandlerInterface::class);
 
-        $this->pidManager = $this->prophesize(PidManager::class)->reveal();
+        $this->logger = null;
 
         $this->config = [
             'options' => [
@@ -62,10 +65,10 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
+            $this->pidManager,
             $this->serverFactory,
-            $this->config,
-            $this->logger,
-            $this->pidManager
+            $this->staticResourceHandler->reveal(),
+            $this->logger
         );
         $this->assertInstanceOf(RequestHandlerSwooleRunner::class, $requestHandler);
         $this->assertInstanceOf(RequestHandlerRunner::class, $requestHandler);
@@ -83,14 +86,22 @@ class RequestHandlerSwooleRunnerTest extends TestCase
         $swooleServer->method('start')
             ->willReturn(null);
 
+        $this->staticResourceHandler
+            ->isStaticResource(Argument::any())
+            ->willReturn(false);
+
+        $this->staticResourceHandler
+            ->sendStaticResource(Argument::any())
+            ->shouldNotBeCalled();
+
         $requestHandler = new RequestHandlerSwooleRunner(
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
+            $this->pidManager,
             $this->serverFactory,
-            $this->config,
-            $this->logger,
-            $this->pidManager
+            $this->staticResourceHandler->reveal(),
+            $this->logger
         );
 
         $swooleServer->expects($this->once())
@@ -111,42 +122,25 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
+            $this->pidManager,
             $this->serverFactory,
-            $this->config,
-            $this->logger,
-            $this->pidManager
+            $this->staticResourceHandler->reveal(),
+            $this->logger
         );
 
         $runner->onStart($swooleServer = $this->createMock(SwooleHttpServer::class));
         $this->expectOutputString("Swoole is running at :0\n");
     }
 
-    public function testOnRequest()
+    public function testOnRequestDelegatesToApplicationWhenNoStaticResourceHandlerPresent()
     {
         $content = 'Content!';
-        $contentType = 'text/plain';
-        $etag = 'W/"5b757e4a-1d54"';
-        $lastModified = 'Thursday 16-Aug-18 13:38:18 GMT';
-        $psr7Response = (new Response())
-            ->withStatus(200)
-            ->withAddedHeader('Content-Type', $contentType)
-            ->withAddedHeader('ETag', $etag)
-            ->withAddedHeader('Last-Modified', $lastModified);
+        $psr7Response = (new Response());
         $psr7Response->getBody()->write($content);
 
         $this->requestHandler
             ->handle(Argument::type(ServerRequestInterface::class))
             ->willReturn($psr7Response);
-
-        $runner = new RequestHandlerSwooleRunner(
-            $this->requestHandler->reveal(),
-            $this->serverRequestFactory,
-            $this->serverRequestError,
-            $this->serverFactory,
-            $this->config,
-            $this->logger,
-            $this->pidManager
-        );
 
         $request = $this->prophesize(SwooleHttpRequest::class)->reveal();
         $request->server = [
@@ -154,101 +148,111 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             'remote_addr'    => '127.0.0.1',
             'request_method' => 'GET'
         ];
+
         $response = $this->prophesize(SwooleHttpResponse::class);
-
-        $runner->onRequest($request, $response->reveal());
-
         $response
             ->status(200)
-            ->shouldHaveBeenCalled();
+            ->shouldBeCalled();
         $response
             ->end($content)
-            ->shouldHaveBeenCalled();
-        $response
-            ->header('Content-Type', $contentType)
-            ->shouldHaveBeenCalled();
-        $response
-            ->header('ETag', $etag)
-            ->shouldHaveBeenCalled();
-        $response
-            ->header('Last-Modified', $lastModified)
-            ->shouldHaveBeenCalled();
+            ->shouldBeCalled();
+
+        $runner = new RequestHandlerSwooleRunner(
+            $this->requestHandler->reveal(),
+            $this->serverRequestFactory,
+            $this->serverRequestError,
+            $this->pidManager,
+            $this->serverFactory,
+            null,
+            $this->logger
+        );
+
+        $runner->onRequest($request, $response->reveal());
 
         $this->expectOutputRegex("/127\.0\.0\.1 - GET \/\R$/");
     }
 
-    public function testOnRequestWithStaticImageSuccess()
+    public function testOnRequestDelegatesToApplicationWhenStaticResourceHandlerDoesNotMatchPath()
     {
+        $content = 'Content!';
+        $psr7Response = (new Response());
+        $psr7Response->getBody()->write($content);
+
+        $this->requestHandler
+            ->handle(Argument::type(ServerRequestInterface::class))
+            ->willReturn($psr7Response);
+
+        $request = $this->prophesize(SwooleHttpRequest::class)->reveal();
+        $request->server = [
+            'request_uri'    => '/',
+            'remote_addr'    => '127.0.0.1',
+            'request_method' => 'GET'
+        ];
+
+        $response = $this->prophesize(SwooleHttpResponse::class);
+        $response
+            ->status(200)
+            ->shouldBeCalled();
+        $response
+            ->end($content)
+            ->shouldBeCalled();
+
+        $this->staticResourceHandler
+            ->isStaticResource($request)
+            ->willReturn(false);
+        $this->staticResourceHandler
+            ->sendStaticResource(Argument::any())
+            ->shouldNotBeCalled();
+
         $runner = new RequestHandlerSwooleRunner(
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
+            $this->pidManager,
             $this->serverFactory,
-            $this->config,
-            $this->logger,
-            $this->pidManager
+            $this->staticResourceHandler->reveal(),
+            $this->logger
         );
 
-        $request = $this->prophesize(SwooleHttpRequest::class);
-        $request->server = [
-            'request_uri'    => '/image.png',
-            'remote_addr'    => '127.0.0.1',
-            'request_method' => 'GET'
-        ];
-        $response = $this->prophesize(SwooleHttpResponse::class);
+        $runner->onRequest($request, $response->reveal());
 
-        $runner->onRequest($request->reveal(), $response->reveal());
-
-        $response
-            ->header('Content-Type', 'image/png', true)
-            ->shouldHaveBeenCalled();
-        $staticFile = './test/TestAsset/image.png';
-        $lastModifiedTime = filemtime($staticFile) ?? 0;
-        $fileSize = filesize($staticFile) ?? 0;
-        $response
-            ->header('Last-Modified', trim(gmstrftime('%A %d-%b-%y %T %Z', $lastModifiedTime)), true)
-            ->shouldHaveBeenCalled();
-        $etag = 'W/"' . dechex($lastModifiedTime) . '-' . dechex($fileSize) . '"';
-        $response
-            ->header('ETag', $etag, true)
-            ->shouldHaveBeenCalled();
-        $response
-            ->sendfile(__DIR__ . '/TestAsset/image.png')
-            ->shouldHaveBeenCalled();
-
-        $this->expectOutputRegex("/127\.0\.0\.1 - GET \/image\.png\R$/");
+        $this->expectOutputRegex("/127\.0\.0\.1 - GET \/\R$/");
     }
 
-    public function testInternalCacheStaticFile()
+    public function testOnRequestDelegatesToStaticResourceHandlerOnMatch()
     {
+        $this->requestHandler
+            ->handle(Argument::any())
+            ->shouldNotBeCalled();
+
+        $request = $this->prophesize(SwooleHttpRequest::class)->reveal();
+        $request->server = [
+            'request_uri'    => '/',
+            'remote_addr'    => '127.0.0.1',
+            'request_method' => 'GET'
+        ];
+
+        $response = $this->prophesize(SwooleHttpResponse::class)->reveal();
+
+        $this->staticResourceHandler
+            ->isStaticResource($request)
+            ->willReturn(true);
+        $this->staticResourceHandler
+            ->sendStaticResource($request, $response)
+            ->shouldBeCalled();
+
         $runner = new RequestHandlerSwooleRunner(
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
+            $this->pidManager,
             $this->serverFactory,
-            $this->config,
-            $this->logger,
-            $this->pidManager
+            $this->staticResourceHandler->reveal(),
+            $this->logger
         );
 
-        $reflector = new ReflectionClass($runner);
-        $cacheTypeFile = $reflector->getProperty('cacheTypeFile');
-        $cacheTypeFile->setAccessible(true);
+        $runner->onRequest($request, $response);
 
-        $request = $this->prophesize(SwooleHttpRequest::class);
-        $request->server = [
-            'request_uri'    => '/image.png',
-            'remote_addr'    => '127.0.0.1',
-            'request_method' => 'GET'
-        ];
-        $response = $this->prophesize(SwooleHttpResponse::class);
-
-        $runner->onRequest($request->reveal(), $response->reveal());
-
-        $this->expectOutputRegex("/127\.0\.0\.1 - GET \/image\.png\R$/");
-        $this->assertEquals(
-            [__DIR__ . '/TestAsset/image.png' => 'image/png'],
-            $cacheTypeFile->getValue($runner)
-        );
+        $this->expectOutputRegex("/127\.0\.0\.1 - GET \/\R$/");
     }
 }

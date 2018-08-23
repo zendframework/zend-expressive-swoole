@@ -19,7 +19,9 @@ class RequestHandlerSwooleRunnerFactory
 {
     public function __invoke(ContainerInterface $container) : RequestHandlerSwooleRunner
     {
-        $config = $container->get('config');
+        $staticResourceHandler = $container->has(StaticResourceHandlerInterface::class)
+            ? $container->get(StaticResourceHandlerInterface::class)
+            : null;
         $logger = $container->has(LoggerInterface::class)
             ? $container->get(LoggerInterface::class)
             : null;
@@ -28,10 +30,10 @@ class RequestHandlerSwooleRunnerFactory
             $container->get(ApplicationPipeline::class),
             $container->get(ServerRequestInterface::class),
             $container->get(ServerRequestErrorResponseGenerator::class),
+            $container->get(PidManager::class),
             $container->get(ServerFactory::class),
-            $config['zend-expressive-swoole']['swoole-http-server'] ?? [],
-            $logger,
-            $container->get(PidManager::class)
+            $staticResourceHandler,
+            $logger
         );
     }
 }
