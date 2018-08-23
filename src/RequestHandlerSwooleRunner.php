@@ -223,7 +223,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
             case CommandLineOptions::ACTION_STOP:
                 $this->stopServer();
                 break;
-            case 'reload':
+            case CommandLineOptions::ACTION_RELOAD:
                 $this->reloadWorker();
                 break;
             case CommandLineOptions::ACTION_START:
