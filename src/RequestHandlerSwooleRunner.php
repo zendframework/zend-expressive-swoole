@@ -119,6 +119,13 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     private $cacheTypeFile = [];
 
     /**
+     * Keep CWD in daemon mode.
+     *
+     * @var string
+     */
+    private $cwd;
+
+    /**
      * @var string
      */
     private $docRoot;
@@ -207,6 +214,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
 
         $this->logger = $logger ?: new StdoutLogger();
         $this->pidManager = $pidManager;
+        $this->cwd = getcwd();
     }
 
     /**
@@ -301,6 +309,8 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
             'host' => $server->host,
             'port' => $server->port,
         ]);
+        // Reset CWD
+        chdir($this->cwd);
     }
 
     /**
