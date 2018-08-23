@@ -23,6 +23,8 @@ use Zend\HttpHandlerRunner\Emitter\EmitterInterface;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
 use function file_exists;
+use function function_exists;
+use function gzcompress;
 use function pathinfo;
 use function sprintf;
 use function getcwd;
@@ -132,6 +134,14 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     private $docRoot;
 
     /**
+     * Enable the gzip of response content. The range is 0 to 9, the higher the number, the
+     * higher the compression level, 0 means disable gzip function.
+     *
+     * @var int
+     */
+    private $gzip;
+
+    /**
      * A request handler to run as the application.
      *
      * @var RequestHandlerInterface
@@ -203,6 +213,8 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
             };
 
         $this->serverFactory = $serverFactory;
+
+        $this->gzip = (int)($config['gzip']['level'] ?? 0);
 
         $this->allowedStatic = $config['static_files'] ?? self::DEFAULT_STATIC_EXTS;
         $this->docRoot = $config['options']['document_root'] ?? getcwd() . '/public';
@@ -371,8 +383,59 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         }
 
         $response->header('Content-Type', $this->cacheTypeFile[$staticFile]);
+
+        // Handle Gzip
+        if ($this->isGzipAvailable($request)) {
+            [$contentEncoding, $compressionEncoding] = $this->getCompressionEncoding($request);
+            if ($contentEncoding && $compressionEncoding) {
+                $response->header('Content-Encoding', $contentEncoding, true);
+                $response->header('Connection', 'close', true);
+                $handle = fopen($staticFile, 'rb');
+                $params = ['level' => $this->gzip, 'window' => $compressionEncoding, 'memory' => 9];
+                stream_filter_append($handle, 'zlib.deflate', STREAM_FILTER_READ, $params);
+                while (feof($handle) !== true) {
+                    $response->write(fgets($handle, 4096));
+                }
+                fclose($handle);
+                $response->end();
+                return true;
+            }
+        }
+
         $response->sendfile($staticFile);
         return true;
+    }
+
+    /**
+     * Is gzip available for current request
+     */
+    private function isGzipAvailable(SwooleHttpRequest $request): bool
+    {
+        return $this->gzip > 0
+            && isset($request->header['accept-encoding']);
+    }
+
+    /**
+     * Get gzcompress compression encoding
+     */
+    private function getCompressionEncoding(SwooleHttpRequest $request) : array
+    {
+        $acceptEncodings = explode(',', $request->header['accept-encoding']);
+        foreach ($acceptEncodings ?? [] as $acceptEncoding) {
+            $acceptEncoding = trim($acceptEncoding);
+            if ('gzip' === $acceptEncoding) {
+                return [
+                    'gzip',
+                    ZLIB_ENCODING_GZIP
+                ];
+            } elseif ('deflate' === $acceptEncoding) {
+                return [
+                    'deflate',
+                    ZLIB_ENCODING_DEFLATE
+                ];
+            }
+        }
+        return [];
     }
 
     /**
