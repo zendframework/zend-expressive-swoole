@@ -55,6 +55,7 @@ EOH;
         CommandLineOptions::ACTION_HELP,
         CommandLineOptions::ACTION_START,
         CommandLineOptions::ACTION_STOP,
+        CommandLineOptions::ACTION_RELOAD,
     ];
 
     /**
