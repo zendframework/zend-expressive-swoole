@@ -9,61 +9,18 @@ declare(strict_types=1);
 
 namespace Zend\Expressive\Swoole;
 
-use DateTimeImmutable;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Http\Response as SwooleHttpResponse;
 
-use function array_walk;
-use function clearstatcache;
-use function dechex;
-use function explode;
-use function filemtime;
-use function filesize;
-use function file_get_contents;
-use function gmstrftime;
-use function implode;
-use function in_array;
-use function is_array;
+use function file_exists;
+use function is_callable;
 use function is_dir;
-use function is_string;
-use function md5_file;
 use function pathinfo;
-use function preg_match;
-use function restore_error_handler;
-use function set_error_handler;
-use function trim;
 
-use const E_WARNING;
 use const PATHINFO_EXTENSION;
 
 class StaticResourceHandler implements StaticResourceHandlerInterface
 {
-    /**
-     * @var string[] Valid Cache-Control directives
-     */
-    public const CACHECONTROL_DIRECTIVES = [
-        'must-revalidate',
-        'no-cache',
-        'no-store',
-        'no-transform',
-        'public',
-        'private',
-    ];
-
-    /**
-     * ETag validation type
-     */
-    public const ETAG_VALIDATION_STRONG = 'strong';
-    public const ETAG_VALIDATION_WEAK = 'weak';
-
-    /**
-     * @var string[]
-     */
-    private $allowedETagValidationTypes = [
-        self::ETAG_VALIDATION_STRONG,
-        self::ETAG_VALIDATION_WEAK,
-    ];
-
     /**
      * Default static file extensions supported
      *
@@ -132,13 +89,6 @@ class StaticResourceHandler implements StaticResourceHandlerInterface
     ];
 
     /**
-     * @var array[string, string[]] Key is a regexp; if a static resource path
-     *     matches the regexp, the array of values provided will be used as
-     *     the Cache-Control header value.
-     */
-    private $cacheControlDirectives;
-
-    /**
      * Cache the file extensions (type) for valid static file
      *
      * @var array
@@ -151,37 +101,25 @@ class StaticResourceHandler implements StaticResourceHandlerInterface
     private $docRoot;
 
     /**
-     * @var string[] Array of regexp; if a path matches a regexp, an ETag will
-     *     be emitted for the static file resource.
-     */
-    private $etagDirectives;
-
-    /**
-     * ETag validation type, 'weak' means Weak Validation, 'strong' means Strong Validation,
-     * other value will not response ETag header.
+     * Middleware to execute when serving a static resource.
      *
-     * @var string
+     * @var StaticResourceHandler\MiddlewareInterface[]
      */
-    private $etagValidationType;
-
-    /**
-     * @var string[] Array of regexp; if a path matches a regexp, a Last-Modified
-     *     header will be emitted for the static file resource.
-     */
-    private $lastModifiedDirectives;
+    private $middleware;
 
     /**
      * @var array[string, string] Extension => mimetype map
      */
     private $typeMap;
 
+    /**
+     * @throws Exception\InvalidStaticResourceMiddlewareException for any
+     *     non-callable middleware encountered.
+     */
     public function __construct(
         string $docRoot,
-        array $typeMap = null,
-        array $cacheControlDirectives = [],
-        array $lastModifiedDirectives = [],
-        array $etagDirectives = [],
-        string $etagValidationType = self::ETAG_VALIDATION_WEAK
+        array $middleware = [],
+        array $typeMap = null
     ) {
         if (! is_dir($docRoot)) {
             throw new Exception\InvalidArgumentException(sprintf(
@@ -189,24 +127,11 @@ class StaticResourceHandler implements StaticResourceHandlerInterface
                 $docRoot
             ));
         }
-
-        $this->validateCacheControlDirectives($cacheControlDirectives);
-        $this->validateRegexList($lastModifiedDirectives, 'Last-Modified');
-        $this->validateRegexList($etagDirectives, 'ETag');
-        if (! in_array($etagValidationType, $this->allowedETagValidationTypes, true)) {
-            throw new Exception\InvalidArgumentException(sprintf(
-                'ETag validation type must be one of [%s]; received "%s"',
-                implode(', ', $this->allowedETagValidationTypes),
-                $etagValidationType
-            ));
-        }
+        $this->validateMiddleware($middleware);
 
         $this->docRoot = $docRoot;
+        $this->middleware = $middleware;
         $this->typeMap = null === $typeMap ? self::TYPE_MAP_DEFAULT : $typeMap;
-        $this->cacheControlDirectives = $cacheControlDirectives;
-        $this->lastModifiedDirectives = $lastModifiedDirectives;
-        $this->etagDirectives = $etagDirectives;
-        $this->etagValidationType = $etagValidationType;
     }
 
     public function isStaticResource(SwooleHttpRequest $request) : bool
@@ -219,140 +144,41 @@ class StaticResourceHandler implements StaticResourceHandlerInterface
     {
         $server   = $request->server;
         $filename = $this->docRoot . $server['request_uri'];
-        $filetype = pathinfo($filename, PATHINFO_EXTENSION);
         if (! isset($this->cacheTypeFile[$filename])) {
             // fail-safe, in case isStaticResource() was not called first
             return;
         }
 
-        // Method Not Allowed
-        if (! in_array($server['request_method'], ['GET', 'HEAD', 'OPTIONS'], true)) {
-            $response->header('Allow', 'GET, HEAD, OPTIONS', true);
-            $response->status(405);
-            $response->end();
-            return;
-        }
+        $middleware = new StaticResourceHandler\MiddlewareQueue($this->middleware);
+        $responseValues = $middleware($request, $filename);
 
+        $response->status($responseValues->getStatus());
         $response->header('Content-Type', $this->cacheTypeFile[$filename], true);
-
-        $isHeadRequest = $server['request_method'] === 'HEAD';
-        $isOptionsRequest = $server['request_method'] === 'OPTIONS';
-        if ($isOptionsRequest) {
-            $response->header('Allow', 'GET, HEAD, OPTIONS', true);
+        foreach ($responseValues->getHeaders() as $header => $value) {
+            $response->header($header, $value, true);
         }
 
-        $cacheControl = $this->getCacheControlForPath($server['request_uri']);
-        if ($cacheControl) {
-            $response->header('Cache-Control', $cacheControl, true);
-        }
-
-        $emitLastModified = $this->getLastModifiedFlagForPath($server['request_uri']);
-        $emitETag = $this->getETagFlagForPath($server['request_uri']);
-
-        if (! $emitLastModified && ! $emitETag) {
-            $isHeadRequest || $isOptionsRequest ? $response->end() : $response->sendfile($filename);
-            return;
-        }
-
-        clearstatcache();
-        $lastModifiedTime = filemtime($filename) ?? 0;
-        $lastModifiedTimeFormatted = trim(gmstrftime('%A %d-%b-%y %T %Z', $lastModifiedTime));
-
-        if ($emitLastModified) {
-            $response->header('Last-Modified', $lastModifiedTimeFormatted, true);
-        }
-
-        if ($emitETag && $this->prepareAndEmitEtag($request, $response, $filename, $lastModifiedTime)) {
-            return;
-        }
-
-        if ($emitLastModified && $this->isUnmodified($request, $response, $lastModifiedTimeFormatted)) {
-            return;
-        }
-
-        $isHeadRequest || $isOptionsRequest ? $response->end() : $response->sendfile($filename);
+        $responseValues->shouldSendContent()
+            ? $response->sendfile($filename)
+            : $response->end();
     }
 
     /**
-     * @throws Exception\InvalidArgumentException if any Cache-Control regex is invalid
-     * @throws Exception\InvalidArgumentException if any individual directive
-     *     associated with a regex is invalid.
+     * Validate that each middleware provided is callable.
+     *
+     * @throws Exception\InvalidStaticResourceMiddlewareException for any
+     *     non-callable middleware encountered.
      */
-    private function validateCacheControlDirectives(array $cacheControlDirectives) : void
+    private function validateMiddleware(array $middlewareList) : void
     {
-        foreach ($cacheControlDirectives as $regex => $directives) {
-            if (! $this->isValidRegex($regex)) {
-                throw new Exception\InvalidArgumentException(sprintf(
-                    'The Cache-Control regex "%s" is invalid',
-                    $regex
-                ));
-            }
-
-            if (! is_array($directives)) {
-                throw new Exception\InvalidArgumentException(sprintf(
-                    'The Cache-Control directives associated with the regex "%s" are invalid;'
-                    . ' each must be an array of strings',
-                    $regex
-                ));
-            }
-
-            array_walk($directives, function ($directive) use ($regex) {
-                if (! is_string($directive)) {
-                    throw new Exception\InvalidArgumentException(sprintf(
-                        'One or more Cache-Control directives associated with the regex "%s" are invalid;'
-                        . ' each must be a string',
-                        $regex
-                    ));
-                }
-                $this->validateCacheControlDirective($regex, $directive);
-            });
-        }
-    }
-
-    /**
-     * @throws Exception\InvalidArgumentException if any regexp is invalid
-     */
-    private function validateCacheControlDirective(string $regex, string $directive) : void
-    {
-        if (in_array($directive, self::CACHECONTROL_DIRECTIVES, true)) {
-            return;
-        }
-        if (preg_match('/^max-age=\d+$/', $directive)) {
-            return;
-        }
-        throw new Exception\InvalidArgumentException(sprintf(
-            'The Cache-Control directive "%s" associated with regex "%s" is invalid.'
-            . ' Must be one of [%s] or match /^max-age=\d+$/',
-            $directive,
-            $regex,
-            implode(', ', self::CACHECONTROL_DIRECTIVES)
-        ));
-    }
-
-    /**
-     * @throws Exception\InvalidArgumentException if any regexp is invalid
-     */
-    private function validateRegexList(array $regexList, string $type) : void
-    {
-        foreach ($regexList as $regex) {
-            if (! $this->isValidRegex($regex)) {
-                throw new Exception\InvalidArgumentException(sprintf(
-                    'The %s regex "%s" is invalid',
-                    $type,
-                    $regex
-                ));
+        foreach ($middlewareList as $position => $middleware) {
+            if (! is_callable($middleware)) {
+                throw Exception\InvalidStaticResourceMiddlewareException::forMiddlewareAtPosition(
+                    $middleware,
+                    $position
+                );
             }
         }
-    }
-
-    private function isValidRegex(string $regex) : bool
-    {
-        set_error_handler(function ($errno) {
-            return $errno === E_WARNING;
-        });
-        $isValid = preg_match($regex, '') !== false;
-        restore_error_handler();
-        return $isValid;
     }
 
     /**
@@ -370,110 +196,6 @@ class StaticResourceHandler implements StaticResourceHandlerInterface
         }
 
         $this->cacheTypeFile[$fileName] = $this->typeMap[$type];
-        return true;
-    }
-
-    /**
-     * @return null|string Returns null if the path does not have any
-     *     associated cache-control directives; otherwise, it will
-     *     return a string representing the entire Cache-Control
-     *     header value to emit.
-     */
-    private function getCacheControlForPath(string $path) : ?string
-    {
-        foreach ($this->cacheControlDirectives as $regexp => $values) {
-            if (preg_match($regexp, $path)) {
-                return implode(', ', $values);
-            }
-        }
-        return null;
-    }
-
-    private function getLastModifiedFlagForPath(string $path) : bool
-    {
-        foreach ($this->lastModifiedDirectives as $regexp) {
-            if (preg_match($regexp, $path)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private function getETagFlagForPath(string $path) : bool
-    {
-        foreach ($this->etagDirectives as $regexp) {
-            if (preg_match($regexp, $path)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @return bool Returns true if the request issued an if-match and/or
-     *     if-none-match header with a matching ETag; in such cases, a 304
-     *     status is emitted with no content. Boolean false indicates the file
-     *     content should be provided, assuming other conditions require it as
-     *     well.
-     */
-    private function prepareAndEmitEtag(
-        SwooleHttpRequest $request,
-        SwooleHttpResponse $response,
-        string $filename,
-        int $lastModifiedTime
-    ) : bool {
-        $etag = '';
-        switch ($this->etagValidationType) {
-            case self::ETAG_VALIDATION_WEAK:
-                $filesize = filesize($filename) ?? 0;
-                if (! $lastModifiedTime || ! $filesize) {
-                    return false;
-                }
-                $etag = sprintf('W/"%x-%x"', $lastModifiedTime, $filesize);
-                break;
-            case self::ETAG_VALIDATION_STRONG:
-                $etag = md5_file($filename);
-                break;
-            default:
-                return false;
-        }
-        $response->header('ETag', $etag, true);
-
-        // Determine if ETag the client expects matches calculated ETag
-        $ifMatch = $request->header['if-match'] ?? '';
-        $ifNoneMatch = $request->header['if-none-match'] ?? '';
-        $clientEtags = explode(',', $ifMatch ?: $ifNoneMatch);
-        array_walk($clientEtags, 'trim');
-
-        if (in_array($etag, $clientEtags, true)) {
-            $response->status(304);
-            $response->end();
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @return bool Returns true if the If-Modified-Since request header matches
-     *     the $lastModifiedTime value; in such cases, no content is returned.
-     */
-    private function isUnmodified(
-        SwooleHttpRequest $request,
-        SwooleHttpResponse $response,
-        string $lastModifiedTime
-    ) : bool {
-        $ifModifiedSince = $request->header['if-modified-since'] ?? '';
-        if ('' === $ifModifiedSince) {
-            return false;
-        }
-
-        if (new DateTimeImmutable($ifModifiedSince) < new DateTimeImmutable($lastModifiedTime)) {
-            return false;
-        }
-
-        $response->status(304);
-        $response->end();
         return true;
     }
 }
