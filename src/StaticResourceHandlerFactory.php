@@ -22,36 +22,42 @@ use function getcwd;
  * <code>
  * 'zend-expressive-swoole' => [
  *     'swoole-http-server' => [
- *         'document-root' => '/path/to/static/files/to/serve', // usu getcwd() . /public/
- *         'type-map' => [
- *             // extension => mimetype pairs of types to cache.
- *             // A default list exists if none is provided.
- *         ],
- *         'clearstatcache-interval' => 3600, // How often a worker should clear the
- *                                            // filesystem stat cache. If not provided,
- *                                            // it will never clear it. Value should be
- *                                            // an integer indicating number of seconds
- *                                            // between clear operations. 0 or negative
- *                                            // values will clear on every request.
- *         'etag-type' => 'weak|strong', // ETag algorithm type to use, if any
- *         'directives' => [
- *             // Rules governing which server-side caching headers are emitted.
- *             // Each key must be a valid regular expression, and should match
- *             // typically only file extensions, but potentially full paths.
- *             // When a static resource matches, all associated rules will apply.
- *             'regex' => [
- *                 'cache-control' => [
- *                     // one or more valid Cache-Control directives:
- *                     // - must-revalidate
- *                     // - no-cache
- *                     // - no-store
- *                     // - no-transform
- *                     // - public
- *                     // - private
- *                     // - max-age=\d+
+ *         'static-files' => [
+ *             'document-root' => '/path/to/static/files/to/serve', // usu getcwd() . /public/
+ *             'type-map' => [
+ *                 // extension => mimetype pairs of types to cache.
+ *                 // A default list exists if none is provided.
+ *             ],
+ *             'clearstatcache-interval' => 3600, // How often a worker should clear the
+ *                                                // filesystem stat cache. If not provided,
+ *                                                // it will never clear it. Value should be
+ *                                                // an integer indicating number of seconds
+ *                                                // between clear operations. 0 or negative
+ *                                                // values will clear on every request.
+ *             'etag-type' => 'weak|strong', // ETag algorithm type to use, if any
+ *             'gzip' => [
+ *                 'level' => 4, // Integer between 1 and 9 indicating compression level to use.
+ *                               // Values less than 1 disable compression.
+ *             ],
+ *             'directives' => [
+ *                 // Rules governing which server-side caching headers are emitted.
+ *                 // Each key must be a valid regular expression, and should match
+ *                 // typically only file extensions, but potentially full paths.
+ *                 // When a static resource matches, all associated rules will apply.
+ *                 'regex' => [
+ *                     'cache-control' => [
+ *                         // one or more valid Cache-Control directives:
+ *                         // - must-revalidate
+ *                         // - no-cache
+ *                         // - no-store
+ *                         // - no-transform
+ *                         // - public
+ *                         // - private
+ *                         // - max-age=\d+
+ *                     ],
+ *                     'last-modified' => bool, // Emit a Last-Modified header?
+ *                     'etag' => bool, // Emit an ETag header?
  *                 ],
- *                 'last-modified' => bool, // Emit a Last-Modified header?
- *                 'etag' => bool, // Emit an ETag header?
  *             ],
  *         ],
  *     ],
@@ -106,9 +112,14 @@ class StaticResourceHandlerFactory
             new StaticResourceHandler\HeadMiddleware(),
         ];
 
+        $compressionLevel = $config['gzip']['level'] ?? 0;
+        if ($compressionLevel > 0) {
+            $middleware[] = new StaticResourceHandler\GzipMiddleware($compressionLevel);
+        }
+
         $clearStatCacheInterval = $config['clearstatcache-interval'] ?? false;
         if ($clearStatCacheInterval) {
-            $middleware[] = new StaticResourceHandler\ClearStatCacheMiddleware($clearStatCacheInterval);
+            $middleware[] = new StaticResourceHandler\ClearStatCacheMiddleware((int) $clearStatCacheInterval);
         }
 
         $directiveList = $config['directives'] ?? [];
