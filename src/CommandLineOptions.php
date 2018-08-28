@@ -14,6 +14,7 @@ class CommandLineOptions
     public const ACTION_HELP = 'help';
     public const ACTION_START = 'start';
     public const ACTION_STOP = 'stop';
+    public const ACTION_RELOAD = 'reload';
 
     /** @var string */
     private $action;

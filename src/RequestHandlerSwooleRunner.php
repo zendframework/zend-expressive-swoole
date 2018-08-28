@@ -151,6 +151,9 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
             case CommandLineOptions::ACTION_STOP:
                 $this->stopServer();
                 break;
+            case CommandLineOptions::ACTION_RELOAD:
+                $this->reloadWorker();
+                break;
             case CommandLineOptions::ACTION_START:
             default:
                 $this->startServer([
@@ -203,6 +206,26 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         }
         $this->pidManager->delete();
         $this->logger->info('Server stopped');
+    }
+
+    /**
+     * Reload all worker, notice that reload worker action can
+     * ONLY run in SWOOLE_PROCESS mode.
+     */
+    public function reloadWorker() : void
+    {
+        if (! $this->isRunning()) {
+            $this->logger->info('Server is not running yet');
+            return;
+        }
+        [$masterPid, ] = $this->pidManager->read();
+        $this->logger->info('Worker reloading ...');
+        $result = SwooleProcess::kill((int) $masterPid, SIGUSR1);
+        if (! $result) {
+            $this->logger->info('Worker reload failure');
+            return;
+        }
+        $this->logger->info('Worker reloaded');
     }
 
     /**
