@@ -12,6 +12,7 @@ namespace Zend\Expressive\Swoole;
 class CommandLineOptions
 {
     public const ACTION_HELP = 'help';
+    public const ACTION_RELOAD = 'reload';
     public const ACTION_START = 'start';
     public const ACTION_STOP = 'stop';
 

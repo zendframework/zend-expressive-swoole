@@ -24,6 +24,9 @@ Usage:
 
 Arguments:
   help                Display help for the command (this message)
+  reload              Reload all worker processes. This action only
+                      works if the swoole-http-server.mode value is
+                      set to SWOOLE_PROCESS.
   start               Start the web server (this is the default if no
                       argument is given)
   stop                Stop the web server
@@ -35,11 +38,11 @@ Options:
   -n, --num_workers   Set the number of worker processes; defaults to 1
 
 Help:
-  This command allows you to control the web server, including starting
-  and stopping it. The provided options --daemonize and --num_workers
-  allow you to control how the server operates when you start it; other
-  options may be provided via configuration; see the documentation for
-  all options:
+  This command allows you to control the web server, including starting,
+  stopping, and reloading it. The provided options --daemonize and
+  --num_workers allow you to control how the server operates when you
+  start it; other options may be provided via configuration; see the
+  documentation for all options:
 
   https://docs.zendframework.com/zend-expressive-swoole/intro/#providing-additional-swoole-configuration
 
@@ -53,6 +56,7 @@ EOH;
      */
     private $allowedActions = [
         CommandLineOptions::ACTION_HELP,
+        CommandLineOptions::ACTION_RELOAD,
         CommandLineOptions::ACTION_START,
         CommandLineOptions::ACTION_STOP,
     ];

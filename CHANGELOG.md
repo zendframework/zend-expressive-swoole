@@ -27,10 +27,12 @@ All notable changes to this project will be documented in this file, in reverse 
   Please see the [static resource documentation](https://docs.zendframework.com/zend-expressive-swoole/static-resources/)
   for more information.
 
-- [#11](https://github.com/zendframework/zend-expressive-swoole/pull/11) adds the following console actions and options when starting the
-  server via `public/index.php`:
+- [#11](https://github.com/zendframework/zend-expressive-swoole/pull/11) and [#18](https://github.com/zendframework/zend-expressive-swoole/pull/18) add the following console actions and options to interact with
+  the server via `public/index.php`:
   - `start` will start the server; it may be omitted, as this is the default action.
-  - `stop` will stop the server
+  - `stop` will stop the server.
+  - `reload` reloads all worker processes, but only when the zend-expressive-swoole.swoole-http-server.mode
+    configuration value is set to `SWOOLE_PROCESS`.
   - `--dameonize|-d` tells the server to daemonize itself when `start` is called.
   - `--num_workers|n` tells the server how many workers to spawn when starting (defaults to 1).
 
