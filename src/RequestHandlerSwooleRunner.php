@@ -148,11 +148,11 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
             case CommandLineOptions::ACTION_HELP:
                 $commandLine->emitHelpAndExit();
                 break;
-            case CommandLineOptions::ACTION_STOP:
-                $this->stopServer();
-                break;
             case CommandLineOptions::ACTION_RELOAD:
                 $this->reloadWorker();
+                break;
+            case CommandLineOptions::ACTION_STOP:
+                $this->stopServer();
                 break;
             case CommandLineOptions::ACTION_START:
             default:
@@ -209,8 +209,10 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     }
 
     /**
-     * Reload all worker, notice that reload worker action can
-     * ONLY run in SWOOLE_PROCESS mode.
+     * Reload all workers
+     *
+     * Please note: the reload worker action can ONLY run when operating in
+     * SWOOLE_PROCESS mode.
      */
     public function reloadWorker() : void
     {
