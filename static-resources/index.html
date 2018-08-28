@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Swoole support for Expressive">  
+    <link rel="shortcut icon" href="../img/favicon.ico">
+
+    <title>Static Resources - zend-expressive-swoole</title>
+
+    <link rel="stylesheet" href="../css/styles-3eb6fab3fb.css">
+</head>
+<body id="page-top">
+
+    
+    <div class="navbar navbar-default" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+
+            
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            
+            <span class="navbar-brand">
+                <a class="logo-link" href="https://framework.zend.com/" data-tooltip data-placement="bottom" title="Go to the ZF homepage">
+                    <img src="../img/zend-framework-logo.svg" height="28" alt="Zend Framework">
+                </a>
+            </span>
+        </div>
+
+        <div class="navbar-collapse collapse">
+
+            
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="https://framework.zend.com/about">About</a>
+                </li>
+                <li>
+                    <a href="https://framework.zend.com/downloads">Install</a>
+                </li>
+                <li class="active">
+                    <a href="https://docs.zendframework.com">Documentation</a>
+                </li>
+                <li>
+                    <a href="https://www.zend.com/en/services/training">Training</a>
+                </li>
+                <li>
+                    <a href="https://framework.zend.com/blog">Blog</a>
+                </li>
+                <li>
+                    <a href="https://framework.zend.com/participate">Participate</a>
+                </li>
+            </ul>
+
+            
+            
+                <div class="nav navbar-nav navbar-collapse visible-xs-block ">
+                    
+    <div class="subnavigation hidden-print">
+        <h4 class="subnavigation__title">
+            <a href="..">zend-expressive-swoole</a>
+        </h4>
+
+        <h5 class="subnavigation__subtitle">Table of Contents</h5>
+
+        <ul class="subnavigation__list">
+            
+                
+                    <li class="subnavigation__list-item ">
+                        <a href=".." class="subnavigation__link">zend-expressive-swoole</a>
+                    </li>
+                
+            
+                
+                    <li class="subnavigation__list-item ">
+                        <a href="../intro/" class="subnavigation__link">Introduction</a>
+                    </li>
+                
+            
+                
+                    <li class="subnavigation__list-item">
+                        <span class="subnavigation__headline">Reference</span>
+                        <ul class="subnavigation__list">
+                            
+                                
+    <li class="subnavigation__list-item subnavigation__list-item--active">
+        <a href="./" class="subnavigation__link">Static Resources</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item ">
+        <a href="../logging/" class="subnavigation__link">Logging</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item ">
+        <a href="../how_it_works/" class="subnavigation__link">How it works</a>
+    </li>
+
+                            
+                        </ul>
+                    </li>
+                
+            
+        </ul>
+    </div>
+
+                </div>
+            
+
+            
+            <div class="nav navbar-nav navbar-collapse visible-xs-block">
+                <div class="component-selector">
+    <h4 class="component-selector__title">Components</h4>
+    <h5 class="component-selector__subtitle">Find documentation…</h5>
+    <select class="form-control component-selector__control">
+        <option value="/">Overview</option>
+        <optgroup label="Components"></optgroup>
+    </select>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+    <header class="header">
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="col-xs-8">
+                <h1 class="header__title">
+                    Documentation
+
+                    
+                        <small class="header__subtitle">zend-expressive-swoole</small>
+                    
+                </h1>
+            </div>
+
+            
+            <div class="col-xs-4 text-right">
+                
+                    <a href="#" class="header__link header__link--search" data-toggle="modal" data-target="#mkdocs_search_modal" title="Open search">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                    <a href="https://github.com/zendframework/zend-expressive-swoole/" class="header__link header__link--github" title="Go to repository of zend-expressive-swoole">
+                        <i class="fa fa-github"></i> GitHub
+                    </a>
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 col-xs-12 content" role="main">
+            <!-- content:begin -->
+                
+                    <ol class="breadcrumb" role="navigation" aria-label="breadcrumbs navigation">
+  <li><a href="https://framework.zend.com/">Home</a></li>
+  <li><a href="https://docs.zendframework.com/">Docs</a></li>
+  <li><a href="..">zend-expressive-swoole</a></li>
+  
+    
+      
+        <li>Reference</li>
+      
+    
+  
+  <li class="active">Static Resources</li>
+</ol>
+
+
+    
+    
+
+    
+    
+        <div class="toc">
+            <h6 class="toc__headline">In This Article</h6>
+            <ul class="toc__list">
+                
+                    <li class="toc__entry">
+                        <a href="#middleware" class="toc__link">Middleware</a>
+                    </li>
+                
+                    <li class="toc__entry">
+                        <a href="#configuration" class="toc__link">Configuration</a>
+                    </li>
+                
+                    <li class="toc__entry">
+                        <a href="#writing-middleware" class="toc__link">Writing Middleware</a>
+                    </li>
+                
+                    <li class="toc__entry">
+                        <a href="#alternative-static-resource-handlers" class="toc__link">Alternative static resource handlers</a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+
+
+    <h1 id="static-resources">Static Resources</h1>
+<p>One feature of a web server is the ability to serve static files from your
+filesystem. zend-expressive-swoole provides that capability as well.</p>
+<p>To enable this, the package provides an alternate
+<a href="https://docs.zendframework.com/zend-httphandlerrunner/runner/"><code>RequestHandlerRunner</code></a>
+implementation via the class <code>Zend\Expressive\Swoole\RequestHandlerSwooleRunner</code>
+that performs two duties:</p>
+<ul>
+<li>If a static resource is matched, it serves that.</li>
+<li>Otherwise, it passes off handling to the composed application pipeline.</li>
+</ul>
+<p>Internally, the <code>RequestHandlerSwooleRunner</code> composes another class, a 
+<code>Zend\Expressive\Swoole\StaticResourceHandlerInterface</code> instance. This instance
+is first queried to determine if a static resource was matched, and, if so, then
+invoked in order to serve it.</p>
+<p>Our default implementation, <code>Zend\Expressive\Swoole\StaticResourceHandler</code>,
+provides an approach that checks an incoming request path against a list of
+known extensions, and a configured document root. If the extension matches, it
+then checks to see if the file exists in the document root. If it does, it will
+serve it.</p>
+<h2 id="middleware">Middleware</h2>
+<p>The <code>StaticResourceHandler</code> implementation also provides the ability to compose
+a queue of middleware to execute when attempting to serve a matched file.  Using
+this approach, we are able to provide a configurable set of capabilities for
+serving static resources. What we currently provide is as follows:</p>
+<ul>
+<li>
+<p><code>CacheControlMiddleware</code> will set a <code>Cache-Control</code> header based on
+  configuration you provide it. Configuration uses a combination of regular
+  expressions to match against the path, with the <code>Cache-Control</code> directive to
+  use when the match occurs.</p>
+</li>
+<li>
+<p><code>ClearStatCacheMiddleware</code> will, if configured to do so, call
+  <code>clearstatcache()</code> either on every request, or at specific intervals. This is
+  useful if you anticipate filesystem changes in your document root.</p>
+</li>
+<li>
+<p><code>ETagMiddleware</code> will set an <code>ETag</code> header using either a strong or weak
+  algorithm, and only on files matching given regular expressions. If the <code>ETag</code>
+  header value matches either an <code>If-Match</code> or <code>If-None-Match</code> request header,
+  it will provide a response status of <code>304</code> and disable sending content.</p>
+</li>
+<li>
+<p><code>GzipMiddleware</code> detects the <code>Accept-Encoding</code> request header and, if present,
+  and the compression level provided to the instance allows, it will compress
+  the returned response content using either gzip or deflate compression as
+  requested.</p>
+</li>
+<li>
+<p><code>HeadMiddleware</code> will force an empty response. (The status and headers may be
+  set by other middleware.)</p>
+</li>
+<li>
+<p><code>LastModifiedMiddleware</code> will set a <code>Last-Modified</code> header using the
+  <code>filemtime()</code> value of the requested resource. If the header value is later
+  than an <code>If-Modified-Since</code>  request header, it will provide a response status
+  of <code>304</code> and disable sending content.</p>
+</li>
+<li>
+<p><code>MethodNotAllowedMiddleware</code> will set the response status to <code>405</code>, and set an
+  <code>Allow</code> header indicating the allowed methods when an unsupported request
+  method is provided.</p>
+</li>
+<li>
+<p><code>OptionsMiddleware</code> will force an empty response with an <code>Allow</code> header set
+  to the allowed methods. (Other headers may also be present!)</p>
+</li>
+</ul>
+<p>By default, these are registered in the following order, contingent on
+configuration being provided:</p>
+<ul>
+<li><code>MethodNotAllowedMiddleware</code></li>
+<li><code>OptionsMiddleware</code></li>
+<li><code>HeadMiddleware</code></li>
+<li><code>GzipMiddleware</code></li>
+<li><code>ClearStatCacheMiddleware</code></li>
+<li><code>CacheControlMiddleware</code></li>
+<li><code>LastModifiedMiddleware</code></li>
+<li><code>ETagMiddleware</code></li>
+</ul>
+<p>This approach ensures that the most expensive operations are never called unless
+other conditions are met (e.g., if the HTTP request method is not allowed,
+there's no need to calculate the <code>Last-Modified</code> or <code>ETag</code> headers); it also
+ensures that all possible headers are provided whenever possible (e.g., a <code>HEAD</code>
+request should also expose <code>Cache-Control</code>, <code>Last-Modified</code>, and <code>ETag</code>
+headers).</p>
+<blockquote>
+<h3 id="providing-your-own-middleware">Providing your own middleware</h3>
+<p>If you want to disable middleware, or to provide an alternate list of middleware
+(including your own!), you will need to provide an alternate
+<code>StaticResourceHandler</code> factory. In most cases, you can extend
+<code>StaticResourceHandlerFactory</code> and override the <code>configureMiddleware(array
+$config) : array</code> method to do so. Be sure to remember to add a <code>dependencies</code>
+setting mapping the <code>StaticResourceHandlerInterface</code> service to your new factory
+when done!</p>
+</blockquote>
+<h2 id="configuration">Configuration</h2>
+<p>We provide a factory for the <code>StaticResourceHandler</code> that uses a
+configuration-driven approach in order to:</p>
+<ul>
+<li>Set the document root.</li>
+<li>Set the map of allowed extensions to content-types.</li>
+<li>Configure and provide middleware.</li>
+</ul>
+<p>The following demonstrates all currently available configuration options:</p>
+<pre class="codehilite"><code class="language-php">// config/autoload/swoole.local.php
+use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
+
+return [
+    'zend-expressive-swoole' =&gt; [
+        'swoole-http-server' =&gt; [
+            'static-files' =&gt; [
+                // Document root; defaults to &quot;getcwd() . '/public'&quot;
+                'document-root' =&gt; '/path/to/static/files/to/serve',
+
+                // Extension =&gt; content-type map.
+                // Keys are the extensions to map (minus any leading `.`),
+                // values are the MIME type to use when serving them.
+                // A default list exists if none is provided.
+                'type-map' =&gt; [],
+
+                // How often a worker should clear the filesystem stat cache.
+                // If not provided, it will never clear it. The value should be
+                // an integer indicating the number of seconds between clear
+                // operations. 0 or negative values will clear on every request.
+                'clearstatcache-interval' =&gt; 3600,
+
+                // Which ETag algorithm to use.
+                // Must be one of &quot;weak&quot; or &quot;strong&quot;; the default, when none is
+                // provided, is &quot;weak&quot;.
+                'etag-type' =&gt; 'weak|strong',
+
+                // gzip options
+                'gzip' =&gt; [
+                    // Compression level to use.
+                    // Should be an integer between 1 and 9; values less than 1
+                    // disable compression.
+                    'level' =&gt; 4,
+                ],
+
+                // Rules governing which server-side caching headers are emitted.
+                // Each key must be a valid regular expression, and should match
+                // typically only file extensions, but potentially full paths.
+                // When a static resource matches, all associated rules will apply.
+                'directives' =&gt; [
+                    'regex' =&gt; [
+                        'cache-control' =&gt; [
+                            // one or more valid Cache-Control directives:
+                            // - must-revalidate
+                            // - no-cache
+                            // - no-store
+                            // - no-transform
+                            // - public
+                            // - private
+                            // - max-age=\d+
+                        ],
+                        'last-modified' =&gt; bool, // Emit a Last-Modified header?
+                        'etag' =&gt; bool, // Emit an ETag header?
+                    ],
+                ],
+            ],
+        ],
+    ],
+];</code></pre>
+
+<blockquote>
+<h3 id="security-warning">Security warning</h3>
+<p>Never add <code>php</code> as an allowed static file extension, as doing so could expose
+the source code of your PHP application!</p>
+<h3 id="document-root">Document root</h3>
+<p>If no <code>document_root</code> configuration is present, the default is to use
+<code>getcwd() . '/public'</code>. If either the configured or default document root
+does not exist, we raise an exception.</p>
+<h3 id="default-extensioncontent-types">Default extension/content-types</h3>
+<p>By default, we serve files with extensions in the whitelist defined in the
+constant <code>Zend\Expressive\Swoole\StaticResourceHandler::DEFAULT_STATIC_EXTS</code>,
+which is derived from a <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types">list of common web MIME types maintained by Mozilla</a>.</p>
+</blockquote>
+<h3 id="configuration-example">Configuration Example</h3>
+<p>The example which follows provides the following options:</p>
+<ul>
+<li>Sets the document root to <code>/var/www/htdocs</code>.</li>
+<li>Adds a custom extension / content-type map.</li>
+<li>Provides a clearstatcache interval of 2 hours.</li>
+<li>Selects the "strong" ETag algorithm.</li>
+<li>Indicates a gzip compression level of 3.</li>
+<li>Sets Cache-Control, Last-Modified, and ETag directives for JS, CSS, and image files.</li>
+<li>Sets Cache-Control directives for plain text files.</li>
+</ul>
+<pre class="codehilite"><code class="language-php">// config/autoload/swoole.local.php
+use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
+
+return [
+    'zend-expressive-swoole' =&gt; [
+        'swoole-http-server' =&gt; [
+            'static-files' =&gt; [
+                'document-root' =&gt; '/var/www/htdocs',
+
+                'type-map' =&gt; [
+                    'css'   =&gt; 'text/css',
+                    'gif'   =&gt; 'image/gif',
+                    'ico'   =&gt; 'image/x-icon',
+                    'jpg'   =&gt; 'image/jpg',
+                    'jpeg'  =&gt; 'image/jpg',
+                    'js'    =&gt; 'application/javascript',
+                    'png'   =&gt; 'image/png',
+                    'svg'   =&gt; 'image/svg+xml',
+                    'txt'   =&gt; 'text/plain',
+                ],
+
+                'clearstatcache-interval' =&gt; 7200,
+
+                'etag-type' =&gt; 'strong',
+
+                'gzip' =&gt; [
+                    'level' =&gt; 3,
+                ],
+
+                'directives' =&gt; [
+                    '/\.(css|gif|ico|jpg|jpeg|png|svg|js)$/' =&gt; [
+                        'cache-control' =&gt; [
+                            'public',
+                            'no-transform',
+                        ],
+                        'last-modified' =&gt; true,
+                        'etag' =&gt; true,
+                    ],
+                    '/\.txt$/' =&gt; [
+                        'cache-control' =&gt; [
+                            'public',
+                            'no-cache',
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ],
+];</code></pre>
+
+<h2 id="writing-middleware">Writing Middleware</h2>
+<p>Static resource middleware must implement
+<code>Zend\Expressive\Swoole\StaticResourceHandler\MiddlewareInterface</code>, which
+defines the following:</p>
+<pre class="codehilite"><code class="language-php">namespace Zend\Expressive\Swoole\StaticResourceHandler;
+
+use Swoole\Http\Request;
+
+interface MiddlewareInterface
+{
+    /**
+     * @param string $filename The discovered filename being returned.
+     * @param callable $next has the signature:
+     *     function (Request $request, string $filename) : StaticResourceResponse
+     */
+    public function __invoke(
+        Request $request,
+        string $filename,
+        callable $next
+    ) : StaticResourceResponse;
+}</code></pre>
+
+<p>The <code>$next</code> argument has the following signature:</p>
+<pre class="codehilite"><code class="language-php">namespace Zend\Expressive\Swoole\StaticResourceHandler;
+
+use Swoole\Http\Request;
+
+public function __invoke(
+    Request $request,
+    string $filename
+) : StaticResourceResponse;</code></pre>
+
+<p>Typically, middleware will look something like this:</p>
+<pre class="codehilite"><code class="language-php">$response = $next($request, $filename);
+
+// if some request condition does not match:
+// return $response;
+
+// Otherwise, manipulate the returned $response instance and then return it.</code></pre>
+
+<p>Middleware either produces or manipulates a
+<code>Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse</code> instance.
+That class looks like the following:</p>
+<pre class="codehilite"><code class="language-php">class StaticResourceResponse
+{
+    /**
+     * @param callable $responseContentCallback Callback to use when emitting
+     *     the response body content via Swoole. Must have the signature:
+     *     function (SwooleHttpResponse $response, string $filename) : void
+     */
+    public function __construct(
+        int $status = 200,
+        array $headers = [],
+        bool $sendContent = true,
+        callable $responseContentCallback = null
+    );
+
+    public function addHeader(string $name, string $value) : void;
+
+    public function disableContent() : void;
+
+    /**
+     * @param callable $responseContentCallback Callback to use when emitting
+     *     the response body content via Swoole. Must have the signature:
+     *     function (SwooleHttpResponse $response, string $filename) : void
+     */
+    public function setResponseContentCallback(callable $callback) : void;
+
+    public function setStatus(int $status) : void;
+}</code></pre>
+
+<p>Most middleware will conditionally set the status, one or more headers, and
+potentially disable returning the response body (via <code>disableContent()</code>).</p>
+<blockquote>
+<h3 id="providing-an-alternative-mechanism-for-sending-response-content">Providing an alternative mechanism for sending response content</h3>
+<p>In some cases, you may want to alter how the <code>Swoole\Http\Response</code> receives the
+body content. By default, we use <code>Swoole\Http\Response::sendfile()</code>. However,
+this may not work well when performing tasks such as compression, appending a
+watermark, etc. As an example, the <code>GzipMiddleware</code> adds a compression filter to
+a filehandle representing the file to send, and then calls
+<code>Swoole\Http\Response::write()</code> in a loop until all content is sent.</p>
+<p>To perform work like this, you can call the
+<code>StaticResourceResponse::setResponseContentCallback()</code> method as detailed in the
+section above within your middleware.</p>
+</blockquote>
+<h2 id="alternative-static-resource-handlers">Alternative static resource handlers</h2>
+<p>As noted at the beginning of this chapter, the the <code>RequestHandlerSwooleRunner</code>
+composes a <code>StaticResourceHandlerInterface</code> instance in order to determine if a
+resource was matched by the request, and then to serve it.</p>
+<p>If you want to provide an alternative mechanism for doing so (e.g., to serve
+files out of a caching server), you will need to implement
+<code>Zend\Expressive\Swoole\StaticResourceHandlerInterface</code>:</p>
+<pre class="codehilite"><code class="language-php">declare(strict_types=1);
+
+namespace Zend\Expressive\Swoole;
+
+use Swoole\Http\Request as SwooleHttpRequest;
+use Swoole\Http\Response as SwooleHttpResponse;
+
+interface StaticResourceHandlerInterface
+{
+    /**
+     * Does the request match to a static resource?
+     */
+    public function isStaticResource(SwooleHttpRequest $request) : bool;
+
+    /**
+     * Send the static resource based on the current request.
+     */
+    public function sendStaticResource(
+        SwooleHttpRequest $request,
+        SwooleHttpResponse $response
+    ) : void;
+}</code></pre>
+
+<p>Once implemented, map the service
+<code>Zend\Expressive\Swoole\StaticResourceHandlerInterface</code> to a factory that
+returns your custom implementation within your <code>dependencies</code> configuration.</p>
+
+
+
+    <nav>
+    <ul class="page-nav hidden-print">
+
+        
+        <li class="page-nav__item">
+            
+                <a rel="prev" class="page-nav__link page-nav__link--prev" href="../intro/">
+                    <i class="fa fa-chevron-left"></i> Previous
+                </a>
+            
+        </li>
+
+        
+        <li class="page-nav__item">
+            
+                <a rel="next" class="page-nav__link page-nav__link--next" href="../logging/">
+                    Next <i class="fa fa-chevron-right"></i>
+                </a>
+            
+        </li>
+    </ul>
+</nav>
+
+
+
+    <div class="help-wanted">
+        <p>
+            Found a mistake or want to contribute to the documentation?
+            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/book/static-resources.md" target="_blank" class="help-wanted__link">
+                Edit this page on GitHub!
+            </a>
+        </p>
+    </div>
+
+                
+            <!-- content:end -->
+            </div>
+            <div class="col-md-3 col-xs-12 sidebar">
+                
+                    <div class="component-selector">
+    <h4 class="component-selector__title">Components</h4>
+    <h5 class="component-selector__subtitle">Find documentation…</h5>
+    <select class="form-control component-selector__control">
+        <option value="/">Overview</option>
+        <optgroup label="Components"></optgroup>
+    </select>
+</div>
+                    
+    <div class="subnavigation hidden-print">
+        <h4 class="subnavigation__title">
+            <a href="..">zend-expressive-swoole</a>
+        </h4>
+
+        <h5 class="subnavigation__subtitle">Table of Contents</h5>
+
+        <ul class="subnavigation__list">
+            
+                
+                    <li class="subnavigation__list-item ">
+                        <a href=".." class="subnavigation__link">zend-expressive-swoole</a>
+                    </li>
+                
+            
+                
+                    <li class="subnavigation__list-item ">
+                        <a href="../intro/" class="subnavigation__link">Introduction</a>
+                    </li>
+                
+            
+                
+                    <li class="subnavigation__list-item">
+                        <span class="subnavigation__headline">Reference</span>
+                        <ul class="subnavigation__list">
+                            
+                                
+    <li class="subnavigation__list-item subnavigation__list-item--active">
+        <a href="./" class="subnavigation__link">Static Resources</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item ">
+        <a href="../logging/" class="subnavigation__link">Logging</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item ">
+        <a href="../how_it_works/" class="subnavigation__link">How it works</a>
+    </li>
+
+                            
+                        </ul>
+                    </li>
+                
+            
+        </ul>
+    </div>
+
+                
+            </div>
+        </div>
+    </div>
+
+    
+    <footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9">
+                <h5>Zend Framework</h5>
+                <ul>
+                    <li><a href="https://framework.zend.com/">framework.zend.com</a></li>
+                    <li><a href="https://docs.zendframework.com">docs.zendframework.com</a></li>
+                    <li><a href="https://packages.zendframework.com">packages.zendframework.com</a></li>
+                    <li><a href="https://apigility.org">apigility.org</a></li>
+                    <li><a href="https://getexpressive.org/">getexpressive.org</a></li>
+                </ul>
+            </div>
+        </div>
+
+        
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <a class="footer__button" href="#page-top"><i class="fa fa-chevron-up" aria-hidden="true"></i></a>
+            </div>
+        </div>
+
+        <div class="row">
+
+            
+            <div class="col-md-9">
+                <h4 class="footer__headline">Copyright</h4>
+                <p>&copy; 2006-2018 by <a href="https://www.zend.com/">Zend</a>, a <a href="https://www.roguewave.com/">Rogue Wave Company</a>.</p>
+            </div>
+
+            
+            <div class="col-md-3">
+                <h4 class="footer__headline">Support</h4>
+                <ul class="support__list">
+                    <li class="support__list-item">
+                        <a href="https://discourse.zendframework.com" class="support__link" title="Forum"><i class="fa fa-comments"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://zendframework-slack.herokuapp.com" class="support__link" title="Chat"><i class="fa fa-slack"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://github.com/zendframework" class="support__link" title="Github"><i class="fa fa-github"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://twitter.com/zfdevteam" class="support__link" title="Twitter"><i class="fa fa-twitter"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://tinyletter.com/mwopzend" class="support__link" title="Newsletter"><i class="fa fa-envelope"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://framework.zend.com/blog/feed-rss.xml" class="support__link" title="Blog feed"><i class="fa fa-rss"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://framework.zend.com/security/feed" class="support__link" title="Security feed"><i class="fa fa-rss-square"></i></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <script>
+        var base_url = '..',
+            siteName = 'zend-expressive-swoole';
+    </script>
+    <script src="../js/scripts-a978f1ec1a.js"></script>
+        <script src="../search/require.js"></script>
+        <script src="../search/search.js"></script>
+
+    
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        From here you can search these documents. Enter your search terms below.
+                    </p>
+                    <form role="form">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                        </div>
+                    </form>
+                    <div id="mkdocs-search-results"></div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</body>
+
+
+</html>
