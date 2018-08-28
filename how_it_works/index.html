@@ -251,8 +251,7 @@ via the class <code>Zend\Expressive\Swoole\ServerRequestSwooleFactory</code>.</p
 that converts a PSR-7 response to a <code>Swoole\Http\Response</code> instance.</p>
 <p>When you run an Expressive application using zend-expressive-swoole, you will
 notice a bunch of PHP processes running. By default, Swoole executes 4 <em>worker</em>
-processes, 1 <em>manager</em> process and 1 <em>master</em> process, for a total of 6 PHP
-processes.</p>
+(or <em>reactor</em>) processes and 1 <em>master</em> process, for a total of 5 PHP processes.</p>
 <p><img alt="Swoole processes" src="../images/diagram_swoole.png" class="img-responsive"/></p>
 <p>The advantages of this architecture are many: it's very light and simple (just
 PHP processes running); it offers a service layer that is able to restart a
