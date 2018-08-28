@@ -104,7 +104,7 @@ class StaticResourceHandlerTest extends TestCase
             'request_uri' => '/image.png',
         ];
 
-        $middlewareResponse = new StaticResourceHandler\ResponseValues(
+        $middlewareResponse = new StaticResourceHandler\StaticResourceResponse(
             304,
             ['X-Response' => 'middleware'],
             false
@@ -114,7 +114,6 @@ class StaticResourceHandlerTest extends TestCase
         $middleware
             ->__invoke($request, $this->docRoot . '/image.png', Argument::any())
             ->willReturn($middlewareResponse);
-
 
         $response = $this->prophesize(SwooleHttpResponse::class);
         $response->header('Content-Type', 'image/png', true)->shouldBeCalled();

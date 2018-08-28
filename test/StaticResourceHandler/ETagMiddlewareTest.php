@@ -7,20 +7,23 @@
 
 declare(strict_types=1);
 
-namespace Zend\Expressive\Swoole\StaticResourceHandler;
+namespace ZendTest\Expressive\Swoole\StaticResourceHandler;
 
 use PHPUnit\Framework\TestCase;
 use Swoole\Http\Request;
 use Zend\Expressive\Swoole\Exception\InvalidArgumentException;
 use Zend\Expressive\Swoole\StaticResourceHandler\ETagMiddleware;
-use Zend\Expressive\Swoole\StaticResourceHandler\ResponseValues;
+use Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse;
+use ZendTest\Expressive\Swoole\AssertResponseTrait;
 
 class ETagMiddlewareTest extends TestCase
 {
+    use AssertResponseTrait;
+
     public function setUp()
     {
         $this->next = function ($request, $filename) {
-            return new ResponseValues();
+            return new StaticResourceResponse();
         };
         $this->request = $this->prophesize(Request::class)->reveal();
     }
@@ -49,10 +52,9 @@ class ETagMiddlewareTest extends TestCase
 
         $response = $middleware($this->request, '/any/path/at/all', $this->next);
 
-        $headers = $response->getHeaders();
-        $this->assertEquals(200, $response->getStatus());
-        $this->assertArrayNotHasKey('ETag', $headers);
-        $this->assertTrue($response->shouldSendContent());
+        $this->assertStatus(200, $response);
+        $this->assertHeaderNotExists('ETag', $response);
+        $this->assertShouldSendContent($response);
     }
 
     public function expectedEtagProvider() : array
@@ -87,11 +89,10 @@ class ETagMiddlewareTest extends TestCase
 
         $response = $middleware($this->request, $filename, $this->next);
 
-        $headers = $response->getHeaders();
-        $this->assertEquals(200, $response->getStatus());
-        $this->assertArrayHasKey('ETag', $headers);
-        $this->assertSame($expectedETag, $headers['ETag']);
-        $this->assertTrue($response->shouldSendContent());
+        $this->assertStatus(200, $response);
+        $this->assertHeaderExists('ETag', $response);
+        $this->assertHeaderSame($expectedETag, 'ETag', $response);
+        $this->assertShouldSendContent($response);
     }
 
     public function clientMatchHeaders() : iterable
@@ -128,10 +129,9 @@ class ETagMiddlewareTest extends TestCase
 
         $response = $middleware($this->request, $filename, $this->next);
 
-        $headers = $response->getHeaders();
-        $this->assertEquals(304, $response->getStatus());
-        $this->assertArrayHasKey('ETag', $headers);
-        $this->assertSame($expectedETag, $headers['ETag']);
-        $this->assertFalse($response->shouldSendContent());
+        $this->assertStatus(304, $response);
+        $this->assertHeaderExists('ETag', $response);
+        $this->assertHeaderSame($expectedETag, 'ETag', $response);
+        $this->assertShouldNotSendContent($response);
     }
 }

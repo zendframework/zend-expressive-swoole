@@ -13,14 +13,17 @@ use PHPUnit\Framework\TestCase;
 use Swoole\Http\Request;
 use Zend\Expressive\Swoole\Exception\InvalidArgumentException;
 use Zend\Expressive\Swoole\StaticResourceHandler\LastModifiedMiddleware;
-use Zend\Expressive\Swoole\StaticResourceHandler\ResponseValues;
+use Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse;
+use ZendTest\Expressive\Swoole\AssertResponseTrait;
 
 class LastModifiedMiddlewareTest extends TestCase
 {
+    use AssertResponseTrait;
+
     public function setUp()
     {
         $this->next = function ($request, $filename) {
-            return new ResponseValues();
+            return new StaticResourceResponse();
         };
         $this->request = $this->prophesize(Request::class)->reveal();
     }
@@ -42,10 +45,9 @@ class LastModifiedMiddlewareTest extends TestCase
 
         $response = $middleware($this->request, 'images/image.png', $this->next);
 
-        $this->assertEquals(200, $response->getStatus());
-        $headers = $response->getHeaders();
-        $this->assertArrayNotHasKey('Last-Modified', $headers);
-        $this->assertTrue($response->shouldSendContent());
+        $this->assertStatus(200, $response);
+        $this->assertHeaderNotExists('Last-Modified', $response);
+        $this->assertShouldSendContent($response);
     }
 
     public function testMiddlewareCreatesLastModifiedHeaderWhenPathMatchesARegex()
@@ -58,11 +60,10 @@ class LastModifiedMiddlewareTest extends TestCase
 
         $response = $middleware($this->request, __DIR__ . '/../TestAsset/image.png', $this->next);
 
-        $this->assertEquals(200, $response->getStatus());
-        $headers = $response->getHeaders();
-        $this->assertArrayHasKey('Last-Modified', $headers);
-        $this->assertRegExp('/\d+-[^0-9-]+-\d+ \d{2}:\d{2}:\d{2}/', $headers['Last-Modified']);
-        $this->assertTrue($response->shouldSendContent());
+        $this->assertStatus(200, $response);
+        $this->assertHeaderExists('Last-Modified', $response);
+        $this->assertHeaderRegexp('/\d+-[^0-9-]+-\d+ \d{2}:\d{2}:\d{2}/', 'Last-Modified', $response);
+        $this->assertShouldSendContent($response);
     }
 
     public function testMiddlewareDisablesContentWhenLastModifiedIsGreaterThanClientExpectation()
@@ -81,10 +82,9 @@ class LastModifiedMiddlewareTest extends TestCase
 
         $response = $middleware($this->request, __DIR__ . '/../TestAsset/image.png', $this->next);
 
-        $this->assertEquals(304, $response->getStatus());
-        $headers = $response->getHeaders();
-        $this->assertArrayHasKey('Last-Modified', $headers);
-        $this->assertRegExp('/\d+-[^0-9-]+-\d+ \d{2}:\d{2}:\d{2}/', $headers['Last-Modified']);
-        $this->assertFalse($response->shouldSendContent());
+        $this->assertStatus(304, $response);
+        $this->assertHeaderExists('Last-Modified', $response);
+        $this->assertHeaderRegexp('/\d+-[^0-9-]+-\d+ \d{2}:\d{2}:\d{2}/', 'Last-Modified', $response);
+        $this->assertShouldNotSendContent($response);
     }
 }

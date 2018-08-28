@@ -12,10 +12,13 @@ namespace ZendTest\Expressive\Swoole\StaticResourceHandler;
 use PHPUnit\Framework\TestCase;
 use Swoole\Http\Request;
 use Zend\Expressive\Swoole\StaticResourceHandler\OptionsMiddleware;
-use Zend\Expressive\Swoole\StaticResourceHandler\ResponseValues;
+use Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse;
+use ZendTest\Expressive\Swoole\AssertResponseTrait;
 
 class OptionsMiddlewareTest extends TestCase
 {
+    use AssertResponseTrait;
+
     public function setUp()
     {
         $this->request = $this->prophesize(Request::class)->reveal();
@@ -36,34 +39,32 @@ class OptionsMiddlewareTest extends TestCase
     {
         $this->request->server = ['request_method' => $method];
         $next = function ($request, $filename) {
-            return new ResponseValues();
+            return new StaticResourceResponse();
         };
 
         $middleware = new OptionsMiddleware();
 
         $response = $middleware($this->request, '/some/filename', $next);
 
-        $this->assertSame(200, $response->getStatus());
-        $headers = $response->getHeaders();
-        $this->assertArrayNotHasKey('Allow', $headers);
-        $this->assertTrue($response->shouldSendContent());
+        $this->assertStatus(200, $response);
+        $this->assertHeaderNotExists('Allow', $response);
+        $this->assertShouldSendContent($response);
     }
 
     public function testMiddlewareSetsAllowHeaderAndDisablesContentForOptionsRequests()
     {
         $this->request->server = ['request_method' => 'OPTIONS'];
         $next = function ($request, $filename) {
-            return new ResponseValues();
+            return new StaticResourceResponse();
         };
 
         $middleware = new OptionsMiddleware();
 
         $response = $middleware($this->request, '/some/filename', $next);
 
-        $this->assertSame(200, $response->getStatus());
-        $headers = $response->getHeaders();
-        $this->assertArrayHasKey('Allow', $headers);
-        $this->assertSame('GET, HEAD, OPTIONS', $headers['Allow']);
-        $this->assertFalse($response->shouldSendContent());
+        $this->assertStatus(200, $response);
+        $this->assertHeaderExists('Allow', $response);
+        $this->assertHeaderSame('GET, HEAD, OPTIONS', 'Allow', $response);
+        $this->assertShouldNotSendContent($response);
     }
 }

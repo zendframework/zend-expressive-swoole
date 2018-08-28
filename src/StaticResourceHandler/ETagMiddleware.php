@@ -72,7 +72,7 @@ class ETagMiddleware implements MiddlewareInterface
     /**
      * {@inheritDoc}
      */
-    public function __invoke(Request $request, string $filename, callable $next) : ResponseValues
+    public function __invoke(Request $request, string $filename, callable $next) : StaticResourceResponse
     {
         $response = $next($request, $filename);
 
@@ -100,8 +100,11 @@ class ETagMiddleware implements MiddlewareInterface
      *     content should be provided, assuming other conditions require it as
      *     well.
      */
-    private function prepareETag(Request $request, string $filename, ResponseValues $response) : ResponseValues
-    {
+    private function prepareETag(
+        Request $request,
+        string $filename,
+        StaticResourceResponse $response
+    ) : StaticResourceResponse {
         $etag = '';
         $lastModified = filemtime($filename) ?? 0;
         switch ($this->etagValidationType) {

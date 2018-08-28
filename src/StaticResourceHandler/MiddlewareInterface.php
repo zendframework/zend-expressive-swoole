@@ -16,11 +16,11 @@ interface MiddlewareInterface
     /**
      * @param string $filename The discovered filename being returned.
      * @param callable $next has the signature:
-     *     function (Request $request, string $filename) : ResponseValues
+     *     function (Request $request, string $filename) : StaticResourceResponse
      */
     public function __invoke(
         Request $request,
         string $filename,
         callable $next
-    ) : ResponseValues;
+    ) : StaticResourceResponse;
 }

@@ -49,7 +49,7 @@ class CacheControlMiddleware implements MiddlewareInterface
         $this->cacheControlDirectives = $cacheControlDirectives;
     }
 
-    public function __invoke(Request $request, string $filename, callable $next) : ResponseValues
+    public function __invoke(Request $request, string $filename, callable $next) : StaticResourceResponse
     {
         $response = $next($request, $filename);
         $cacheControl = $this->getCacheControlForPath($request->server['request_uri']);

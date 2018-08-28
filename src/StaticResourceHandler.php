@@ -149,18 +149,11 @@ class StaticResourceHandler implements StaticResourceHandlerInterface
             return;
         }
 
-        $middleware = new StaticResourceHandler\MiddlewareQueue($this->middleware);
-        $responseValues = $middleware($request, $filename);
-
-        $response->status($responseValues->getStatus());
         $response->header('Content-Type', $this->cacheTypeFile[$filename], true);
-        foreach ($responseValues->getHeaders() as $header => $value) {
-            $response->header($header, $value, true);
-        }
 
-        $responseValues->shouldSendContent()
-            ? $response->sendfile($filename)
-            : $response->end();
+        $middleware = new StaticResourceHandler\MiddlewareQueue($this->middleware);
+        $staticResourceResponse = $middleware($request, $filename);
+        $staticResourceResponse->sendSwooleResponse($response, $filename);
     }
 
     /**

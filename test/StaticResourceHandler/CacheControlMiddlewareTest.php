@@ -13,10 +13,13 @@ use PHPUnit\Framework\TestCase;
 use Swoole\Http\Request;
 use Zend\Expressive\Swoole\Exception\InvalidArgumentException;
 use Zend\Expressive\Swoole\StaticResourceHandler\CacheControlMiddleware;
-use Zend\Expressive\Swoole\StaticResourceHandler\ResponseValues;
+use Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse;
+use ZendTest\Expressive\Swoole\AssertResponseTrait;
 
 class CacheControlMiddlewareTest extends TestCase
 {
+    use AssertResponseTrait;
+
     public function testConstructorRaisesExceptionForInvalidRegexKey()
     {
         $this->expectException(InvalidArgumentException::class);
@@ -68,15 +71,14 @@ class CacheControlMiddlewareTest extends TestCase
         ];
 
         $next = function ($request, $filename) {
-            return new ResponseValues();
+            return new StaticResourceResponse();
         };
 
         $response = $middleware($request, 'some/path.html', $next);
 
-        $this->assertEquals(200, $response->getStatus());
-        $headers = $response->getHeaders();
-        $this->assertArrayNotHasKey('Cache-Control', $headers);
-        $this->assertTrue($response->shouldSendContent());
+        $this->assertStatus(200, $response);
+        $this->assertHeaderNotExists('Cache-Control', $response);
+        $this->assertShouldSendContent($response);
     }
 
     public function testMiddlewareAddsCacheControlHeaderIfPathMatchesADirective()
@@ -94,15 +96,14 @@ class CacheControlMiddlewareTest extends TestCase
         ];
 
         $next = function ($request, $filename) {
-            return new ResponseValues();
+            return new StaticResourceResponse();
         };
 
         $response = $middleware($request, 'some/path.html', $next);
 
-        $this->assertEquals(200, $response->getStatus());
-        $headers = $response->getHeaders();
-        $this->assertArrayHasKey('Cache-Control', $headers);
-        $this->assertEquals('public, no-transform', $headers['Cache-Control']);
-        $this->assertTrue($response->shouldSendContent());
+        $this->assertStatus(200, $response);
+        $this->assertHeaderExists('Cache-Control', $response);
+        $this->assertHeaderSame('public, no-transform', 'Cache-Control', $response);
+        $this->assertShouldSendContent($response);
     }
 }

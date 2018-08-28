@@ -14,10 +14,13 @@ use Prophecy\Argument;
 use Swoole\Http\Request;
 use Zend\Expressive\Swoole\StaticResourceHandler\MiddlewareInterface;
 use Zend\Expressive\Swoole\StaticResourceHandler\MiddlewareQueue;
-use Zend\Expressive\Swoole\StaticResourceHandler\ResponseValues;
+use Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse;
+use ZendTest\Expressive\Swoole\AssertResponseTrait;
 
 class MiddlewareQueueTest extends TestCase
 {
+    use AssertResponseTrait;
+
     public function setUp()
     {
         $this->request = $this->prophesize(Request::class)->reveal();
@@ -29,15 +32,15 @@ class MiddlewareQueueTest extends TestCase
 
         $response = $queue($this->request, 'some/filename.txt');
 
-        $this->assertInstanceOf(ResponseValues::class, $response);
-        $this->assertSame(200, $response->getStatus());
-        $this->assertSame([], $response->getHeaders());
-        $this->assertTrue($response->shouldSendContent());
+        $this->assertInstanceOf(StaticResourceResponse::class, $response);
+        $this->assertStatus(200, $response);
+        $this->assertHeadersEmpty($response);
+        $this->assertShouldSendContent($response);
     }
 
     public function testReturnsResponseGeneratedByMiddleware()
     {
-        $response = $this->prophesize(ResponseValues::class)->reveal();
+        $response = $this->prophesize(StaticResourceResponse::class)->reveal();
 
         $middleware = $this->prophesize(MiddlewareInterface::class);
         $middleware
@@ -84,11 +87,10 @@ class MiddlewareQueueTest extends TestCase
 
         $response = $queue($this->request, 'some/filename.txt');
 
-        $this->assertInstanceOf(ResponseValues::class, $response);
-        $this->assertSame(304, $response->getStatus());
-        $headers = $response->getHeaders();
-        $this->assertArrayHasKey('X-Hit', $headers);
-        $this->assertSame('second', $headers['X-Hit']);
-        $this->assertFalse($response->shouldSendContent());
+        $this->assertInstanceOf(StaticResourceResponse::class, $response);
+        $this->assertStatus(304, $response);
+        $this->assertHeaderExists('X-Hit', $response);
+        $this->assertHeaderSame('second', 'X-Hit', $response);
+        $this->assertShouldNotSendContent($response);
     }
 }

@@ -36,7 +36,7 @@ class LastModifiedMiddleware implements MiddlewareInterface
         $this->lastModifiedDirectives = $lastModifiedDirectives;
     }
 
-    public function __invoke(Request $request, string $filename, callable $next) : ResponseValues
+    public function __invoke(Request $request, string $filename, callable $next) : StaticResourceResponse
     {
         $response = $next($request, $filename);
 

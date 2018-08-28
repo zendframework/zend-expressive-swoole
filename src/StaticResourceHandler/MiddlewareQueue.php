@@ -28,10 +28,10 @@ class MiddlewareQueue
         $this->middleware = $middleware;
     }
 
-    public function __invoke(Request $request, string $filename) : ResponseValues
+    public function __invoke(Request $request, string $filename) : StaticResourceResponse
     {
         if ([] === $this->middleware) {
-            return new ResponseValues();
+            return new StaticResourceResponse();
         }
 
         $middleware = array_shift($this->middleware);

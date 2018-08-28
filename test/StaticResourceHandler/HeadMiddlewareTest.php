@@ -12,14 +12,17 @@ namespace ZendTest\Expressive\Swoole\StaticResourceHandler;
 use PHPUnit\Framework\TestCase;
 use Swoole\Http\Request;
 use Zend\Expressive\Swoole\StaticResourceHandler\HeadMiddleware;
-use Zend\Expressive\Swoole\StaticResourceHandler\ResponseValues;
+use Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse;
+use ZendTest\Expressive\Swoole\AssertResponseTrait;
 
 class HeadMiddlewareTest extends TestCase
 {
+    use AssertResponseTrait;
+
     public function setUp()
     {
         $this->next = function ($request, $filename) {
-            return new ResponseValues();
+            return new StaticResourceResponse();
         };
         $this->request = $this->prophesize(Request::class)->reveal();
     }
@@ -49,7 +52,7 @@ class HeadMiddlewareTest extends TestCase
 
         $response = $middleware($this->request, '/some/path', $this->next);
 
-        $this->assertTrue($response->shouldSendContent());
+        $this->assertShouldSendContent($response);
     }
 
     public function testMiddlewareDisablesContentWhenHeadMethodDetected()
@@ -61,6 +64,6 @@ class HeadMiddlewareTest extends TestCase
 
         $response = $middleware($this->request, '/some/path', $this->next);
 
-        $this->assertFalse($response->shouldSendContent());
+        $this->assertShouldNotSendContent($response);
     }
 }

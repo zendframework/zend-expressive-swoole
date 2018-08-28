@@ -12,10 +12,13 @@ namespace ZendTest\Expressive\Swoole\StaticResourceHandler;
 use PHPUnit\Framework\TestCase;
 use Swoole\Http\Request;
 use Zend\Expressive\Swoole\StaticResourceHandler\MethodNotAllowedMiddleware;
-use Zend\Expressive\Swoole\StaticResourceHandler\ResponseValues;
+use Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse;
+use ZendTest\Expressive\Swoole\AssertResponseTrait;
 
 class MethodNotAllowedMiddlewareTest extends TestCase
 {
+    use AssertResponseTrait;
+
     public function setUp()
     {
         $this->request = $this->prophesize(Request::class)->reveal();
@@ -48,7 +51,7 @@ class MethodNotAllowedMiddlewareTest extends TestCase
         $this->request->server = [
             'request_method' => $method,
         ];
-        $response = new ResponseValues();
+        $response = new StaticResourceResponse();
         $next = function ($request, $filename) use ($response) {
             return $response;
         };
@@ -74,11 +77,10 @@ class MethodNotAllowedMiddlewareTest extends TestCase
 
         $response = $middleware($this->request, '/does/not/matter', $next);
 
-        $this->assertInstanceOf(ResponseValues::class, $response);
-        $this->assertSame(405, $response->getStatus());
-        $this->assertFalse($response->shouldSendContent());
-        $headers = $response->getHeaders();
-        $this->assertArrayHasKey('Allow', $headers);
-        $this->assertSame('GET, HEAD, OPTIONS', $headers['Allow']);
+        $this->assertInstanceOf(StaticResourceResponse::class, $response);
+        $this->assertStatus(405, $response);
+        $this->assertHeaderExists('Allow', $response);
+        $this->assertHeaderSame('GET, HEAD, OPTIONS', 'Allow', $response);
+        $this->assertShouldNotSendContent($response);
     }
 }
