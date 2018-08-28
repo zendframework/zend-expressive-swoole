@@ -105,10 +105,6 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
      */
     private $staticResourceHandler;
 
-    /**
-     * @throws Exception\InvalidConfigException if the configured or default
-     *     document root does not exist.
-     */
     public function __construct(
         RequestHandlerInterface $handler,
         callable $serverRequestFactory,
@@ -139,6 +135,10 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
 
     /**
      * Run the application
+     *
+     * Determines which action was requested from the command line, and then
+     * executes the task associated with it. If no action was provided, it
+     * assumes "start".
      */
     public function run() : void
     {
@@ -165,7 +165,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     }
 
     /**
-     * Start swoole server
+     * Start the swoole HTTP server
      *
      * @param array $options Swoole server options
      */
@@ -173,12 +173,13 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     {
         $swooleServer = $this->serverFactory->createSwooleServer($options);
         $swooleServer->on('start', [$this, 'onStart']);
+        $swooleServer->on('workerstart', [$this, 'onWorkerStart']);
         $swooleServer->on('request', [$this, 'onRequest']);
         $swooleServer->start();
     }
 
     /**
-     * Stop swoole server
+     * Stop the swoole HTTP server
      */
     public function stopServer() : void
     {
@@ -231,7 +232,7 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     }
 
     /**
-     * Is swoole server running ?
+     * Is the swoole HTTP server running?
      */
     public function isRunning() : bool
     {
@@ -245,21 +246,43 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     }
 
     /**
-     * On start event for swoole http server
+     * Handle a start event for swoole HTTP server manager process.
+     *
+     * Writes the master and manager PID values to the PidManager, and ensures
+     * the manager and/or workers use the same PWD as the master process.
      */
     public function onStart(SwooleHttpServer $server) : void
     {
         $this->pidManager->write($server->master_pid, $server->manager_pid);
-        $this->logger->info('Swoole is running at {host}:{port}', [
-            'host' => $server->host,
-            'port' => $server->port,
-        ]);
+
         // Reset CWD
         chdir($this->cwd);
+
+        $this->logger->info('Swoole is running at {host}:{port}, in {cwd}', [
+            'host' => $server->host,
+            'port' => $server->port,
+            'cwd'  => getcwd(),
+        ]);
     }
 
     /**
-     * On HTTP request event for swoole http server
+     * Handle a workerstart event for swoole HTTP server worker process
+     *
+     * Ensures workers all use the same PWD as the master process.
+     */
+    public function onWorkerStart(SwooleHttpServer $server, int $workerId) : void
+    {
+        // Reset CWD
+        chdir($this->cwd);
+
+        $this->logger->info('Worker started in {cwd} with ID {pid}', [
+            'cwd' => getcwd(),
+            'pid' => $workerId,
+        ]);
+    }
+
+    /**
+     * Handle an incoming HTTP request
      */
     public function onRequest(
         SwooleHttpRequest $request,

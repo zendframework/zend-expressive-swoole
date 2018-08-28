@@ -107,7 +107,11 @@ class RequestHandlerSwooleRunnerTest extends TestCase
         $swooleServer->expects($this->once())
             ->method('start');
 
-        $swooleServer->expects($this->exactly(2))
+        // Listeners are attached to each of:
+        // - start
+        // - workerstart
+        // - request
+        $swooleServer->expects($this->exactly(3))
             ->method('on');
 
         // Clear command options, like phpunit --colors=always
@@ -129,7 +133,10 @@ class RequestHandlerSwooleRunnerTest extends TestCase
         );
 
         $runner->onStart($swooleServer = $this->createMock(SwooleHttpServer::class));
-        $this->expectOutputString("Swoole is running at :0\n");
+        $this->expectOutputString(sprintf(
+            "Swoole is running at :0, in %s\n",
+            getcwd()
+        ));
     }
 
     public function testOnRequestDelegatesToApplicationWhenNoStaticResourceHandlerPresent()
