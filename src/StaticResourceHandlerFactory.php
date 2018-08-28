@@ -150,7 +150,7 @@ class StaticResourceHandlerFactory
         if ($etagDirectives !== []) {
             $middleware[] = new StaticResourceHandler\ETagMiddleware(
                 $etagDirectives,
-                $config['etag-type'] ?? StaticResourceHandler::ETAG_VALIDATION_WEAK
+                $config['etag-type'] ?? StaticResourceHandler\ETagMiddleware::ETAG_VALIDATION_WEAK
             );
         }
 
