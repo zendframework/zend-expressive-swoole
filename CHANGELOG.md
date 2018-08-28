@@ -6,6 +6,27 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Added
 
+- [#20](https://github.com/zendframework/zend-expressive-swoole/pull/20) adds a new interface, `Zend\Expressive\Swoole\StaticResourceHandlerInterface`,
+  and default implementation `Zend\Expressive\Swoole\StaticResourceHandler`,
+  used to determine if a request is for a static file, and then to serve it; the
+  `RequestHandlerSwooleRunner` composes an instance now for providing static
+  resource serving capabilities.
+
+  The default implementation uses custom middleware to allow providing common
+  features such as HTTP client-side caching headers, handling `OPTIONS`
+  requests, etc. Full capabilities include:
+
+  - Emitting `405` statuses for unsupported HTTP methods.
+  - Handling `OPTIONS` requests.
+  - Handling `HEAD` requests.
+  - Providing gzip/deflate compression of response content.
+  - Selectively emitting `Cache-Control` headers.
+  - Selectively emitting `Last-Modified` headers.
+  - Selectively emitting `ETag` headers.
+
+  Please see the [static resource documentation](https://docs.zendframework.com/zend-expressive-swoole/static-resources/)
+  for more information.
+
 - [#11](https://github.com/zendframework/zend-expressive-swoole/pull/11) adds the following console actions and options when starting the
   server via `public/index.php`:
   - `start` will start the server; it may be omitted, as this is the default action.
@@ -14,6 +35,25 @@ All notable changes to this project will be documented in this file, in reverse 
   - `--num_workers|n` tells the server how many workers to spawn when starting (defaults to 1).
 
 ### Changed
+
+- [#20](https://github.com/zendframework/zend-expressive-swoole/pull/20) modifies the collaborators and thus constructor arguments
+  expected by the `RequestHandlerSwooleRunner`. The constructor now has the
+  following signature:
+
+  ```php
+  public function __construct(
+      Psr\Http\Server\RequestHandlerInterface $handler,
+      callable $serverRequestFactory,
+      callable $serverRequestErrorResponseGenerator,
+      Zend\Expressive\Swoole\PidManager $pidManager,
+      Zend\Expressive\Swoole\ServerFactory $serverFactory,
+      Zend\Expressive\Swoole\StaticResourceHandlerInterface $staticResourceHandler = null,
+      Psr\Logger\LoggerInterface $logger = null
+  ) {
+  ```
+
+  If you were manually creating an instance, or had provided your own factory,
+  you will need to update your code.
 
 - [#11](https://github.com/zendframework/zend-expressive-swoole/pull/11) modifies how the Swoole HTTP server is started and managed, to
   allow for both starting and stopping the server, as well as ensuring that when
