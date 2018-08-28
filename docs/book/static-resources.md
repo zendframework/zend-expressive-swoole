@@ -345,3 +345,42 @@ potentially disable returning the response body (via `disableContent()`).
 > To perform work like this, you can call the
 > `StaticResourceResponse::setResponseContentCallback()` method as detailed in the
 > section above within your middleware.
+
+## Alternative static resource handlers
+
+As noted at the beginning of this chapter, the the `RequestHandlerSwooleRunner`
+composes a `StaticResourceHandlerInterface` instance in order to determine if a
+resource was matched by the request, and then to serve it.
+
+If you want to provide an alternative mechanism for doing so (e.g., to serve
+files out of a caching server), you will need to implement
+`Zend\Expressive\Swoole\StaticResourceHandlerInterface`:
+
+```php
+declare(strict_types=1);
+
+namespace Zend\Expressive\Swoole;
+
+use Swoole\Http\Request as SwooleHttpRequest;
+use Swoole\Http\Response as SwooleHttpResponse;
+
+interface StaticResourceHandlerInterface
+{
+    /**
+     * Does the request match to a static resource?
+     */
+    public function isStaticResource(SwooleHttpRequest $request) : bool;
+
+    /**
+     * Send the static resource based on the current request.
+     */
+    public function sendStaticResource(
+        SwooleHttpRequest $request,
+        SwooleHttpResponse $response
+    ) : void;
+}
+```
+
+Once implemented, map the service
+`Zend\Expressive\Swoole\StaticResourceHandlerInterface` to a factory that
+returns your custom implementation within your `dependencies` configuration.
