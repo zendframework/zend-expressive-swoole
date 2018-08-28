@@ -21,6 +21,7 @@ use Zend\Expressive\Swoole\PidManager;
 use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
 use Zend\Expressive\Swoole\RequestHandlerSwooleRunnerFactory;
 use Zend\Expressive\Swoole\ServerFactory;
+use Zend\Expressive\Swoole\StaticResourceHandlerInterface;
 use Zend\Expressive\Swoole\StdoutLogger;
 
 class RequestHandlerSwooleRunnerFactoryTest extends TestCase
@@ -36,6 +37,7 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
         $this->serverFactory = $this->prophesize(ServerFactory::class);
         $this->pidManager = $this->prophesize(PidManager::class);
 
+        $this->staticResourceHandler = $this->prophesize(StaticResourceHandlerInterface::class);
         $this->logger = $this->prophesize(LoggerInterface::class);
 
         $this->container = $this->prophesize(ContainerInterface::class);
@@ -53,14 +55,22 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
                 $this->serverRequestError->reveal();
             });
         $this->container
-            ->get(ServerFactory::class)
-            ->will([$this->serverFactory, 'reveal']);
-        $this->container
             ->get(PidManager::class)
             ->will([$this->pidManager, 'reveal']);
         $this->container
-            ->get('config')
-            ->willReturn([]);
+            ->get(ServerFactory::class)
+            ->will([$this->serverFactory, 'reveal']);
+    }
+
+    public function configureAbsentStaticResourceHandler()
+    {
+        $this->container
+            ->has(StaticResourceHandlerInterface::class)
+            ->willReturn(false);
+
+        $this->container
+            ->get(StaticResourceHandlerInterface::class)
+            ->shouldNotBeCalled();
     }
 
     public function configureAbsentLoggerService()
@@ -74,42 +84,20 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
             ->shouldNotBeCalled();
     }
 
-    public function configureDocumentRoot()
+    public function testInvocationWithoutOptionalServicesConfiguresInstanceWithDefaults()
     {
-        $this->container
-            ->get('config')
-            ->willReturn([
-                'zend-expressive-swoole' => [
-                    'swoole-http-server' => [
-                        'options' => [
-                            'document_root' => __DIR__ . '/TestAsset',
-                        ],
-                    ],
-                ],
-            ]);
-    }
-
-    public function testInvocationWithoutLoggerServiceCreatesInstanceWithDefaultLogger()
-    {
+        $this->configureAbsentStaticResourceHandler();
         $this->configureAbsentLoggerService();
-        $this->configureDocumentRoot();
         $factory = new RequestHandlerSwooleRunnerFactory();
         $runner = $factory($this->container->reveal());
         $this->assertInstanceOf(RequestHandlerSwooleRunner::class, $runner);
+        $this->assertAttributeEmpty('staticResourceHandler', $runner);
         $this->assertAttributeInstanceOf(StdoutLogger::class, 'logger', $runner);
-    }
-
-    public function testInvocationWithoutDocumentRootResultsInException()
-    {
-        $this->configureAbsentLoggerService();
-        $factory = new RequestHandlerSwooleRunnerFactory();
-        $this->expectException(InvalidConfigException::class);
-        $factory($this->container->reveal());
     }
 
     public function testFactoryWillUseConfiguredPsr3LoggerWhenPresent()
     {
-        $this->configureDocumentRoot();
+        $this->configureAbsentStaticResourceHandler();
         $this->container
             ->has(LoggerInterface::class)
             ->willReturn(true);
@@ -121,5 +109,21 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
         $runner = $factory($this->container->reveal());
         $this->assertInstanceOf(RequestHandlerSwooleRunner::class, $runner);
         $this->assertAttributeSame($this->logger->reveal(), 'logger', $runner);
+    }
+
+    public function testFactoryWillUseConfiguredStaticResourceHandlerWhenPresent()
+    {
+        $this->configureAbsentLoggerService();
+        $this->container
+            ->has(StaticResourceHandlerInterface::class)
+            ->willReturn(true);
+        $this->container
+            ->get(StaticResourceHandlerInterface::class)
+            ->will([$this->staticResourceHandler, 'reveal']);
+
+        $factory = new RequestHandlerSwooleRunnerFactory();
+        $runner = $factory($this->container->reveal());
+        $this->assertInstanceOf(RequestHandlerSwooleRunner::class, $runner);
+        $this->assertAttributeSame($this->staticResourceHandler->reveal(), 'staticResourceHandler', $runner);
     }
 }

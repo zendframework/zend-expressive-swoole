@@ -22,10 +22,9 @@ use Zend\Expressive\Swoole\Exception;
 use Zend\HttpHandlerRunner\Emitter\EmitterInterface;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
-use function file_exists;
-use function pathinfo;
-use function sprintf;
-use function getcwd;
+use function date;
+use function time;
+use function usleep;
 
 /**
  * "Run" a request handler using Swoole.
@@ -41,85 +40,6 @@ use function getcwd;
 class RequestHandlerSwooleRunner extends RequestHandlerRunner
 {
     /**
-     * Default static file extensions supported
-     *
-     * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types
-     */
-    public const DEFAULT_STATIC_EXTS = [
-        '7z'    => 'application/x-7z-compressed',
-        'aac'   => 'audio/aac',
-        'arc'   => 'application/octet-stream',
-        'avi'   => 'video/x-msvideo',
-        'azw'   => 'application/vnd.amazon.ebook',
-        'bin'   => 'application/octet-stream',
-        'bmp'   => 'image/bmp',
-        'bz'    => 'application/x-bzip',
-        'bz2'   => 'application/x-bzip2',
-        'css'   => 'text/css',
-        'csv'   => 'text/csv',
-        'doc'   => 'application/msword',
-        'docx'  => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'eot'   => 'application/vnd.ms-fontobject',
-        'epub'  => 'application/epub+zip',
-        'es'    => 'application/ecmascript',
-        'gif'   => 'image/gif',
-        'htm'   => 'text/html',
-        'html'  => 'text/html',
-        'ico'   => 'image/x-icon',
-        'jpg'   => 'image/jpg',
-        'jpeg'  => 'image/jpg',
-        'js'    => 'text/javascript',
-        'json'  => 'application/json',
-        'mp4'   => 'video/mp4',
-        'mpeg'  => 'video/mpeg',
-        'odp'   => 'application/vnd.oasis.opendocument.presentation',
-        'ods'   => 'application/vnd.oasis.opendocument.spreadsheet',
-        'odt'   => 'application/vnd.oasis.opendocument.text',
-        'oga'   => 'audio/ogg',
-        'ogv'   => 'video/ogg',
-        'ogx'   => 'application/ogg',
-        'otf'   => 'font/otf',
-        'pdf'   => 'application/pdf',
-        'png'   => 'image/png',
-        'ppt'   => 'application/vnd.ms-powerpoint',
-        'pptx'  => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        'rar'   => 'application/x-rar-compressed',
-        'rtf'   => 'application/rtf',
-        'svg'   => 'image/svg+xml',
-        'swf'   => 'application/x-shockwave-flash',
-        'tar'   => 'application/x-tar',
-        'tif'   => 'image/tiff',
-        'tiff'  => 'image/tiff',
-        'ts'    => 'application/typescript',
-        'ttf'   => 'font/ttf',
-        'txt'   => 'text/plain',
-        'wav'   => 'audio/wav',
-        'weba'  => 'audio/webm',
-        'webm'  => 'video/webm',
-        'webp'  => 'image/webp',
-        'woff'  => 'font/woff',
-        'woff2' => 'font/woff2',
-        'xhtml' => 'application/xhtml+xml',
-        'xls'   => 'application/vnd.ms-excel',
-        'xlsx'  => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'xml'   => 'application/xml',
-        'xul'   => 'application/vnd.mozilla.xul+xml',
-        'zip'   => 'application/zip',
-    ];
-
-    /**
-     * @var array
-     */
-    private $allowedStatic;
-
-    /**
-     * Cache the file extensions (type) for valid static file
-     *
-     * @var array
-     */
-    private $cacheTypeFile = [];
-
-    /**
      * Keep CWD in daemon mode.
      *
      * @var string
@@ -127,9 +47,12 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     private $cwd;
 
     /**
-     * @var string
+     * Enable the gzip of response content. The range is 0 to 9, the higher the number, the
+     * higher the compression level, 0 means disable gzip function.
+     *
+     * @var int
      */
-    private $docRoot;
+    private $gzip;
 
     /**
      * A request handler to run as the application.
@@ -178,6 +101,11 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     private $serverRequestFactory;
 
     /**
+     * @var ?StaticResourceHandlerInterface
+     */
+    private $staticResourceHandler;
+
+    /**
      * @throws Exception\InvalidConfigException if the configured or default
      *     document root does not exist.
      */
@@ -185,10 +113,10 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
         RequestHandlerInterface $handler,
         callable $serverRequestFactory,
         callable $serverRequestErrorResponseGenerator,
+        PidManager $pidManager,
         ServerFactory $serverFactory,
-        array $config,
-        LoggerInterface $logger = null,
-        PidManager $pidManager
+        StaticResourceHandlerInterface $staticResourceHandler = null,
+        LoggerInterface $logger = null
     ) {
         $this->handler = $handler;
 
@@ -203,18 +131,9 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
             };
 
         $this->serverFactory = $serverFactory;
-
-        $this->allowedStatic = $config['static_files'] ?? self::DEFAULT_STATIC_EXTS;
-        $this->docRoot = $config['options']['document_root'] ?? getcwd() . '/public';
-        if (! file_exists($this->docRoot)) {
-            throw new Exception\InvalidConfigException(sprintf(
-                'The document_root %s does not exist. Please check your configuration.',
-                $this->docRoot
-            ));
-        }
-
-        $this->logger = $logger ?: new StdoutLogger();
         $this->pidManager = $pidManager;
+        $this->staticResourceHandler = $staticResourceHandler;
+        $this->logger = $logger ?: new StdoutLogger();
         $this->cwd = getcwd();
     }
 
@@ -328,7 +247,10 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
             'request_uri'    => $request->server['request_uri']
         ]);
 
-        if ($this->getStaticResource($request, $response)) {
+        if ($this->staticResourceHandler
+            && $this->staticResourceHandler->isStaticResource($request)
+        ) {
+            $this->staticResourceHandler->sendStaticResource($request, $response);
             return;
         }
 
@@ -354,42 +276,5 @@ class RequestHandlerSwooleRunner extends RequestHandlerRunner
     ) : void {
         $response = ($this->serverRequestErrorResponseGenerator)($exception);
         $emitter->emit($response);
-    }
-
-    /**
-     * Get a static resource, if any, and set the swoole HTTP response.
-     */
-    private function getStaticResource(
-        SwooleHttpRequest $request,
-        SwooleHttpResponse $response
-    ) : bool {
-        $staticFile = $this->docRoot . $request->server['request_uri'];
-        if (! isset($this->cacheTypeFile[$staticFile])
-            && ! $this->cacheFile($staticFile)
-        ) {
-            return false;
-        }
-
-        $response->header('Content-Type', $this->cacheTypeFile[$staticFile]);
-        $response->sendfile($staticFile);
-        return true;
-    }
-
-    /**
-     * Attempt to cache a static file resource.
-     */
-    private function cacheFile(string $fileName) : bool
-    {
-        $type = pathinfo($fileName, PATHINFO_EXTENSION);
-        if (! isset($this->allowedStatic[$type])) {
-            return false;
-        }
-
-        if (! file_exists($fileName)) {
-            return false;
-        }
-
-        $this->cacheTypeFile[$fileName] = $this->allowedStatic[$type];
-        return true;
     }
 }
