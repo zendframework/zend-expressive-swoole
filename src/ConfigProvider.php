@@ -26,7 +26,7 @@ class ConfigProvider
         return [
             'factories'  => [
                 PidManager::class                     => PidManagerFactory::class,
-                RequestHandlerRunner::class           => RequestHandlerSwooleRunnerFactory::class,
+                RequestHandlerRunner::class           => SwooleRequestHandlerRunnerFactory::class,
                 ServerFactory::class                  => ServerFactoryFactory::class,
                 ServerRequestInterface::class         => ServerRequestSwooleFactory::class,
                 StaticResourceHandlerInterface::class => StaticResourceHandlerFactory::class,

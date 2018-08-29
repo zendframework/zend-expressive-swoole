@@ -18,13 +18,13 @@ use Zend\Expressive\ApplicationPipeline;
 use Zend\Expressive\Response\ServerRequestErrorResponseGenerator;
 use Zend\Expressive\Swoole\Exception\InvalidConfigException;
 use Zend\Expressive\Swoole\PidManager;
-use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
-use Zend\Expressive\Swoole\RequestHandlerSwooleRunnerFactory;
+use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
+use Zend\Expressive\Swoole\SwooleRequestHandlerRunnerFactory;
 use Zend\Expressive\Swoole\ServerFactory;
 use Zend\Expressive\Swoole\StaticResourceHandlerInterface;
 use Zend\Expressive\Swoole\StdoutLogger;
 
-class RequestHandlerSwooleRunnerFactoryTest extends TestCase
+class SwooleRequestHandlerRunnerFactoryTest extends TestCase
 {
     public function setUp()
     {
@@ -88,9 +88,9 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
     {
         $this->configureAbsentStaticResourceHandler();
         $this->configureAbsentLoggerService();
-        $factory = new RequestHandlerSwooleRunnerFactory();
+        $factory = new SwooleRequestHandlerRunnerFactory();
         $runner = $factory($this->container->reveal());
-        $this->assertInstanceOf(RequestHandlerSwooleRunner::class, $runner);
+        $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $runner);
         $this->assertAttributeEmpty('staticResourceHandler', $runner);
         $this->assertAttributeInstanceOf(StdoutLogger::class, 'logger', $runner);
     }
@@ -105,9 +105,9 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
             ->get(LoggerInterface::class)
             ->will([$this->logger, 'reveal']);
 
-        $factory = new RequestHandlerSwooleRunnerFactory();
+        $factory = new SwooleRequestHandlerRunnerFactory();
         $runner = $factory($this->container->reveal());
-        $this->assertInstanceOf(RequestHandlerSwooleRunner::class, $runner);
+        $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $runner);
         $this->assertAttributeSame($this->logger->reveal(), 'logger', $runner);
     }
 
@@ -121,9 +121,9 @@ class RequestHandlerSwooleRunnerFactoryTest extends TestCase
             ->get(StaticResourceHandlerInterface::class)
             ->will([$this->staticResourceHandler, 'reveal']);
 
-        $factory = new RequestHandlerSwooleRunnerFactory();
+        $factory = new SwooleRequestHandlerRunnerFactory();
         $runner = $factory($this->container->reveal());
-        $this->assertInstanceOf(RequestHandlerSwooleRunner::class, $runner);
+        $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $runner);
         $this->assertAttributeSame($this->staticResourceHandler->reveal(), 'staticResourceHandler', $runner);
     }
 }

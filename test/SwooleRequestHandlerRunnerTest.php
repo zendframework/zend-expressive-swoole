@@ -20,12 +20,12 @@ use Swoole\Http\Server as SwooleHttpServer;
 use Zend\Diactoros\Response;
 use Zend\Expressive\Response\ServerRequestErrorResponseGenerator;
 use Zend\Expressive\Swoole\PidManager;
-use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
+use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
 use Zend\Expressive\Swoole\ServerFactory;
 use Zend\Expressive\Swoole\StaticResourceHandlerInterface;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
-class RequestHandlerSwooleRunnerTest extends TestCase
+class SwooleRequestHandlerRunnerTest extends TestCase
 {
     public function setUp()
     {
@@ -61,7 +61,7 @@ class RequestHandlerSwooleRunnerTest extends TestCase
 
     public function testConstructor()
     {
-        $requestHandler = new RequestHandlerSwooleRunner(
+        $requestHandler = new SwooleRequestHandlerRunner(
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
@@ -70,7 +70,7 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             $this->staticResourceHandler->reveal(),
             $this->logger
         );
-        $this->assertInstanceOf(RequestHandlerSwooleRunner::class, $requestHandler);
+        $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $requestHandler);
         $this->assertInstanceOf(RequestHandlerRunner::class, $requestHandler);
     }
 
@@ -94,7 +94,7 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             ->sendStaticResource(Argument::any())
             ->shouldNotBeCalled();
 
-        $requestHandler = new RequestHandlerSwooleRunner(
+        $requestHandler = new SwooleRequestHandlerRunner(
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
@@ -122,7 +122,7 @@ class RequestHandlerSwooleRunnerTest extends TestCase
 
     public function testOnStart()
     {
-        $runner = new RequestHandlerSwooleRunner(
+        $runner = new SwooleRequestHandlerRunner(
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
@@ -164,7 +164,7 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             ->end($content)
             ->shouldBeCalled();
 
-        $runner = new RequestHandlerSwooleRunner(
+        $runner = new SwooleRequestHandlerRunner(
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
@@ -211,7 +211,7 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             ->sendStaticResource(Argument::any())
             ->shouldNotBeCalled();
 
-        $runner = new RequestHandlerSwooleRunner(
+        $runner = new SwooleRequestHandlerRunner(
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
@@ -248,7 +248,7 @@ class RequestHandlerSwooleRunnerTest extends TestCase
             ->sendStaticResource($request, $response)
             ->shouldBeCalled();
 
-        $runner = new RequestHandlerSwooleRunner(
+        $runner = new SwooleRequestHandlerRunner(
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,

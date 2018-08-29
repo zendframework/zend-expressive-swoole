@@ -37,7 +37,7 @@ use function usleep;
  * then the runner will use the composed error response generator to generate a
  * response, based on the exception or throwable raised.
  */
-class RequestHandlerSwooleRunner extends RequestHandlerRunner
+class SwooleRequestHandlerRunner extends RequestHandlerRunner
 {
     /**
      * Keep CWD in daemon mode.
