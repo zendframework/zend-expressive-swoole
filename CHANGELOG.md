@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 0.1.2 - TBD
+## 0.2.0 - TBD
 
 ### Added
 
@@ -27,14 +27,14 @@ All notable changes to this project will be documented in this file, in reverse 
   Please see the [static resource documentation](https://docs.zendframework.com/zend-expressive-swoole/static-resources/)
   for more information.
 
-- [#11](https://github.com/zendframework/zend-expressive-swoole/pull/11) and [#18](https://github.com/zendframework/zend-expressive-swoole/pull/18) add the following console actions and options to interact with
-  the server via `public/index.php`:
+- [#11](https://github.com/zendframework/zend-expressive-swoole/pull/11), [#18](https://github.com/zendframework/zend-expressive-swoole/pull/18), and [#22](https://github.com/zendframework/zend-expressive-swoole/pull/22) add the following console actions and options to
+  interact with the server via `public/index.php`:
   - `start` will start the server; it may be omitted, as this is the default action.
+    - `--dameonize|-d` tells the server to daemonize itself when `start` is called.
+    - `--num_workers|w` tells the server how many workers to spawn when starting (defaults to 4).
   - `stop` will stop the server.
   - `reload` reloads all worker processes, but only when the zend-expressive-swoole.swoole-http-server.mode
     configuration value is set to `SWOOLE_PROCESS`.
-  - `--dameonize|-d` tells the server to daemonize itself when `start` is called.
-  - `--num_workers|n` tells the server how many workers to spawn when starting (defaults to 1).
 
 ### Changed
 
@@ -58,11 +58,6 @@ All notable changes to this project will be documented in this file, in reverse 
 
   If you were manually creating an instance, or had provided your own factory,
   you will need to update your code.
-
-- [#11](https://github.com/zendframework/zend-expressive-swoole/pull/11) modifies how the Swoole HTTP server is started and managed, to
-  allow for both starting and stopping the server, as well as ensuring that when
-  a process dies and is restarted, no errors are emitted on creation of a new
-  HTTP server instance.
 
 ### Deprecated
 
