@@ -210,11 +210,11 @@ with this integration.</p>
 you can use any [PSR-3 compliant logger][https://www.php-fig.org/psr/psr-3/] to
 log application details. All logs we emit use <code>Psr\Log\LogLevel::INFO</code>.</p>
 <p>To substitute your own logger, you have two options.</p>
-<p>If you are manually instantiating a <code>Zend\Expressive\Swoole\RequestHandlerSwooleRunner</code>
+<p>If you are manually instantiating a <code>Zend\Expressive\Swoole\SwooleRequestHandlerRunner</code>
 instance, you may provide it as the sixth argument to the constructor:</p>
-<pre class="codehilite"><code class="language-php">use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
+<pre class="codehilite"><code class="language-php">use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
 
-$runner = new RequestHandlerSwooleRunner(
+$runner = new SwooleRequestHandlerRunner(
     $application,
     $serverRequestFactory,
     $serverRequestErrorResponseGenerator,
@@ -223,7 +223,7 @@ $runner = new RequestHandlerSwooleRunner(
     $logger // &lt;-- PSR-3 logger instance
 );</code></pre>
 
-<p>If using the provided factory (<code>RequestHandlerSwooleRunnerFactory</code>) &amp; which
+<p>If using the provided factory (<code>SwooleRequestHandlerRunnerFactory</code>) &amp; which
 is the default when using the functionality with Expressive &amp; you can
 provide the logger via the <code>Psr\Log\LoggerInterface</code> service.</p>
 

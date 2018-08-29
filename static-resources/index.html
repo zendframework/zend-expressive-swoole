@@ -220,13 +220,13 @@
 filesystem. zend-expressive-swoole provides that capability as well.</p>
 <p>To enable this, the package provides an alternate
 <a href="https://docs.zendframework.com/zend-httphandlerrunner/runner/"><code>RequestHandlerRunner</code></a>
-implementation via the class <code>Zend\Expressive\Swoole\RequestHandlerSwooleRunner</code>
+implementation via the class <code>Zend\Expressive\Swoole\SwooleRequestHandlerRunner</code>
 that performs two duties:</p>
 <ul>
 <li>If a static resource is matched, it serves that.</li>
 <li>Otherwise, it passes off handling to the composed application pipeline.</li>
 </ul>
-<p>Internally, the <code>RequestHandlerSwooleRunner</code> composes another class, a 
+<p>Internally, the <code>SwooleRequestHandlerRunner</code> composes another class, a 
 <code>Zend\Expressive\Swoole\StaticResourceHandlerInterface</code> instance. This instance
 is first queried to determine if a static resource was matched, and, if so, then
 invoked in order to serve it.</p>
@@ -322,7 +322,6 @@ configuration-driven approach in order to:</p>
 </ul>
 <p>The following demonstrates all currently available configuration options:</p>
 <pre class="codehilite"><code class="language-php">// config/autoload/swoole.local.php
-use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
 
 return [
     'zend-expressive-swoole' =&gt; [
@@ -406,7 +405,6 @@ which is derived from a <a href="https://developer.mozilla.org/en-US/docs/Web/HT
 <li>Sets Cache-Control directives for plain text files.</li>
 </ul>
 <pre class="codehilite"><code class="language-php">// config/autoload/swoole.local.php
-use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
 
 return [
     'zend-expressive-swoole' =&gt; [
@@ -541,7 +539,7 @@ a filehandle representing the file to send, and then calls
 section above within your middleware.</p>
 </blockquote>
 <h2 id="alternative-static-resource-handlers">Alternative static resource handlers</h2>
-<p>As noted at the beginning of this chapter, the the <code>RequestHandlerSwooleRunner</code>
+<p>As noted at the beginning of this chapter, the the <code>SwooleRequestHandlerRunner</code>
 composes a <code>StaticResourceHandlerInterface</code> instance in order to determine if a
 resource was matched by the request, and then to serve it.</p>
 <p>If you want to provide an alternative mechanism for doing so (e.g., to serve
