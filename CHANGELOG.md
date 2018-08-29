@@ -9,7 +9,7 @@ All notable changes to this project will be documented in this file, in reverse 
 - [#20](https://github.com/zendframework/zend-expressive-swoole/pull/20) adds a new interface, `Zend\Expressive\Swoole\StaticResourceHandlerInterface`,
   and default implementation `Zend\Expressive\Swoole\StaticResourceHandler`,
   used to determine if a request is for a static file, and then to serve it; the
-  `RequestHandlerSwooleRunner` composes an instance now for providing static
+  `SwooleRequestHandlerRunner` composes an instance now for providing static
   resource serving capabilities.
 
   The default implementation uses custom middleware to allow providing common
@@ -38,8 +38,10 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Changed
 
+- [#21](https://github.com/zendframework/zend-expressive-swoole/pull/21) renames `RequestHandlerSwooleRunner` (and its related factory) to `SwooleRequestHandlerRunner`.
+
 - [#20](https://github.com/zendframework/zend-expressive-swoole/pull/20) modifies the collaborators and thus constructor arguments
-  expected by the `RequestHandlerSwooleRunner`. The constructor now has the
+  expected by the `SwooleRequestHandlerRunner`. The constructor now has the
   following signature:
 
   ```php
