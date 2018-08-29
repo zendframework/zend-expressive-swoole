@@ -44,7 +44,7 @@ class SwooleRequestHandlerRunnerTest extends TestCase
         $serverFactory = $this->prophesize(ServerFactory::class);
         $serverFactory->createSwooleServer([
             'daemonize' => false,
-            'worker_num' => 1
+            'worker_num' => 4,
         ])->willReturn($this->createMock(SwooleHttpServer::class));
         $this->serverFactory = $serverFactory->reveal();
 
@@ -78,7 +78,7 @@ class SwooleRequestHandlerRunnerTest extends TestCase
     {
         $swooleServer = $this->serverFactory->createSwooleServer([
             'daemonize' => false,
-            'worker_num' => 1
+            'worker_num' => 4,
         ]);
         $swooleServer->method('on')
             ->willReturn(null);
@@ -103,6 +103,7 @@ class SwooleRequestHandlerRunnerTest extends TestCase
             $this->staticResourceHandler->reveal(),
             $this->logger
         );
+        $requestHandler->exitFromCommand = false;
 
         $swooleServer->expects($this->once())
             ->method('start');
@@ -115,8 +116,11 @@ class SwooleRequestHandlerRunnerTest extends TestCase
             ->method('on');
 
         // Clear command options, like phpunit --colors=always
-        $_SERVER['argv'] = [$_SERVER['argv'][0]];
-        $_SERVER['argc'] = 1;
+        $_SERVER['argv'] = [
+            $_SERVER['argv'][0],
+            'start'
+        ];
+        $_SERVER['argc'] = 2;
         $requestHandler->run();
     }
 
