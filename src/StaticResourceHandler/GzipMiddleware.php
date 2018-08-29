@@ -13,7 +13,6 @@ use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Zend\Expressive\Swoole\Exception;
 
-use function count;
 use function explode;
 use function fclose;
 use function feof;
@@ -77,13 +76,13 @@ class GzipMiddleware implements MiddlewareInterface
         }
 
         $response->setResponseContentCallback(
-            function (Response $response, string $filename) use ($compressionEncoding) : void {
-                $response->header(
+            function (Response $swooleResponse, string $filename) use ($compressionEncoding, $response) : void {
+                $swooleResponse->header(
                     'Content-Encoding',
                     GzipMiddleware::COMPRESSION_CONTENT_ENCODING_MAP[$compressionEncoding],
                     true
                 );
-                $response->header('Connection', 'close', true);
+                $swooleResponse->header('Connection', 'close', true);
 
                 $handle = fopen($filename, 'rb');
                 $params = [
@@ -98,13 +97,13 @@ class GzipMiddleware implements MiddlewareInterface
                 while (feof($handle) !== true) {
                     $line = fgets($handle, 4096);
                     $length += $countBytes($line);
-                    $response->write($line);
+                    $swooleResponse->write($line);
                 }
 
                 fclose($handle);
-                // Lower-case is used here for consistency with requests; aids with logging
-                $response->header('content-length', (string) $length, true);
-                $response->end();
+                $response->setContentLength($length);
+                $swooleResponse->header('Content-Length', (string) $length, true);
+                $swooleResponse->end();
             }
         );
         return $response;

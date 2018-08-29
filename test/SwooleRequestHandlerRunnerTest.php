@@ -23,6 +23,7 @@ use Zend\Expressive\Swoole\PidManager;
 use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
 use Zend\Expressive\Swoole\ServerFactory;
 use Zend\Expressive\Swoole\StaticResourceHandlerInterface;
+use Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
 class SwooleRequestHandlerRunnerTest extends TestCase
@@ -87,12 +88,8 @@ class SwooleRequestHandlerRunnerTest extends TestCase
             ->willReturn(null);
 
         $this->staticResourceHandler
-            ->isStaticResource(Argument::any())
-            ->willReturn(false);
-
-        $this->staticResourceHandler
-            ->sendStaticResource(Argument::any())
-            ->shouldNotBeCalled();
+            ->processStaticResource(Argument::any())
+            ->willReturn(null);
 
         $requestHandler = new SwooleRequestHandlerRunner(
             $this->requestHandler->reveal(),
@@ -209,11 +206,8 @@ class SwooleRequestHandlerRunnerTest extends TestCase
             ->shouldBeCalled();
 
         $this->staticResourceHandler
-            ->isStaticResource($request)
-            ->willReturn(false);
-        $this->staticResourceHandler
-            ->sendStaticResource(Argument::any())
-            ->shouldNotBeCalled();
+            ->processStaticResource($request, $response->reveal())
+            ->willReturn(null);
 
         $runner = new SwooleRequestHandlerRunner(
             $this->requestHandler->reveal(),
@@ -245,12 +239,10 @@ class SwooleRequestHandlerRunnerTest extends TestCase
 
         $response = $this->prophesize(SwooleHttpResponse::class)->reveal();
 
+        $staticResponse = $this->prophesize(StaticResourceResponse::class)->reveal();
         $this->staticResourceHandler
-            ->isStaticResource($request)
-            ->willReturn(true);
-        $this->staticResourceHandler
-            ->sendStaticResource($request, $response)
-            ->shouldBeCalled();
+            ->processStaticResource($request, $response)
+            ->willReturn($staticResponse);
 
         $runner = new SwooleRequestHandlerRunner(
             $this->requestHandler->reveal(),

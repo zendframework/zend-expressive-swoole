@@ -308,10 +308,11 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
             'request_uri'    => $request->server['request_uri']
         ]);
 
-        if ($this->staticResourceHandler
-            && $this->staticResourceHandler->isStaticResource($request)
-        ) {
-            $this->staticResourceHandler->sendStaticResource($request, $response);
+        $staticResourceResponse = $this->staticResourceHandler
+            ? $this->staticResourceHandler->processStaticResource($request, $response)
+            : null;
+        if ($staticResourceResponse) {
+            // Eventually: move logging here
             return;
         }
 

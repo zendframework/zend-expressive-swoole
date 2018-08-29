@@ -99,9 +99,8 @@ return [
 ### Serving static files
 
 We support serving static files. By default, we serve files with extensions in
-the whitelist defined in the constant
-`Zend\Expressive\Swoole\StaticResourceHandler::DEFAULT_STATIC_EXTS`, which
-is derived from a [list of common web MIME types maintained by Mozilla](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types).
+the whitelist defined in the constant `Zend\Expressive\Swoole\StaticResourceHandler\ContentTypeFilterMiddleware::DEFAULT_STATIC_EXTS`,
+which is derived from a [list of common web MIME types maintained by Mozilla](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types).
 Our static resource capabilities are fairly comprehensive; please see the
 [chapter on static resources](static-resources.md) for full details on
 configuration.

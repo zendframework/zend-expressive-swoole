@@ -15,12 +15,16 @@ use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Http\Response as SwooleHttpResponse;
 use Zend\Expressive\Swoole\Exception;
 use Zend\Expressive\Swoole\StaticResourceHandler;
+use Zend\Expressive\Swoole\StaticResourceHandler\MiddlewareInterface;
+use Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse;
 
 class StaticResourceHandlerTest extends TestCase
 {
     public function setUp()
     {
         $this->docRoot = __DIR__ . '/TestAsset';
+        $this->request = $this->prophesize(SwooleHttpRequest::class)->reveal();
+        $this->response = $this->prophesize(SwooleHttpResponse::class)->reveal();
     }
 
     public function testConstructorRaisesExceptionForInvalidMiddlewareValue()
@@ -29,103 +33,58 @@ class StaticResourceHandlerTest extends TestCase
         new StaticResourceHandler($this->docRoot, [$this]);
     }
 
-    public function testTypeMapProvidedToConstructorReplacesDefault()
+    public function testProcessStaticResourceReturnsNullIfMiddlewareReturnsFailureResponse()
     {
-        $map = ['.PNG' => 'image/png'];
-        $handler = new StaticResourceHandler($this->docRoot, [], $map);
-        $this->assertAttributeSame($map, 'typeMap', $handler);
+        $middleware = new class implements MiddlewareInterface {
+            public function __invoke(
+                SwooleHttpRequest $request,
+                string $filename,
+                callable $next
+            ) : StaticResourceResponse {
+                $response = new StaticResourceResponse();
+                $response->markAsFailure();
+                return $response;
+            }
+        };
+
+        $handler = new StaticResourceHandler($this->docRoot, [$middleware]);
+        $this->assertNull($handler->processStaticResource($this->request, $this->response));
     }
 
-    public function testIsStaticResourceReturnsFalseWhenFileNotFound()
+    public function testProcessStaticResourceReturnsStaticResponseWhenSuccessful()
     {
-        $request = $this->prophesize(SwooleHttpRequest::class)->reveal();
-        $request->server = [
-            'request_uri' => '/unknown-file.png',
-        ];
+        $filename = $this->docRoot . '/image.png';
 
-        $handler = new StaticResourceHandler($this->docRoot);
-
-        $this->assertFalse($handler->isStaticResource($request));
-    }
-
-    public function testIsStaticResourceReturnsTrueWhenFileIsFound()
-    {
-        $request = $this->prophesize(SwooleHttpRequest::class)->reveal();
-        $request->server = [
+        $this->request->server = [
             'request_uri' => '/image.png',
         ];
 
-        $handler = new StaticResourceHandler($this->docRoot);
+        $expectedResponse = $this->prophesize(StaticResourceResponse::class);
+        $expectedResponse->isFailure()->willReturn(false);
+        $expectedResponse->sendSwooleResponse($this->response, $filename)->shouldBeCalled();
 
-        $this->assertTrue($handler->isStaticResource($request));
-    }
+        $middleware = new class ($expectedResponse->reveal()) implements MiddlewareInterface {
+            private $response;
 
-    public function testSendStaticResourceDoesNothingIfFileIsNotValid()
-    {
-        $request = $this->prophesize(SwooleHttpRequest::class)->reveal();
-        $request->server = [
-            'request_uri' => '/unknown-file.png',
-        ];
+            public function __construct(StaticResourceResponse $response)
+            {
+                $this->response = $response;
+            }
 
-        $response = $this->prophesize(SwooleHttpResponse::class);
-        $response->header(Argument::any())->shouldNotBeCalled();
-        $response->status(Argument::any())->shouldNotBeCalled();
-        $response->end()->shouldNotBeCalled();
-        $response->sendfile()->shouldNotBeCalled();
+            public function __invoke(
+                SwooleHttpRequest $request,
+                string $filename,
+                callable $next
+            ) : StaticResourceResponse {
+                return $this->response;
+            }
+        };
 
-        $handler = new StaticResourceHandler($this->docRoot);
+        $handler = new StaticResourceHandler($this->docRoot, [$middleware]);
 
-        $this->assertNull($handler->sendStaticResource($request, $response->reveal()));
-    }
-
-    public function testSendStaticResourceShouldEmitContentTypeAndSendFileOnSuccessfulMatch()
-    {
-        $request = $this->prophesize(SwooleHttpRequest::class)->reveal();
-        $request->server = [
-            'request_uri' => '/image.png',
-        ];
-
-        $response = $this->prophesize(SwooleHttpResponse::class);
-        $response->header('Content-Type', 'image/png', true)->shouldBeCalled();
-        $response->header('content-length', Argument::any(), true)->shouldBeCalled();
-        $response->status(200)->shouldBeCalled();
-        $response->end()->shouldNotBeCalled();
-        $response->sendfile($this->docRoot . '/image.png')->shouldBeCalled();
-
-        $handler = new StaticResourceHandler($this->docRoot);
-
-        $this->assertTrue($handler->isStaticResource($request));
-        $this->assertNull($handler->sendStaticResource($request, $response->reveal()));
-    }
-
-    public function testSendStaticResourceShouldUseMiddlewareResultToPopulateSwooleResponse()
-    {
-        $request = $this->prophesize(SwooleHttpRequest::class)->reveal();
-        $request->server = [
-            'request_uri' => '/image.png',
-        ];
-
-        $middlewareResponse = new StaticResourceHandler\StaticResourceResponse(
-            304,
-            ['X-Response' => 'middleware'],
-            false
+        $this->assertSame(
+            $expectedResponse->reveal(),
+            $handler->processStaticResource($this->request, $this->response)
         );
-
-        $middleware = $this->prophesize(StaticResourceHandler\MiddlewareInterface::class);
-        $middleware
-            ->__invoke($request, $this->docRoot . '/image.png', Argument::any())
-            ->willReturn($middlewareResponse);
-
-        $response = $this->prophesize(SwooleHttpResponse::class);
-        $response->header('Content-Type', 'image/png', true)->shouldBeCalled();
-        $response->header('X-Response', 'middleware', true)->shouldBeCalled();
-        $response->status(304)->shouldBeCalled();
-        $response->end()->shouldBeCalled();
-        $response->sendfile(Argument::any())->shouldNotBeCalled();
-
-        $handler = new StaticResourceHandler($this->docRoot, [$middleware->reveal()]);
-
-        $this->assertTrue($handler->isStaticResource($request));
-        $this->assertNull($handler->sendStaticResource($request, $response->reveal()));
     }
 }
