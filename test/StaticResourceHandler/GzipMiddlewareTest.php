@@ -129,6 +129,7 @@ class GzipMiddlewareTest extends TestCase
         $swooleResponse = $this->prophesize(SwooleHttpResponse::class);
         $swooleResponse->header('Content-Encoding', $encoding, true)->shouldBeCalled();
         $swooleResponse->header('Connection', 'close', true)->shouldBeCalled();
+        $swooleResponse->header('content-length', mb_strlen($expected), true)->shouldBeCalled();
 
         $swooleResponse->write($expected)->shouldBeCalled();
         $swooleResponse->end()->shouldBeCalled();

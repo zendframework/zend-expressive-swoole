@@ -87,6 +87,7 @@ class StaticResourceHandlerTest extends TestCase
 
         $response = $this->prophesize(SwooleHttpResponse::class);
         $response->header('Content-Type', 'image/png', true)->shouldBeCalled();
+        $response->header('content-length', Argument::any(), true)->shouldBeCalled();
         $response->status(200)->shouldBeCalled();
         $response->end()->shouldNotBeCalled();
         $response->sendfile($this->docRoot . '/image.png')->shouldBeCalled();

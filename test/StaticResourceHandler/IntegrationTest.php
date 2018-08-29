@@ -46,7 +46,9 @@ class IntegrationTest extends TestCase
 
         $response = $this->prophesize(SwooleHttpResponse::class);
         $response->header('Content-Type', 'image/png', true)->shouldBeCalled();
+        $response->header('content-length', Argument::any(), true)->shouldNotBeCalled();
         $response->header('Allow', 'GET, HEAD, OPTIONS', true)->shouldBeCalled();
+        $response->header('content-length', Argument::any(), true)->shouldNotBeCalled();
         $response->status(405)->shouldBeCalled();
         $response->end()->shouldBeCalled();
         $response->sendfile()->shouldNotBeCalled();
@@ -71,7 +73,9 @@ class IntegrationTest extends TestCase
 
         $response = $this->prophesize(SwooleHttpResponse::class);
         $response->header('Content-Type', 'image/png', true)->shouldBeCalled();
+        $response->header('content-length', Argument::any(), true)->shouldNotBeCalled();
         $response->header('Allow', 'GET, HEAD, OPTIONS', true)->shouldBeCalled();
+        $response->header('content-length', Argument::any(), true)->shouldNotBeCalled();
         $response->status(200)->shouldBeCalled();
         $response->end()->shouldBeCalled();
         $response->sendfile()->shouldNotBeCalled();
@@ -103,6 +107,7 @@ class IntegrationTest extends TestCase
 
         $response = $this->prophesize(SwooleHttpResponse::class);
         $response->header('Content-Type', 'text/plain', true)->shouldBeCalled();
+        $response->header('content-length', Argument::any(), true)->shouldBeCalled();
         $response->header('Cache-Control', 'public, no-transform', true)->shouldBeCalled();
         $response->header('Last-Modified', $lastModifiedFormatted, true)->shouldBeCalled();
         $response->header('ETag', $etag, true)->shouldBeCalled();
@@ -144,6 +149,7 @@ class IntegrationTest extends TestCase
 
         $response = $this->prophesize(SwooleHttpResponse::class);
         $response->header('Content-Type', 'text/plain', true)->shouldBeCalled();
+        $response->header('content-length', Argument::any(), true)->shouldNotBeCalled();
         $response->header('Cache-Control', 'public, no-transform', true)->shouldBeCalled();
         $response->header('Last-Modified', $lastModifiedFormatted, true)->shouldBeCalled();
         $response->header('ETag', $etag, true)->shouldBeCalled();
@@ -188,6 +194,7 @@ class IntegrationTest extends TestCase
 
         $response = $this->prophesize(SwooleHttpResponse::class);
         $response->header('Content-Type', 'text/plain', true)->shouldBeCalled();
+        $response->header('content-length', Argument::any(), true)->shouldNotBeCalled();
         $response->header('Allow', 'GET, HEAD, OPTIONS', true)->shouldBeCalled();
         $response->header('Cache-Control', 'public, no-transform', true)->shouldBeCalled();
         $response->header('Last-Modified', $lastModifiedFormatted, true)->shouldBeCalled();
@@ -236,6 +243,7 @@ class IntegrationTest extends TestCase
 
         $response = $this->prophesize(SwooleHttpResponse::class);
         $response->header('Content-Type', 'text/plain', true)->shouldBeCalled();
+        $response->header('content-length', Argument::any(), true)->shouldBeCalled();
         $response->header('Allow', Argument::any())->shouldNotBeCalled();
         $response->header('Cache-Control', 'public, no-transform', true)->shouldBeCalled();
         $response->header('Last-Modified', Argument::any())->shouldNotBeCalled();
@@ -281,6 +289,7 @@ class IntegrationTest extends TestCase
 
         $response = $this->prophesize(SwooleHttpResponse::class);
         $response->header('Content-Type', 'text/plain', true)->shouldBeCalled();
+        $response->header('content-length', Argument::any(), true)->shouldNotBeCalled();
         $response->header('Allow', Argument::any())->shouldNotBeCalled();
         $response->header('Cache-Control', 'public, no-transform', true)->shouldBeCalled();
         $response->header('Last-Modified', Argument::any())->shouldNotBeCalled();
@@ -325,6 +334,7 @@ class IntegrationTest extends TestCase
 
         $response = $this->prophesize(SwooleHttpResponse::class);
         $response->header('Content-Type', 'text/plain', true)->shouldBeCalled();
+        $response->header('content-length', Argument::any(), true)->shouldNotBeCalled();
         $response->header('Allow', Argument::any())->shouldNotBeCalled();
         $response->header('Cache-Control', Argument::any())->shouldNotBeCalled();
         $response->header('Last-Modified', Argument::any())->shouldNotBeCalled();
@@ -370,6 +380,7 @@ class IntegrationTest extends TestCase
 
         $response = $this->prophesize(SwooleHttpResponse::class);
         $response->header('Content-Type', 'text/plain', true)->shouldBeCalled();
+        $response->header('content-length', Argument::any(), true)->shouldNotBeCalled();
         $response->header('Allow', Argument::any())->shouldNotBeCalled();
         $response->header('Cache-Control', Argument::any())->shouldNotBeCalled();
         $response->header('Last-Modified', Argument::any())->shouldNotBeCalled();
@@ -411,6 +422,7 @@ class IntegrationTest extends TestCase
 
         $response = $this->prophesize(SwooleHttpResponse::class);
         $response->header('Content-Type', 'text/plain', true)->shouldBeCalled();
+        $response->header('content-length', Argument::any(), true)->shouldBeCalled();
         $response->header('Allow', Argument::any())->shouldNotBeCalled();
         $response->header('Cache-Control', Argument::any())->shouldNotBeCalled();
         $response->header('Last-Modified', Argument::any())->shouldNotBeCalled();
@@ -455,6 +467,7 @@ class IntegrationTest extends TestCase
 
         $response = $this->prophesize(SwooleHttpResponse::class);
         $response->header('Content-Type', 'text/plain', true)->shouldBeCalled();
+        $response->header('content-length', Argument::any(), true)->shouldNotBeCalled();
         $response->header('Allow', Argument::any())->shouldNotBeCalled();
         $response->header('Cache-Control', Argument::any())->shouldNotBeCalled();
         $response->header('Last-Modified', $lastModifiedFormatted, true)->shouldBeCalled();
@@ -498,6 +511,7 @@ class IntegrationTest extends TestCase
 
         $response = $this->prophesize(SwooleHttpResponse::class);
         $response->header('Content-Type', 'text/plain', true)->shouldBeCalled();
+        $response->header('content-length', Argument::any(), true)->shouldBeCalled();
         $response->header('Allow', Argument::any())->shouldNotBeCalled();
         $response->header('Cache-Control', Argument::any())->shouldNotBeCalled();
         $response->header('Last-Modified', $lastModifiedFormatted, true)->shouldBeCalled();

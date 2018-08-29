@@ -49,6 +49,8 @@ class StaticResourceResponse
         $this->sendContent = $sendContent;
         $this->responseContentCallback = $responseContentCallback
             ?: function (SwooleHttpResponse $response, string $filename) : void {
+                // Lower-case is used here for consistency with requests; aids with logging
+                $response->header('content-length', (string) filesize($filename), true);
                 $response->sendfile($filename);
             };
     }

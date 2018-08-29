@@ -18,6 +18,7 @@ use function explode;
 use function fclose;
 use function feof;
 use function fopen;
+use function function_exists;
 use function sprintf;
 use function stream_filter_append;
 use function trim;
@@ -92,11 +93,17 @@ class GzipMiddleware implements MiddlewareInterface
                 ];
                 stream_filter_append($handle, 'zlib.deflate', STREAM_FILTER_READ, $params);
 
+                $countBytes = function_exists('mb_strlen') ? 'mb_strlen' : 'strlen';
+                $length = 0;
                 while (feof($handle) !== true) {
-                    $response->write(fgets($handle, 4096));
+                    $line = fgets($handle, 4096);
+                    $length += $countBytes($line);
+                    $response->write($line);
                 }
 
                 fclose($handle);
+                // Lower-case is used here for consistency with requests; aids with logging
+                $response->header('content-length', (string) $length, true);
                 $response->end();
             }
         );
