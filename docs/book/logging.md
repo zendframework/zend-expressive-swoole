@@ -21,13 +21,13 @@ log application details. All logs we emit use `Psr\Log\LogLevel::INFO`.
 
 To substitute your own logger, you have two options.
 
-If you are manually instantiating a `Zend\Expressive\Swoole\RequestHandlerSwooleRunner`
+If you are manually instantiating a `Zend\Expressive\Swoole\SwooleRequestHandlerRunner`
 instance, you may provide it as the sixth argument to the constructor:
 
 ```php
-use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
+use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
 
-$runner = new RequestHandlerSwooleRunner(
+$runner = new SwooleRequestHandlerRunner(
     $application,
     $serverRequestFactory,
     $serverRequestErrorResponseGenerator,
@@ -37,6 +37,6 @@ $runner = new RequestHandlerSwooleRunner(
 );
 ```
 
-If using the provided factory (`RequestHandlerSwooleRunnerFactory`) &amp; which
+If using the provided factory (`SwooleRequestHandlerRunnerFactory`) &amp; which
 is the default when using the functionality with Expressive &amp; you can
 provide the logger via the `Psr\Log\LoggerInterface` service.

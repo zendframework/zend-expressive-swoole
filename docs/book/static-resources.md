@@ -5,13 +5,13 @@ filesystem. zend-expressive-swoole provides that capability as well.
 
 To enable this, the package provides an alternate
 [`RequestHandlerRunner`](https://docs.zendframework.com/zend-httphandlerrunner/runner/)
-implementation via the class `Zend\Expressive\Swoole\RequestHandlerSwooleRunner`
+implementation via the class `Zend\Expressive\Swoole\SwooleRequestHandlerRunner`
 that performs two duties:
 
 - If a static resource is matched, it serves that.
 - Otherwise, it passes off handling to the composed application pipeline.
 
-Internally, the `RequestHandlerSwooleRunner` composes another class, a 
+Internally, the `SwooleRequestHandlerRunner` composes another class, a 
 `Zend\Expressive\Swoole\StaticResourceHandlerInterface` instance. This instance
 is first queried to determine if a static resource was matched, and, if so, then
 invoked in order to serve it.
@@ -105,7 +105,6 @@ The following demonstrates all currently available configuration options:
 
 ```php
 // config/autoload/swoole.local.php
-use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
 
 return [
     'zend-expressive-swoole' => [
@@ -196,7 +195,6 @@ The example which follows provides the following options:
 
 ```php
 // config/autoload/swoole.local.php
-use Zend\Expressive\Swoole\RequestHandlerSwooleRunner;
 
 return [
     'zend-expressive-swoole' => [
@@ -348,7 +346,7 @@ potentially disable returning the response body (via `disableContent()`).
 
 ## Alternative static resource handlers
 
-As noted at the beginning of this chapter, the the `RequestHandlerSwooleRunner`
+As noted at the beginning of this chapter, the the `SwooleRequestHandlerRunner`
 composes a `StaticResourceHandlerInterface` instance in order to determine if a
 resource was matched by the request, and then to serve it.
 

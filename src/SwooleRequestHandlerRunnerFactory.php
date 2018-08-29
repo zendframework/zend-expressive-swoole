@@ -15,9 +15,9 @@ use Psr\Log\LoggerInterface;
 use Zend\Expressive\ApplicationPipeline;
 use Zend\Expressive\Response\ServerRequestErrorResponseGenerator;
 
-class RequestHandlerSwooleRunnerFactory
+class SwooleRequestHandlerRunnerFactory
 {
-    public function __invoke(ContainerInterface $container) : RequestHandlerSwooleRunner
+    public function __invoke(ContainerInterface $container) : SwooleRequestHandlerRunner
     {
         $staticResourceHandler = $container->has(StaticResourceHandlerInterface::class)
             ? $container->get(StaticResourceHandlerInterface::class)
@@ -26,7 +26,7 @@ class RequestHandlerSwooleRunnerFactory
             ? $container->get(LoggerInterface::class)
             : null;
 
-        return new RequestHandlerSwooleRunner(
+        return new SwooleRequestHandlerRunner(
             $container->get(ApplicationPipeline::class),
             $container->get(ServerRequestInterface::class),
             $container->get(ServerRequestErrorResponseGenerator::class),

@@ -12,7 +12,7 @@ using the `on(string $name, callable $action)` method.
 The request handler implemented in zend-expressive-swoole is a runner that
 enables the execution of an Expressive application inside the `on('request')`
 event of `Swoole\Http\Server`. This runner is implemented in the
-`Zend\Expressive\Swoole\RequestHandlerSwooleRunner` class.
+`Zend\Expressive\Swoole\SwooleRequestHandlerRunner` class.
 
 The basic implementation looks similar to the following:
 
