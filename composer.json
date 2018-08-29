@@ -28,6 +28,7 @@
         "psr/http-message-implementation": "^1.0",
         "psr/http-server-handler": "^1.0",
         "psr/log": "^1.0",
+        "symfony/console": "^4.1",
         "zendframework/zend-diactoros": "^1.8",
         "zendframework/zend-expressive": "^3.0.2",
         "zendframework/zend-httphandlerrunner": "^1.0.1"
