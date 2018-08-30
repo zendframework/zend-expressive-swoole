@@ -25,6 +25,7 @@ class ConfigProvider
     {
         return [
             'factories'  => [
+                Log\AccessLogInterface::class         => Log\AccessLogFactory::class,
                 PidManager::class                     => PidManagerFactory::class,
                 RequestHandlerRunner::class           => SwooleRequestHandlerRunnerFactory::class,
                 ServerFactory::class                  => ServerFactoryFactory::class,

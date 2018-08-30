@@ -13,7 +13,6 @@ use PackageVersions\Versions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Log\LoggerInterface;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Http\Response as SwooleHttpResponse;
 use Swoole\Http\Server as SwooleHttpServer;
@@ -25,6 +24,7 @@ use Zend\HttpHandlerRunner\Emitter\EmitterInterface;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
 use function date;
+use function microtime;
 use function time;
 use function usleep;
 
@@ -71,7 +71,7 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
     private $handler;
 
     /**
-     * @var LoggerInterface
+     * @var Log\AccessLogInterface
      */
     private $logger;
 
@@ -121,7 +121,7 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
         PidManager $pidManager,
         ServerFactory $serverFactory,
         StaticResourceHandlerInterface $staticResourceHandler = null,
-        LoggerInterface $logger = null
+        Log\AccessLogInterface $logger = null
     ) {
         $this->handler = $handler;
 
@@ -138,7 +138,10 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
         $this->serverFactory = $serverFactory;
         $this->pidManager = $pidManager;
         $this->staticResourceHandler = $staticResourceHandler;
-        $this->logger = $logger ?: new StdoutLogger();
+        $this->logger = $logger ?: new Log\Psr3AccessLogDecorator(
+            new Log\StdoutLogger(),
+            new Log\AccessLogFormatter()
+        );
         $this->cwd = getcwd();
     }
 
@@ -182,11 +185,11 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
     public function stopServer() : bool
     {
         if (! $this->isRunning()) {
-            $this->logger->info('Server is not running yet');
+            $this->logger->notice('Server is not running yet');
             return false;
         }
 
-        $this->logger->info('Server stopping ...');
+        $this->logger->notice('Server stopping ...');
 
         [$masterPid, ] = $this->pidManager->read();
         $startTime = time();
@@ -204,12 +207,12 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
         }
 
         if (! $result) {
-            $this->logger->info('Server stop failure');
+            $this->logger->error('Server stop failure');
             return false;
         }
 
         $this->pidManager->delete();
-        $this->logger->info('Server stopped');
+        $this->logger->notice('Server stopped');
 
         return true;
     }
@@ -226,21 +229,21 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
     public function reloadWorker() : bool
     {
         if (! $this->isRunning()) {
-            $this->logger->info('Server is not running yet');
+            $this->logger->notice('Server is not running yet');
             return false;
         }
 
-        $this->logger->info('Worker reloading ...');
+        $this->logger->notice('Worker reloading ...');
 
         [$masterPid, ] = $this->pidManager->read();
         $result = SwooleProcess::kill((int) $masterPid, SIGUSR1);
 
         if (! $result) {
-            $this->logger->info('Worker reload failure');
+            $this->logger->error('Worker reload failure');
             return false;
         }
 
-        $this->logger->info('Worker reloaded');
+        $this->logger->notice('Worker reloaded');
         return true;
     }
 
@@ -271,7 +274,7 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
         // Reset CWD
         chdir($this->cwd);
 
-        $this->logger->info('Swoole is running at {host}:{port}, in {cwd}', [
+        $this->logger->notice('Swoole is running at {host}:{port}, in {cwd}', [
             'host' => $server->host,
             'port' => $server->port,
             'cwd'  => getcwd(),
@@ -288,7 +291,7 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
         // Reset CWD
         chdir($this->cwd);
 
-        $this->logger->info('Worker started in {cwd} with ID {pid}', [
+        $this->logger->notice('Worker started in {cwd} with ID {pid}', [
             'cwd' => getcwd(),
             'pid' => $workerId,
         ]);
@@ -301,18 +304,12 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
         SwooleHttpRequest $request,
         SwooleHttpResponse $response
     ) : void {
-        $this->logger->info('{ts} - {remote_addr} - {request_method} {request_uri}', [
-            'ts'             => date('Y-m-d H:i:sO', time()),
-            'remote_addr'    => $request->server['remote_addr'],
-            'request_method' => $request->server['request_method'],
-            'request_uri'    => $request->server['request_uri']
-        ]);
-
         $staticResourceResponse = $this->staticResourceHandler
             ? $this->staticResourceHandler->processStaticResource($request, $response)
             : null;
         if ($staticResourceResponse) {
-            // Eventually: move logging here
+            // Eventually: emit a request log here
+            $this->logger->logAccessForStaticResource($request, $staticResourceResponse);
             return;
         }
 
@@ -326,7 +323,9 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
             return;
         }
 
-        $emitter->emit($this->handler->handle($psr7Request));
+        $psr7Response = $this->handler->handle($psr7Request);
+        $emitter->emit($psr7Response);
+        $this->logger->logAccessForPsr7Resource($request, $psr7Response);
     }
 
     /**
@@ -338,5 +337,6 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
     ) : void {
         $response = ($this->serverRequestErrorResponseGenerator)($exception);
         $emitter->emit($response);
+        $this->logger->logAccessForPsr7Resource($request, $psr7Response);
     }
 }

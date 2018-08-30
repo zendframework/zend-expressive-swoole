@@ -13,7 +13,6 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Log\LoggerInterface;
 use Zend\Expressive\ApplicationPipeline;
 use Zend\Expressive\Response\ServerRequestErrorResponseGenerator;
 use Zend\Expressive\Swoole\Exception\InvalidConfigException;
@@ -22,7 +21,9 @@ use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
 use Zend\Expressive\Swoole\SwooleRequestHandlerRunnerFactory;
 use Zend\Expressive\Swoole\ServerFactory;
 use Zend\Expressive\Swoole\StaticResourceHandlerInterface;
-use Zend\Expressive\Swoole\StdoutLogger;
+use Zend\Expressive\Swoole\Log\AccessLogInterface;
+use Zend\Expressive\Swoole\Log\Psr3AccessLogDecorator;
+use Zend\Expressive\Swoole\Log\StdoutLogger;
 
 class SwooleRequestHandlerRunnerFactoryTest extends TestCase
 {
@@ -38,7 +39,7 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
         $this->pidManager = $this->prophesize(PidManager::class);
 
         $this->staticResourceHandler = $this->prophesize(StaticResourceHandlerInterface::class);
-        $this->logger = $this->prophesize(LoggerInterface::class);
+        $this->logger = $this->prophesize(AccessLogInterface::class);
 
         $this->container = $this->prophesize(ContainerInterface::class);
         $this->container
@@ -76,11 +77,11 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
     public function configureAbsentLoggerService()
     {
         $this->container
-            ->has(LoggerInterface::class)
+            ->has(AccessLogInterface::class)
             ->willReturn(false);
 
         $this->container
-            ->get(LoggerInterface::class)
+            ->get(AccessLogInterface::class)
             ->shouldNotBeCalled();
     }
 
@@ -92,17 +93,17 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
         $runner = $factory($this->container->reveal());
         $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $runner);
         $this->assertAttributeEmpty('staticResourceHandler', $runner);
-        $this->assertAttributeInstanceOf(StdoutLogger::class, 'logger', $runner);
+        $this->assertAttributeInstanceOf(Psr3AccessLogDecorator::class, 'logger', $runner);
     }
 
     public function testFactoryWillUseConfiguredPsr3LoggerWhenPresent()
     {
         $this->configureAbsentStaticResourceHandler();
         $this->container
-            ->has(LoggerInterface::class)
+            ->has(AccessLogInterface::class)
             ->willReturn(true);
         $this->container
-            ->get(LoggerInterface::class)
+            ->get(AccessLogInterface::class)
             ->will([$this->logger, 'reveal']);
 
         $factory = new SwooleRequestHandlerRunnerFactory();

@@ -12,6 +12,9 @@ namespace Zend\Expressive\Swoole\StaticResourceHandler;
 use Swoole\Http\Response as SwooleHttpResponse;
 
 use function filesize;
+use function function_exists;
+use function implode;
+use function sprintf;
 
 class StaticResourceResponse
 {
@@ -86,6 +89,33 @@ class StaticResourceResponse
     public function disableContent() : void
     {
         $this->sendContent = false;
+    }
+
+    /**
+     * Retrieve a single named header
+     *
+     * This is exposed to allow logging specific response headers when present.
+     */
+    public function getHeader(string $name) : string
+    {
+        return $this->headers[$name] ?? '';
+    }
+
+    /**
+     * Retrieve the aggregated length of all headers.
+     *
+     * This is exposed for logging purposes.
+     */
+    public function getHeaderSize() : int
+    {
+        $headers = [];
+        foreach ($this->headers as $header => $value) {
+            $headers[] = sprintf('%s: %s', $header, $value);
+        }
+
+        $strlen = function_exists('mb_strlen') ? 'mb_strlen' : 'strlen';
+
+        return $strlen(implode("\r\n", $headers));
     }
 
     /**
