@@ -228,16 +228,16 @@ that performs two duties:</p>
 </ul>
 <p>Internally, the <code>SwooleRequestHandlerRunner</code> composes another class, a 
 <code>Zend\Expressive\Swoole\StaticResourceHandlerInterface</code> instance. This instance
-is first queried to determine if a static resource was matched, and, if so, then
-invoked in order to serve it.</p>
+is passed the Swoole request and response, and returns a value indicating
+whether or not it was able to identify and serve a matching static resource.</p>
 <p>Our default implementation, <code>Zend\Expressive\Swoole\StaticResourceHandler</code>,
 provides an approach that checks an incoming request path against a list of
 known extensions, and a configured document root. If the extension matches, it
 then checks to see if the file exists in the document root. If it does, it will
 serve it.</p>
 <h2 id="middleware">Middleware</h2>
-<p>The <code>StaticResourceHandler</code> implementation also provides the ability to compose
-a queue of middleware to execute when attempting to serve a matched file.  Using
+<p>The <code>StaticResourceHandler</code> implementation performs its work by composing a
+queue of middleware to execute when attempting to serve a matched file. Using
 this approach, we are able to provide a configurable set of capabilities for
 serving static resources. What we currently provide is as follows:</p>
 <ul>
@@ -251,6 +251,15 @@ serving static resources. What we currently provide is as follows:</p>
 <p><code>ClearStatCacheMiddleware</code> will, if configured to do so, call
   <code>clearstatcache()</code> either on every request, or at specific intervals. This is
   useful if you anticipate filesystem changes in your document root.</p>
+</li>
+<li>
+<p><code>ContentTypeFilterMiddleware</code> checks the incoming filename against a map of
+  known extensions and their associated Content-Type values. If it cannot
+  match the file, it returns a value indicating no match was found so that the
+  application can continue processing the request. Otherwise, it provides the
+  Content-Type for the associated response. This middleware is generally best
+  used as the outermost layer, to ensure no other middleware executes in the
+  case that the file cannot be matched.</p>
 </li>
 <li>
 <p><code>ETagMiddleware</code> will set an <code>ETag</code> header using either a strong or weak
@@ -287,6 +296,7 @@ serving static resources. What we currently provide is as follows:</p>
 <p>By default, these are registered in the following order, contingent on
 configuration being provided:</p>
 <ul>
+<li><code>ContentTypeFilterMiddleware</code></li>
 <li><code>MethodNotAllowedMiddleware</code></li>
 <li><code>OptionsMiddleware</code></li>
 <li><code>HeadMiddleware</code></li>
@@ -390,7 +400,7 @@ the source code of your PHP application!</p>
 does not exist, we raise an exception.</p>
 <h3 id="default-extensioncontent-types">Default extension/content-types</h3>
 <p>By default, we serve files with extensions in the whitelist defined in the
-constant <code>Zend\Expressive\Swoole\StaticResourceHandler::DEFAULT_STATIC_EXTS</code>,
+constant <code>Zend\Expressive\Swoole\StaticResourceHandler\ContentTypeFilterMiddleware::DEFAULT_STATIC_EXTS</code>,
 which is derived from a <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types">list of common web MIME types maintained by Mozilla</a>.</p>
 </blockquote>
 <h3 id="configuration-example">Configuration Example</h3>
@@ -515,17 +525,33 @@ That class looks like the following:</p>
     public function disableContent() : void;
 
     /**
+     * Call this method to indicate that the request cannot be served as a
+     * static resource. The request runner will then proceed to execute
+     * the associated application in order to generate the response.
+     */
+    public function markAsFailure() : void;
+
+    /**
      * @param callable $responseContentCallback Callback to use when emitting
      *     the response body content via Swoole. Must have the signature:
      *     function (SwooleHttpResponse $response, string $filename) : void
      */
     public function setResponseContentCallback(callable $callback) : void;
 
+    /**
+     * Use this within a response content callback to set the associated
+     * Content-Length of the generated response. Loggers can then query
+     * for this information in order to provide that information in the logs.
+     */
+    public function setContentLength(int $length) : void;
+
     public function setStatus(int $status) : void;
 }</code></pre>
 
 <p>Most middleware will conditionally set the status, one or more headers, and
-potentially disable returning the response body (via <code>disableContent()</code>).</p>
+potentially disable returning the response body (via <code>disableContent()</code>).
+Middleware that restricts access or filters out specific files will also use
+<code>markAsFailure()</code>.</p>
 <blockquote>
 <h3 id="providing-an-alternative-mechanism-for-sending-response-content">Providing an alternative mechanism for sending response content</h3>
 <p>In some cases, you may want to alter how the <code>Swoole\Http\Response</code> receives the
@@ -539,7 +565,7 @@ a filehandle representing the file to send, and then calls
 section above within your middleware.</p>
 </blockquote>
 <h2 id="alternative-static-resource-handlers">Alternative static resource handlers</h2>
-<p>As noted at the beginning of this chapter, the the <code>SwooleRequestHandlerRunner</code>
+<p>As noted at the beginning of this chapter, the <code>SwooleRequestHandlerRunner</code>
 composes a <code>StaticResourceHandlerInterface</code> instance in order to determine if a
 resource was matched by the request, and then to serve it.</p>
 <p>If you want to provide an alternative mechanism for doing so (e.g., to serve
@@ -555,17 +581,17 @@ use Swoole\Http\Response as SwooleHttpResponse;
 interface StaticResourceHandlerInterface
 {
     /**
-     * Does the request match to a static resource?
+     * Attempt to process a static resource based on the current request.
+     *
+     * If the resource cannot be processed, the method should return null.
+     * Otherwise, it should return the StaticResourceResponse that was used
+     * to send the Swoole response instance. The runner can then query this
+     * for content length and status.
      */
-    public function isStaticResource(SwooleHttpRequest $request) : bool;
-
-    /**
-     * Send the static resource based on the current request.
-     */
-    public function sendStaticResource(
+    public function processStaticResource(
         SwooleHttpRequest $request,
         SwooleHttpResponse $response
-    ) : void;
+    ) : ?StaticResourceHandler\StaticResourceResponse;
 }</code></pre>
 
 <p>Once implemented, map the service
