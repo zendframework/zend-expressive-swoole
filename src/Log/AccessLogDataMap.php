@@ -220,7 +220,7 @@ class AccessLogDataMap
      */
     public function getQuery() : string
     {
-        $query = $this->request->get;
+        $query = $this->request->get ?? [];
         return [] === $query ? '' : sprintf('?%s', http_build_query($query));
     }
 
@@ -416,7 +416,8 @@ class AccessLogDataMap
      */
     private function getServerParam(string $key, string $default = '-') : string
     {
-        return $this->request->server[strtolower($key)] ?? $default;
+        $value = $this->request->server[strtolower($key)] ?? $default;
+        return (string) $value;
     }
 
     /**
