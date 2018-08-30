@@ -56,14 +56,6 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
     private $cwd;
 
     /**
-     * Enable the gzip of response content. The range is 0 to 9, the higher the number, the
-     * higher the compression level, 0 means disable gzip function.
-     *
-     * @var int
-     */
-    private $gzip;
-
-    /**
      * A request handler to run as the application.
      *
      * @var RequestHandlerInterface
