@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-namespace Zend\Expressive\Swoole;
+namespace Zend\Expressive\Swoole\Log;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;

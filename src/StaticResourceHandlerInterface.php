@@ -15,12 +15,15 @@ use Swoole\Http\Response as SwooleHttpResponse;
 interface StaticResourceHandlerInterface
 {
     /**
-     * Does the request match to a static resource?
+     * Attempt to process a static resource based on the current request.
+     *
+     * If the resource cannot be processed, the method should return null.
+     * Otherwise, it should return the StaticResourceResponse that was used
+     * to send the Swoole response instance. The runner can then query this
+     * for content length and status.
      */
-    public function isStaticResource(SwooleHttpRequest $request) : bool;
-
-    /**
-     * Send the static resource based on the current request.
-     */
-    public function sendStaticResource(SwooleHttpRequest $request, SwooleHttpResponse $response) : void;
+    public function processStaticResource(
+        SwooleHttpRequest $request,
+        SwooleHttpResponse $response
+    ) : ?StaticResourceHandler\StaticResourceResponse;
 }

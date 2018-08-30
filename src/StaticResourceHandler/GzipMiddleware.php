@@ -13,11 +13,11 @@ use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Zend\Expressive\Swoole\Exception;
 
-use function count;
 use function explode;
 use function fclose;
 use function feof;
 use function fopen;
+use function function_exists;
 use function sprintf;
 use function stream_filter_append;
 use function trim;
@@ -76,13 +76,13 @@ class GzipMiddleware implements MiddlewareInterface
         }
 
         $response->setResponseContentCallback(
-            function (Response $response, string $filename) use ($compressionEncoding) : void {
-                $response->header(
+            function (Response $swooleResponse, string $filename) use ($compressionEncoding, $response) : void {
+                $swooleResponse->header(
                     'Content-Encoding',
                     GzipMiddleware::COMPRESSION_CONTENT_ENCODING_MAP[$compressionEncoding],
                     true
                 );
-                $response->header('Connection', 'close', true);
+                $swooleResponse->header('Connection', 'close', true);
 
                 $handle = fopen($filename, 'rb');
                 $params = [
@@ -92,12 +92,18 @@ class GzipMiddleware implements MiddlewareInterface
                 ];
                 stream_filter_append($handle, 'zlib.deflate', STREAM_FILTER_READ, $params);
 
+                $countBytes = function_exists('mb_strlen') ? 'mb_strlen' : 'strlen';
+                $length = 0;
                 while (feof($handle) !== true) {
-                    $response->write(fgets($handle, 4096));
+                    $line = fgets($handle, 4096);
+                    $length += $countBytes($line);
+                    $swooleResponse->write($line);
                 }
 
                 fclose($handle);
-                $response->end();
+                $response->setContentLength($length);
+                $swooleResponse->header('Content-Length', (string) $length, true);
+                $swooleResponse->end();
             }
         );
         return $response;

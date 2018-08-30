@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Added
 
+- [#26](https://github.com/zendframework/zend-expressive-swoole/pull/26) adds comprehensive access logging capabilities via a new subnamespace,
+  `Zend\Expressive\Swoole\Log`. Capabilities include support (most) of the
+  Apache log format placeholders (as well as the standard formats used by Apache
+  and Debian), and the ability to provide your own formatting mechanisms. Please
+  see the [logging documentation](https://docs.zendframework.com/zend-expressive-swoole/logging/)
+  for more information.
+
 - [#20](https://github.com/zendframework/zend-expressive-swoole/pull/20) adds a new interface, `Zend\Expressive\Swoole\StaticResourceHandlerInterface`,
   and default implementation `Zend\Expressive\Swoole\StaticResourceHandler`,
   used to determine if a request is for a static file, and then to serve it; the
@@ -16,6 +23,7 @@ All notable changes to this project will be documented in this file, in reverse 
   features such as HTTP client-side caching headers, handling `OPTIONS`
   requests, etc. Full capabilities include:
 
+  - Filtering by allowed extensions.
   - Emitting `405` statuses for unsupported HTTP methods.
   - Handling `OPTIONS` requests.
   - Handling `HEAD` requests.
@@ -40,7 +48,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 - [#21](https://github.com/zendframework/zend-expressive-swoole/pull/21) renames `RequestHandlerSwooleRunner` (and its related factory) to `SwooleRequestHandlerRunner`.
 
-- [#20](https://github.com/zendframework/zend-expressive-swoole/pull/20) modifies the collaborators and thus constructor arguments
+- [#20](https://github.com/zendframework/zend-expressive-swoole/pull/20) and [#26](https://github.com/zendframework/zend-expressive-swoole/pull/26) modify the collaborators and thus constructor arguments
   expected by the `SwooleRequestHandlerRunner`. The constructor now has the
   following signature:
 
@@ -52,7 +60,7 @@ All notable changes to this project will be documented in this file, in reverse 
       Zend\Expressive\Swoole\PidManager $pidManager,
       Zend\Expressive\Swoole\ServerFactory $serverFactory,
       Zend\Expressive\Swoole\StaticResourceHandlerInterface $staticResourceHandler = null,
-      Psr\Logger\LoggerInterface $logger = null
+      Zend\Expressive\Swoole\Log\AccessLogInterface $logger = null
   ) {
   ```
 

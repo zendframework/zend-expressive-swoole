@@ -72,8 +72,7 @@ class StaticResourceHandlerFactory
 
         return new StaticResourceHandler(
             $config['document-root'] ?? getcwd() . '/public',
-            $this->configureMiddleware($config),
-            $config['type-map'] ?? StaticResourceHandler::TYPE_MAP_DEFAULT
+            $this->configureMiddleware($config)
         );
     }
 
@@ -107,6 +106,9 @@ class StaticResourceHandlerFactory
     protected function configureMiddleware(array $config) : array
     {
         $middleware = [
+            new StaticResourceHandler\ContentTypeFilterMiddleware(
+                $config['type-map'] ?? StaticResourceHandler\ContentTypeFilterMiddleware::TYPE_MAP_DEFAULT
+            ),
             new StaticResourceHandler\MethodNotAllowedMiddleware(),
             new StaticResourceHandler\OptionsMiddleware(),
             new StaticResourceHandler\HeadMiddleware(),

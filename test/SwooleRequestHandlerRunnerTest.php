@@ -23,6 +23,7 @@ use Zend\Expressive\Swoole\PidManager;
 use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
 use Zend\Expressive\Swoole\ServerFactory;
 use Zend\Expressive\Swoole\StaticResourceHandlerInterface;
+use Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
 class SwooleRequestHandlerRunnerTest extends TestCase
@@ -87,12 +88,8 @@ class SwooleRequestHandlerRunnerTest extends TestCase
             ->willReturn(null);
 
         $this->staticResourceHandler
-            ->isStaticResource(Argument::any())
-            ->willReturn(false);
-
-        $this->staticResourceHandler
-            ->sendStaticResource(Argument::any())
-            ->shouldNotBeCalled();
+            ->processStaticResource(Argument::any())
+            ->willReturn(null);
 
         $requestHandler = new SwooleRequestHandlerRunner(
             $this->requestHandler->reveal(),
@@ -159,6 +156,7 @@ class SwooleRequestHandlerRunnerTest extends TestCase
             'remote_addr'    => '127.0.0.1',
             'request_method' => 'GET'
         ];
+        $request->get = [];
 
         $response = $this->prophesize(SwooleHttpResponse::class);
         $response
@@ -180,7 +178,7 @@ class SwooleRequestHandlerRunnerTest extends TestCase
 
         $runner->onRequest($request, $response->reveal());
 
-        $this->expectOutputRegex("/127\.0\.0\.1 - GET \/\R$/");
+        $this->expectOutputRegex('/127\.0\.0\.1\s.*?\s"GET[^"]+" 200.*?\R$/');
     }
 
     public function testOnRequestDelegatesToApplicationWhenStaticResourceHandlerDoesNotMatchPath()
@@ -199,6 +197,7 @@ class SwooleRequestHandlerRunnerTest extends TestCase
             'remote_addr'    => '127.0.0.1',
             'request_method' => 'GET'
         ];
+        $request->get = [];
 
         $response = $this->prophesize(SwooleHttpResponse::class);
         $response
@@ -209,11 +208,8 @@ class SwooleRequestHandlerRunnerTest extends TestCase
             ->shouldBeCalled();
 
         $this->staticResourceHandler
-            ->isStaticResource($request)
-            ->willReturn(false);
-        $this->staticResourceHandler
-            ->sendStaticResource(Argument::any())
-            ->shouldNotBeCalled();
+            ->processStaticResource($request, $response->reveal())
+            ->willReturn(null);
 
         $runner = new SwooleRequestHandlerRunner(
             $this->requestHandler->reveal(),
@@ -227,7 +223,7 @@ class SwooleRequestHandlerRunnerTest extends TestCase
 
         $runner->onRequest($request, $response->reveal());
 
-        $this->expectOutputRegex("/127\.0\.0\.1 - GET \/\R$/");
+        $this->expectOutputRegex('/127\.0\.0\.1\s.*?\s"GET[^"]+" 200.*?\R$/');
     }
 
     public function testOnRequestDelegatesToStaticResourceHandlerOnMatch()
@@ -242,15 +238,17 @@ class SwooleRequestHandlerRunnerTest extends TestCase
             'remote_addr'    => '127.0.0.1',
             'request_method' => 'GET'
         ];
+        $request->get = [];
 
         $response = $this->prophesize(SwooleHttpResponse::class)->reveal();
 
+        $staticResponse = $this->prophesize(StaticResourceResponse::class);
+        $staticResponse->getStatus()->willReturn(200);
+        $staticResponse->getContentLength()->willReturn(200);
+
         $this->staticResourceHandler
-            ->isStaticResource($request)
-            ->willReturn(true);
-        $this->staticResourceHandler
-            ->sendStaticResource($request, $response)
-            ->shouldBeCalled();
+            ->processStaticResource($request, $response)
+            ->will([$staticResponse, 'reveal']);
 
         $runner = new SwooleRequestHandlerRunner(
             $this->requestHandler->reveal(),
@@ -264,6 +262,6 @@ class SwooleRequestHandlerRunnerTest extends TestCase
 
         $runner->onRequest($request, $response);
 
-        $this->expectOutputRegex("/127\.0\.0\.1 - GET \/\R$/");
+        $this->expectOutputRegex('/127\.0\.0\.1\s.*?\s"GET[^"]+" 200.*?\R$/');
     }
 }

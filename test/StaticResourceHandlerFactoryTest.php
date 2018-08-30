@@ -86,20 +86,26 @@ class StaticResourceHandlerFactoryTest extends TestCase
             'docRoot',
             $handler
         );
-        $this->assertAttributeSame(
-            $config['zend-expressive-swoole']['swoole-http-server']['static-files']['type-map'],
-            'typeMap',
-            $handler
-        );
 
         $r = new ReflectionProperty($handler, 'middleware');
         $r->setAccessible(true);
         $middleware = $r->getValue($handler);
 
+        $this->assertHasMiddlewareOfType(StaticResourceHandler\ContentTypeFilterMiddleware::class, $middleware);
         $this->assertHasMiddlewareOfType(StaticResourceHandler\MethodNotAllowedMiddleware::class, $middleware);
         $this->assertHasMiddlewareOfType(StaticResourceHandler\OptionsMiddleware::class, $middleware);
         $this->assertHasMiddlewareOfType(StaticResourceHandler\HeadMiddleware::class, $middleware);
         $this->assertHasMiddlewareOfType(StaticResourceHandler\ClearStatCacheMiddleware::class, $middleware);
+
+        $contentTypeFilter = $this->getMiddlewareByType(
+            StaticResourceHandler\ContentTypeFilterMiddleware::class,
+            $middleware
+        );
+        $this->assertAttributeSame(
+            $config['zend-expressive-swoole']['swoole-http-server']['static-files']['type-map'],
+            'typeMap',
+            $contentTypeFilter
+        );
 
         $clearStatsCache = $this->getMiddlewareByType(
             StaticResourceHandler\ClearStatCacheMiddleware::class,
