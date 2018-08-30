@@ -17,7 +17,8 @@ use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
 class ReloadCommand extends Command
 {
     public const HELP = <<< 'EOH'
-Reload the web server. Sends a SIGUSR1 signal to all worker processes.
+Reload the web server. Sends a SIGUSR1 signal to master process and reload
+all worker processes.
 
 This command is only relevant when the server was started using the
 --daemonize option, and the zend-expressive-swoole.swoole-http-server.mode
