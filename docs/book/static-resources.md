@@ -24,8 +24,8 @@ serve it.
 
 ## Middleware
 
-The `StaticResourceHandler` implementation also provides the ability to compose
-a queue of middleware to execute when attempting to serve a matched file.  Using
+The `StaticResourceHandler` implementation performs its work by composing a
+queue of middleware to execute when attempting to serve a matched file. Using
 this approach, we are able to provide a configurable set of capabilities for
 serving static resources. What we currently provide is as follows:
 
@@ -353,6 +353,8 @@ class StaticResourceResponse
 
 Most middleware will conditionally set the status, one or more headers, and
 potentially disable returning the response body (via `disableContent()`).
+Middleware that restricts access or filters out specific files will also use
+`markAsFailure()`.
 
 > ### Providing an alternative mechanism for sending response content
 > 
