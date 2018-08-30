@@ -67,7 +67,7 @@ Once you have performed the configuration steps as outlined above, you can run
 an Expressive application with Swoole using the following command:
 
 ```bash
-php public/index.php
+php public/index.php start
 ```
 
 ## Documentation
