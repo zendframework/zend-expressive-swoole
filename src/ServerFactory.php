@@ -114,7 +114,7 @@ class ServerFactory
         $this->protocol = $protocol;
         $this->options = $options;
         // Bound with the 'enable_coroutine' option, and this option ONLY available for swoole 4.0.0 or later.
-        $this->enableCoroutine = $options['enable_coroutine'];
+        $this->enableCoroutine = $options['enable_coroutine'] ?? false;
     }
 
     /**
