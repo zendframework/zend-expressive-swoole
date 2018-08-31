@@ -10,9 +10,11 @@ declare(strict_types=1);
 namespace Zend\Expressive\Swoole;
 
 use Swoole\Http\Server as SwooleHttpServer;
+use Swoole\Runtime as SwooleRuntime;
 
-use function in_array;
 use function array_replace;
+use function in_array;
+use function method_exists;
 
 use const SWOOLE_BASE;
 use const SWOOLE_PROCESS;
@@ -44,6 +46,19 @@ class ServerFactory
         SWOOLE_UNIX_DGRAM,
         SWOOLE_UNIX_STREAM
     ];
+
+    /**
+     * ONLY available for swoole 4.1.0 or later version.
+     *
+     * Enable the coroutine of swoole server, when running in coroutine mode,
+     * PDO/Mysqli(Compile swoole with --enable-mysqlnd), Redis, SOAP, file_get_contents,
+     * fopen(ONLY TCP, FTP, HTTP protocol), stream_socket_client, fsockopen functions will
+     * automatically switch to Non-Blocking async I/O driver, notice that avoid (NOT use is better)
+     * blocking I/O when coroutine enable.
+     *
+     * @var bool
+     */
+    private $enableCoroutine = false;
 
     /**
      * @var string
@@ -98,6 +113,8 @@ class ServerFactory
         $this->mode = $mode;
         $this->protocol = $protocol;
         $this->options = $options;
+        // Bound with the 'enable_coroutine' option, and this option ONLY available for swoole 4.0.0 or later.
+        $this->enableCoroutine = $options['enable_coroutine'];
     }
 
     /**
@@ -109,6 +126,9 @@ class ServerFactory
     {
         if ($this->swooleServer) {
             return $this->swooleServer;
+        }
+        if ($this->enableCoroutine && method_exists(SwooleRuntime::class, 'enableCoroutine')) {
+            SwooleRuntime::enableCoroutine(true);
         }
         $this->swooleServer = new SwooleHttpServer($this->host, $this->port, $this->mode, $this->protocol);
         $options = array_replace($this->options, $appendOptions);
