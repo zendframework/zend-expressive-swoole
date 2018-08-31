@@ -15,7 +15,7 @@ We log a number of items:
 - Each request (more on this below)
 
 By default, logging is performed to STDOUT, using an internal logger. However,
-you can use any [PSR-3 compliant logger][https://www.php-fig.org/psr/psr-3/] to
+you can use any [PSR-3 compliant logger](https://www.php-fig.org/psr/psr-3/) to
 log application details. We emit logs detailing server operations using the
 priority `Psr\Log\LogLevel::NOTICE` (unless detailing an error, such as
 inability to reload)), while `Psr\Log\LogLevel::INFO` and `Psr\Log\LogLevel::ERROR`
