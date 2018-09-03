@@ -66,7 +66,7 @@ class StaticResourceResponse
         $this->responseContentCallback = $responseContentCallback
             ?: function (SwooleHttpResponse $response, string $filename) : void {
                 $this->contentLength = filesize($filename);
-                $response->header('Content-Length', (string)$this->contentLength, true);
+                $response->header('Content-Length', (string) $this->contentLength, true);
                 $response->sendfile($filename);
             };
     }
