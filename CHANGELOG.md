@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 0.2.2 - 2018-09-05
+
+### Added
+
+- [#28](https://github.com/zendframework/zend-expressive-swoole/pull/28) adds a new option, `zend-expressive-swoole.swoole-http-server.options.enable_coroutine`.
+  The option is only relevant for Swoole 4.1 and up. When enabled, this option
+  will turn on coroutine support, which essentially wraps most blocking I/O
+  operations (including PDO, Mysqli, Redis, SOAP, `stream_socket_client`,
+  `fsockopen`, and `file_get_contents` with URIs) into coroutines, allowing
+  workers to handle additional requests while waiting for the operatiosn to
+  complete.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 0.2.1 - 2018-09-04
 
 ### Added
