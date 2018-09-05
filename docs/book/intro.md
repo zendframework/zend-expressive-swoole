@@ -85,11 +85,16 @@ return [
         'swoole-http-server' => [
             'host' => '192.168.0.1',
             'port' => 9501,
-            'mode' => SWOOLE_BASE,
-            'protocol' => SWOOLE_SOCK_TCP | SWOOLE_SSL,
+            'mode' => SWOOLE_BASE, // SWOOLE_BASE or SWOOLE_PROCESS;
+                                   // SWOOLE_BASE is the default
+            'protocol' => SWOOLE_SOCK_TCP | SWOOLE_SSL, // SSL-enable the server
             'options' => [
+                // Set the SSL certificate and key paths for SSL support:
                 'ssl_cert_file' => 'path/to/ssl.crt',
                 'ssl_key_file' => 'path/to/ssl.key',
+                // Available in Swoole 4.1 and up; enables coroutine support
+                // for most I/O operations:
+                'enable_coroutine' => true,
             ],
         ],
     ],
