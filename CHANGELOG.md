@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file, in reverse 
   will turn on coroutine support, which essentially wraps most blocking I/O
   operations (including PDO, Mysqli, Redis, SOAP, `stream_socket_client`,
   `fsockopen`, and `file_get_contents` with URIs) into coroutines, allowing
-  workers to handle additional requests while waiting for the operatiosn to
+  workers to handle additional requests while waiting for the operations to
   complete.
 
 ### Changed
