@@ -78,3 +78,11 @@ This impressive result is primarily due to the shared memory approach of Swoole.
 Unlike traditional apache/php-fpm usage, the memory allocated in Swoole will not
 be freed after a request. This allows application configuration and artifacts
 (such as middleware and handlers) to persist between requests and processes.
+
+Under Swoole 4.1+, for even better performance, you can enable the option
+`zend-expressive-swoole.swoole-http-server.options.enable_coroutine`. When this
+is enabled, Swoole will run most I/O processes in coroutines. Doing so provides
+approximately **10 times faster performance** than without coroutines, meaning a
+Swoole-based application can be 40 to 50 times faster than running under nginx
+or Apache. Performance improves with the number of workers (which are restricted
+by the amount of memory); as such, performance can increase from these numbers.
