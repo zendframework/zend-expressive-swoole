@@ -48,13 +48,15 @@ class ServerFactory
     ];
 
     /**
+     * Enable coroutines within the Swoole HTTP server.
+     *
      * ONLY available for swoole 4.1.0 or later version.
      *
-     * Enable the coroutine of swoole server, when running in coroutine mode,
-     * PDO/Mysqli(Compile swoole with --enable-mysqlnd), Redis, SOAP, file_get_contents,
-     * fopen(ONLY TCP, FTP, HTTP protocol), stream_socket_client, fsockopen functions will
-     * automatically switch to Non-Blocking async I/O driver, notice that avoid (NOT use is better)
-     * blocking I/O when coroutine enable.
+     * When running in coroutine mode, PDO/Mysqli (when Swoole is compiled with
+     * --enable-mysqlnd), Redis, SOAP, file_get_contents, fopen(ONLY TCP, FTP,
+     * HTTP protocol), stream_socket_client, and the fsockopen functions will
+     * automatically switch to a non-blocking, async I/O driver. Avoid blocking
+     * I/O when enabling coroutines.
      *
      * @var bool
      */
@@ -102,18 +104,23 @@ class ServerFactory
         if ($port < 1 || $port > 65535) {
             throw new Exception\InvalidArgumentException('Invalid port');
         }
+
         if (! in_array($mode, static::MODES, true)) {
             throw new Exception\InvalidArgumentException('Invalid server mode');
         }
+
         if (! in_array($protocol, static::PROTOCOLS, true)) {
             throw new Exception\InvalidArgumentException('Invalid server protocol');
         }
+
         $this->host = $host;
         $this->port = $port;
         $this->mode = $mode;
         $this->protocol = $protocol;
         $this->options = $options;
-        // Bound with the 'enable_coroutine' option, and this option ONLY available for swoole 4.0.0 or later.
+
+        // If provided, and Swoole 4.1.0 or later is in use, this flag can be
+        // used to enable coroutines for most I/O operations.
         $this->enableCoroutine = $options['enable_coroutine'] ?? false;
     }
 
@@ -127,14 +134,18 @@ class ServerFactory
         if ($this->swooleServer) {
             return $this->swooleServer;
         }
+
         if ($this->enableCoroutine && method_exists(SwooleRuntime::class, 'enableCoroutine')) {
             SwooleRuntime::enableCoroutine(true);
         }
+
         $this->swooleServer = new SwooleHttpServer($this->host, $this->port, $this->mode, $this->protocol);
+
         $options = array_replace($this->options, $appendOptions);
         if ([] !== $options) {
             $this->swooleServer->set($options);
         }
+
         return $this->swooleServer;
     }
 }
