@@ -329,6 +329,5 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
     ) : void {
         $response = ($this->serverRequestErrorResponseGenerator)($exception);
         $emitter->emit($response);
-        $this->logger->logAccessForPsr7Resource($request, $psr7Response);
     }
 }
