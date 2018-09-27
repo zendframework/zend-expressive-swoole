@@ -325,9 +325,11 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
      */
     private function emitMarshalServerRequestException(
         EmitterInterface $emitter,
-        Throwable $exception
+        Throwable $exception,
+        SwooleHttpRequest $request
     ) : void {
-        $response = ($this->serverRequestErrorResponseGenerator)($exception);
-        $emitter->emit($response);
+        $psr7Response = ($this->serverRequestErrorResponseGenerator)($exception);
+        $emitter->emit($psr7Response);
+        $this->logger->logAccessForPsr7Resource($request, $psr7Response);
     }
 }
