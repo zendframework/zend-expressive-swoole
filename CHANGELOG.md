@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 0.2.3 - 2018-09-27
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#35](https://github.com/zendframework/zend-expressive-swoole/pull/35) fixes logging when unable to marshal a server request.
+
 ## 0.2.2 - 2018-09-05
 
 ### Added
