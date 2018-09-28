@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 0.3.0 - TBD
+
+### Added
+
+- [#37](https://github.com/zendframework/zend-expressive-swoole/pull/37) adds support for zendframework/zend-diactoros 2.0.0. You may use either
+  a 1.Y or 2.Y version of that library with Expressive applications.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 0.2.3 - 2018-09-27
 
 ### Added
