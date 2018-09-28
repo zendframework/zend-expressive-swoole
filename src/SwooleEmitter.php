@@ -12,8 +12,8 @@ namespace Zend\Expressive\Swoole;
 use Dflydev\FigCookies\SetCookies;
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Http\Response as SwooleHttpResponse;
-use Zend\Diactoros\Response\SapiEmitterTrait;
 use Zend\HttpHandlerRunner\Emitter\EmitterInterface;
+use Zend\HttpHandlerRunner\Emitter\SapiEmitterTrait;
 
 class SwooleEmitter implements EmitterInterface
 {
