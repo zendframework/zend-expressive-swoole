@@ -7,6 +7,7 @@ pages:
       - "Static Resources": v1/static-resources.md
       - Logging: v1/logging.md
       - "How it works": v1/how-it-works.md
+      - "Considerations when using Swoole": v1/considerations.md
     - "_ignore_legacy_pages":
       - "_introduction": intro.md
       - "_static-resources": static-resources.md
