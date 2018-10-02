@@ -16,9 +16,30 @@ class ConfigProvider
 {
     public function __invoke() : array
     {
-        return PHP_SAPI !== 'cli' || ! extension_loaded('swoole')
-            ? []
-            : ['dependencies' => $this->getDependencies()];
+        $config = PHP_SAPI === 'cli' && extension_loaded('swoole')
+            ? ['dependencies' => $this->getDependencies()]
+            : [];
+
+        $config['zend-expressive-swoole'] = $this->getDefaultConfig();
+
+        return $config;
+    }
+
+    public function getDefaultConfig() : array
+    {
+        return [
+            'swoole-http-server' => [
+                'options' => [
+                    // We set a default for this. Without one, Swoole\Http\Server
+                    // defaults to the value of `ulimit -n`. Unfortunately, in
+                    // virtualized or containerized environments, this often
+                    // reports higher than the host container allows. 1024 is a
+                    // sane default; users should check their host system, however,
+                    // and set a production value to match.
+                    'max_conn' => 1024,
+                ],
+            ],
+        ];
     }
 
     public function getDependencies() : array
