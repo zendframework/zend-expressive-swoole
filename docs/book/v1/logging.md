@@ -150,3 +150,62 @@ The factory will also look at the following configuration values:
     ],
 ],
 ```
+
+### Using Monolog as a PSR-3 logger
+
+When using [Monolog](https://seldaek.github.io/monolog/) with a `StreamHandler`,
+you must supply a file or a stream resource descriptor. We recommend using one
+of the following:
+
+- `php://stdout` is a good choice, as this will generally write to the current
+  console.
+
+- `php://stderr` is also a good choice, as this will generally write to the
+  current console, and allows you to filter based on that output stream.
+
+- When using [Docker](https://www.docker.com/), generally one of either
+  `/proc/1/fd/1` or `/proc/1/fd/2` can be used, and are analogous to `STDOUT`
+  and `STDERR`, respectively.  We recommend using `php://stdout` and
+  `php://stderr` instead, as these will be mapped to the correct locations by
+  the language.
+
+> ### ErrorLogHandler
+>
+> If you plan to write to `STDERR`, you might consider instead using the
+> Monolog `ErrorLogHandler`, as this will use PHP's `error_log()` mechanism to
+> write to the configured PHP error log. You can then either introspect that
+> location, or configure the `error_log` `php.ini` setting to point to
+> either `/dev/stderr` or, if on Docker, `/proc/1/fd/2`.
+
+Additionally, we recommend using the `PsrLogMessageProcessor` with any Monolog
+handler to ensure that any templated parameters are expanded by the logger.
+
+As an example, the following is a factory that wires a `StreamHandler` to a
+`Monolog\Logger` instance. 
+
+```php
+use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+use Monolog\Processor\PsrLogMessageProcessor;
+
+class LoggerFactory
+{
+    public function __invoke(ContainerInterface $container) : LoggerInterface
+    {
+        $logger = new Logger('swoole-http-server');
+        $logger->pushHandler(new StreamHandler(
+            'php://stdout',
+            Logger::INFO,
+            $bubble = true,
+            $expandNewLines = true
+        ));
+        $logger->pushProcessor(new PsrLogMessageProcessor());
+        return $logger;
+    }
+}
+```
+
+If you then wire this to the `Psr\Log\LoggerInterface` service, it will be used
+by Swoole for the purposes of access logs as well.
