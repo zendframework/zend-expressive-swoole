@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 0.2.4 - TBD
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#36](https://github.com/zendframework/zend-expressive-swoole/pull/36) fixes the call to `emitMarshalServerRequestException()` to ensure the request is passed to it.
+
 ## 0.2.3 - 2018-09-27
 
 ### Added
