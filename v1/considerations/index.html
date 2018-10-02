@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Swoole support for Expressive">  
+    <link rel="shortcut icon" href="../../img/favicon.ico">
+
+    <title>Considerations when using Swoole - zend-expressive-swoole</title>
+
+    <link rel="stylesheet" href="../../css/styles-3eb6fab3fb.css">
+</head>
+<body id="page-top">
+
+    
+    <div class="navbar navbar-default" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+
+            
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            
+            <span class="navbar-brand">
+                <a class="logo-link" href="https://framework.zend.com/" data-tooltip data-placement="bottom" title="Go to the ZF homepage">
+                    <img src="../../img/zend-framework-logo.svg" height="28" alt="Zend Framework">
+                </a>
+            </span>
+        </div>
+
+        <div class="navbar-collapse collapse">
+
+            
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="https://framework.zend.com/about">About</a>
+                </li>
+                <li>
+                    <a href="https://framework.zend.com/downloads">Install</a>
+                </li>
+                <li class="active">
+                    <a href="https://docs.zendframework.com">Documentation</a>
+                </li>
+                <li>
+                    <a href="https://www.zend.com/en/services/training">Training</a>
+                </li>
+                <li>
+                    <a href="https://framework.zend.com/blog">Blog</a>
+                </li>
+                <li>
+                    <a href="https://framework.zend.com/participate">Participate</a>
+                </li>
+            </ul>
+
+            
+            
+                <div class="nav navbar-nav navbar-collapse visible-xs-block ">
+                    
+    <div class="subnavigation hidden-print">
+        <h4 class="subnavigation__title">
+            <a href="../..">zend-expressive-swoole</a>
+        </h4>
+
+        <h5 class="subnavigation__subtitle">Table of Contents</h5>
+
+        <ul class="subnavigation__list">
+            
+                
+                    <li class="subnavigation__list-item ">
+                        <a href="../.." class="subnavigation__link">zend-expressive-swoole</a>
+                    </li>
+                
+            
+                
+                    <li class="subnavigation__list-item">
+                        <span class="subnavigation__headline">Reference</span>
+                        <ul class="subnavigation__list">
+                            
+                                
+    <li class="subnavigation__list-item ">
+        <a href="../static-resources/" class="subnavigation__link">Static Resources</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item ">
+        <a href="../logging/" class="subnavigation__link">Logging</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item ">
+        <a href="../how-it-works/" class="subnavigation__link">How it works</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item subnavigation__list-item--active">
+        <a href="./" class="subnavigation__link">Considerations when using Swoole</a>
+    </li>
+
+                            
+                        </ul>
+                    </li>
+                
+            
+        </ul>
+    </div>
+
+                </div>
+            
+
+            
+            <div class="nav navbar-nav navbar-collapse visible-xs-block">
+                <div class="component-selector">
+    <h4 class="component-selector__title">Components</h4>
+    <h5 class="component-selector__subtitle">Find documentation…</h5>
+    <select class="form-control component-selector__control">
+        <option value="/">Overview</option>
+        <optgroup label="Components"></optgroup>
+    </select>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+    <header class="header">
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="col-xs-8">
+                <h1 class="header__title">
+                    Documentation
+
+                    
+                        <small class="header__subtitle">zend-expressive-swoole</small>
+                    
+                </h1>
+            </div>
+
+            
+            <div class="col-xs-4 text-right">
+                
+                    <a href="#" class="header__link header__link--search" data-toggle="modal" data-target="#mkdocs_search_modal" title="Open search">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                    <a href="https://github.com/zendframework/zend-expressive-swoole/" class="header__link header__link--github" title="Go to repository of zend-expressive-swoole">
+                        <i class="fa fa-github"></i> GitHub
+                    </a>
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 col-xs-12 content" role="main">
+            <!-- content:begin -->
+                
+                    <ol class="breadcrumb" role="navigation" aria-label="breadcrumbs navigation">
+  <li><a href="https://framework.zend.com/">Home</a></li>
+  <li><a href="https://docs.zendframework.com/">Docs</a></li>
+  <li><a href="../..">zend-expressive-swoole</a></li>
+  
+    
+      
+        <li>Reference</li>
+      
+    
+  
+  <li class="active">Considerations when using Swoole</li>
+</ol>
+
+
+    
+    
+
+    
+    
+        <div class="toc">
+            <h6 class="toc__headline">In This Article</h6>
+            <ul class="toc__list">
+                
+                    <li class="toc__entry">
+                        <a href="#long-running-processes" class="toc__link">Long-running processes</a>
+                    </li>
+                
+                    <li class="toc__entry">
+                        <a href="#stateless-services" class="toc__link">Stateless services</a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+
+
+    <h1 id="considerations-when-using-swoole">Considerations when using Swoole</h1>
+<p>Because Swoole uses an event loop, and because it is able to load your
+application exactly once, you must take several precautions when using it to
+serve your application.</p>
+<h2 id="long-running-processes">Long-running processes</h2>
+<p>When using the Swoole HTTP server, your application runs within an <a href="https://en.wikipedia.org/wiki/Event_loop">event
+loop</a>. One benefit of this is that you
+can then <a href="https://www.swoole.co.uk/docs/modules/swoole-event-loop#public-static-void-swoole-event-defer-mixed-callback"><em>defer</em></a>
+execution of code until the next tick of the loop. This can be used to delay
+long-running code from executing until after a response has been sent to the
+client, which can obviate the need for tools such as message queues.</p>
+<p>The problem, however, is that when a worker <em>does</em> begin to handle the deferred
+functionality, it will run as long as needed until the work is done. This then
+means that the worker is <em>blocked</em> from handling new requests until that work is
+done.</p>
+<p>If you have enough workers, or the number of such long-running processes if few
+and far-between, this may not be an issue for you. However, it is a commonly
+documented issue in other similar systems such as Node.js. <strong>The solution in these
+cases is the same as for general PHP applications: add a message queue to your
+systems infrastructure, and delegate such work to the message queue instead.</strong></p>
+<h2 id="stateless-services">Stateless services</h2>
+<p>The typical PHP model is that the engine is fired up, runs your code, and then
+tears down again, <em>for every single request</em>. As such, PHP is said to have a
+"shared nothing architecture". This is a tremendous boon to developers, as they
+can ignore things found in lower level languages, such as garbage cleanup,
+memory management, and more.</p>
+<p>This model also comes with a cost: every single request requires bootstrapping
+your application. Benchmarks we have performed show that bootstrapping is often
+the most expensive operation in applications, often accounting for 25-50% of
+total resource usage and execution time.</p>
+<p>One reason technologies such as Swoole can provide a performance boost is due to
+the fact that they can bootstrap your application exactly once, often during
+startup. This alone can account for the performance boost of many applications.</p>
+<p>However, it has a price: you now need to consider what changes may happen inside
+the various classes in your dependency injection container, and the impact those
+changes may have on later requests, or even other requests happening
+concurrently.</p>
+<p>As one example: <a href="https://docs.zendframework.com/zend-expressive/v3/features/template/intro/">zend-expressive-template</a>
+provides an interface, <code>TemplateRendererInterface</code>, that allows you to render a
+template. That interface also allows you to provide template paths, and default
+parameters to pass to every template, and these methods are often invoked within
+factories or delegators in order to configure the renderer implementation.
+However, we have <a href="https://docs.zendframework.com/zend-expressive/v3/cookbook/access-common-data-in-templates/">also documented using <code>addDefaultParam()</code> for passing values
+discovered in the request to later handlers</a>.
+This practice accumulates <em>state</em> in the renderer that can cause problems later:</p>
+<ul>
+<li>
+<p>Flash messages discovered in one request might then be pushed to templates
+  renderered in subsequent requests &mdash; when they are no longer in scope. </p>
+</li>
+<li>
+<p>User details from one request might persist to a template rendered for an
+  unauthenticated user in another request, exposing information.</p>
+</li>
+</ul>
+<p>These are clearly problematic behaviors!</p>
+<p>As such, you must guard against state in services you provide in your dependency
+injection container, as any state changes have ramifications for other requests.
+Write services to be stateless, and/or mark state-changing methods as
+<code>@internal</code> to prevent users from calling them in non-bootstrap code.</p>
+<p>If the services are provided by a third party, you have a few options:</p>
+<ul>
+<li>
+<p>Decorating an existing service that implements an interface to make it
+  stateless.</p>
+</li>
+<li>
+<p>Extending a service to make state-changing methods no-ops.</p>
+</li>
+<li>
+<p>Injecting factories that produce the stateful services, instead of the service
+  itself.</p>
+</li>
+</ul>
+<p>We'll look at each in detail.</p>
+<h3 id="decoration">Decoration</h3>
+<p>If a service implements an interface, you can decorate the service to make it
+stateless. Well-written interfaces will be stateless by design, and not provide
+methods meant to internally change state. In these situations, you can create a
+proxy class that decorates the original service:</p>
+<pre class="codehilite"><code class="language-php">class ProxyService implements OriginalInterface
+{
+    /** @var OriginalInterface */
+    private $proxy;
+
+    public function __construct(OriginalInterface $proxy)
+    {
+        $this-&gt;proxy = $proxy;
+    }
+
+    public function someMethodDefinedInInterface(string $argument) : Result
+    {
+        return $this-&gt;proxy-&gt;someMethodDefinedInInterface($argument);
+    }
+}</code></pre>
+
+<p>You would then:</p>
+<ul>
+<li>Map the factory for the original service to the implementation name.</li>
+<li>Create a factory that consumes the original service, and produces the proxy.</li>
+<li>Map the interface name to the factory that creates the proxy.</li>
+</ul>
+<pre class="codehilite"><code class="language-php">// in config/autoload/dependencies.global.php:
+
+return [
+    'dependencies' =&gt; [
+        'factories' =&gt; [
+            OriginalImplementation::class =&gt; OriginalImplementationFactory::class,
+            OriginalInterface::class =&gt; ProxyServiceFactory::class,
+        ],
+    ],
+];</code></pre>
+
+<p>If you were writing to the interface, and not the implementation, you can now
+guarantee that any non-interface methods that changed state can now no longer be
+called.</p>
+<p>If the interface itself defines methods that modify state, we recommend writing
+a proxy that implements those methods as no-ops and/or that raises exceptions
+when those methods are invoked. (The latter approach ensures that you discover
+quickly when code is exercising those methods.) In each case, you would then use
+a <a href="https://docs.zendframework.com/zend-expressive/v3/features/container/delegator-factories/">delegator factory</a>,
+to decorate the original instance in the proxy class:</p>
+<pre class="codehilite"><code class="language-php">function (ContainerInterface $container, string $name, callable $callback)
+{
+    return new ProxyService($callback());
+}</code></pre>
+
+<p>(You can also use the delegator factory approach with the previous proxy service
+example.)</p>
+<h3 id="extension">Extension</h3>
+<p>When a service does not implement an interface, but exposes methods that change
+internal state, you can extend the original class to make the methods that
+change state into no-ops, or have them raise exceptions. (The latter approach
+ensures that you discover quickly when code is exercising those methods.)</p>
+<p>As an example, let's say you have a class <code>DataMapper</code> that defines a method
+<code>setTable()</code> in it, and that method would change the database table the mapper
+would query. This is a potentially bad situation!</p>
+<p>We could extend the class as follows:</p>
+<pre class="codehilite"><code class="language-php">class StatelessDataMapper extends DataMapper
+{
+    public function setTable(string $table) : void
+    {
+        throw new \DomainException(sprintf(
+            '%s should not be called in production code!',
+            __METHOD__
+        ));
+    }
+}</code></pre>
+
+<p>In your factory that creates an instance of <code>DataMapper</code>, have it instead return
+a <code>StatelessDataMapper</code> instance, and you're now safe.</p>
+<h3 id="factories">Factories</h3>
+<p>Another approach is to modify your consuming code to accept a <em>factory</em> that
+will produce the service you'll consume, instead of the service itself. This
+approach ensures that the service is created only when needed, mitigating any
+state change issues.</p>
+<p>As an example, consider the following middleware that currently consumes a
+template renderer:</p>
+<pre class="codehilite"><code class="language-php">use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Zend\Diactoros\Response\HtmlResponse;
+use Zend\Expressive\Template\TemplateRendererInterface;
+
+class SomeHandler implements RequestHandlerInterface
+{
+    /** @var TemplateRendererInterface */
+    private $renderer;
+
+    public function __construct(TemplateRendererInterface $renderer)
+    {
+        $this-&gt;renderer = $renderer;
+    }
+
+    public function handle(ServerRequestInterface $request) : ResponseInterface
+    {
+        return new HtmlResponse($this-&gt;renderer-&gt;render(
+            'app::some-handler',
+            []
+        ));
+    }
+}</code></pre>
+
+<p>What we will do is modify it to accept a <em>callable</em> to the constructor. We will
+then call that factory <em>just before</em> we need the renderer; we <em>will not</em> store
+the result in the handler, as we want to ensure we have a new instance each
+time.</p>
+<pre class="codehilite"><code class="language-php">use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Zend\Diactoros\Response\HtmlResponse;
+use Zend\Expressive\Template\TemplateRendererInterface;
+
+class SomeHandler implements RequestHandlerInterface
+{
+    /** @var callable */
+    private $rendererFactory;
+
+    public function __construct(callable $rendererFactory)
+    {
+        $this-&gt;rendererFactory = $rendererFactory;
+    }
+
+    public function handle(ServerRequestInterface $request) : ResponseInterface
+    {
+        /** @var TemplateRendererInterface $renderer */
+        $renderer = ($this-&gt;rendererFactory)();
+        return new HtmlResponse($renderer-&gt;render(
+            'app::some-handler',
+            []
+        ));
+    }
+}</code></pre>
+
+<p>From here, we create a factory for our dependency injection container that will
+return the factory we use here. As an example, if we are using the <a href="https://docs.zendframework.com/zend-expressive/v3/features/template/zend-view/">zend-view
+integration</a>,
+we might do the following:</p>
+<pre class="codehilite"><code class="language-php">
+use Psr\Container\ContainerInterface;
+use Zend\Expressive\Template\TemplateRendererInterface;
+use Zend\Expressive\ZendView\ZendViewRendererFactory;
+
+class ZendViewRendererFactoryFactory
+{
+    public function __invoke(ContainerInterface $container) : callable
+    {
+        $factory = new ZendViewRendererFactory();
+        return function () use ($container, $factory) : TemplateRendererInterface {
+            return $factory($container);
+        };
+    }
+}</code></pre>
+
+<p>If we mapped this to the "service" <code>Zend\Expressive\Template\TemplateRendererInterfaceFactory</code>,
+our factory for the <code>SomeHandler</code> class would then look like:</p>
+<pre class="codehilite"><code class="language-php">use Zend\Expressive\Template\TemplateRendererInterfaceFactory;
+
+function (ContainerInterface $container) : SomeHandler
+{
+    return new SomeHandler(
+        $container-&gt;get(TemplateRendererInterfaceFactory::class)
+    );
+}</code></pre>
+
+<p>This approach ensures we get a new instance with known state at precisely the
+moment we wish to execute the functionality. By ensuring we <em>do not</em> store the
+instance in any way, we also ensure it is garbage collected when the instance
+goes out of scope (i.e., when the method ends).</p>
+<blockquote>
+<h3 id="handling-the-template-data-problem">Handling the template data problem</h3>
+<p>If we want our services to be stateless, how do we handle problems such as the 
+<a href="https://docs.zendframework.com/zend-expressive/v3/cookbook/access-common-data-in-templates/">documented <code>addDefaultParam()</code> issue referenced earlier</a>?</p>
+<p>In this case, the original problem was "how do we get common request data into
+templates?" The solution originally provided was to alter the state of the
+template renderer. Another solution, however, is one we've also documented
+previously: <a href="https://docs.zendframework.com/zend-expressive/v3/cookbook/passing-data-between-middleware/">use server attributes to pass data between middleware</a>.</p>
+<p>In this particular case, the middleware documented in the original solution
+could be modified to provide data to a request attribute, instead of altering
+the state of the template renderer. It might then become:</p>
+<pre class="codehilite"><code class="language-php">namespace App\Middleware;
+
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Zend\Expressive\Router\RouteResult;
+use Zend\Expressive\Session\Authentication\UserInterface;
+use Zend\Expressive\Session\Flash\FlashMessagesInterface;
+
+class TemplateDefaultsMiddleware implements MiddlewareInterface
+{
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
+    {
+        $routeResult = $request-&gt;getAttribute(RouteResult::class);
+        $flashMessages = $request-&gt;getAttribute(FlashMessagesInterface::class);
+
+        $defaults = [
+            // Inject the current user, or null if there isn't one.
+            // This is named security so it will not interfere with your user admin pages
+            'security' =&gt; $request-&gt;getAttribute(UserInterface::class),
+
+            // Inject the currently matched route name.
+            'matchedRouteName' =&gt; $routeResult ? $routeResult-&gt;getMatchedRouteName() : null,
+
+            // Inject all flash messages
+            'notifications' =&gt; $flashMessages ? $flashMessages-&gt;getFlashes() : [],
+        ];
+
+        return $handler-&gt;handle($request-&gt;withAttribute(__CLASS__, $defaults));
+    }
+}</code></pre>
+
+<p>Once that change is made, you would then change your handler to do the
+following:</p>
+<ul>
+<li>Pull that attribute, providing a default <code>[]</code> value.</li>
+<li>Merge the pulled value with any local values when rendering the template.</li>
+</ul>
+<p>For example:</p>
+<pre class="codehilite"><code class="language-php">$defaultParams = $request-&gt;getAttribute(TemplateDefaultsMiddleware::class, []);
+return new HtmlResponse($renderer-&gt;render(
+    'some::template',
+    array_merge($defaultParams, [
+        // handler-specific parameters here
+    ])
+));</code></pre>
+
+<p>This approach, while it requires more work on the part of handler authors,
+ensures that the renderer state does not vary between requests, making it
+safer for usage with Swoole and other long-running processes.</p>
+</blockquote>
+
+
+
+    <nav>
+    <ul class="page-nav hidden-print">
+
+        
+        <li class="page-nav__item">
+            
+                <a rel="prev" class="page-nav__link page-nav__link--prev" href="../how-it-works/">
+                    <i class="fa fa-chevron-left"></i> Previous
+                </a>
+            
+        </li>
+
+        
+        <li class="page-nav__item">
+            
+                <a rel="next" class="page-nav__link page-nav__link--next" href="../../intro/">
+                    Next <i class="fa fa-chevron-right"></i>
+                </a>
+            
+        </li>
+    </ul>
+</nav>
+
+
+
+    <div class="help-wanted">
+        <p>
+            Found a mistake or want to contribute to the documentation?
+            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/book/v1/considerations.md" target="_blank" class="help-wanted__link">
+                Edit this page on GitHub!
+            </a>
+        </p>
+    </div>
+
+                
+            <!-- content:end -->
+            </div>
+            <div class="col-md-3 col-xs-12 sidebar">
+                
+                    <div class="component-selector">
+    <h4 class="component-selector__title">Components</h4>
+    <h5 class="component-selector__subtitle">Find documentation…</h5>
+    <select class="form-control component-selector__control">
+        <option value="/">Overview</option>
+        <optgroup label="Components"></optgroup>
+    </select>
+</div>
+                    
+    <div class="subnavigation hidden-print">
+        <h4 class="subnavigation__title">
+            <a href="../..">zend-expressive-swoole</a>
+        </h4>
+
+        <h5 class="subnavigation__subtitle">Table of Contents</h5>
+
+        <ul class="subnavigation__list">
+            
+                
+                    <li class="subnavigation__list-item ">
+                        <a href="../.." class="subnavigation__link">zend-expressive-swoole</a>
+                    </li>
+                
+            
+                
+                    <li class="subnavigation__list-item">
+                        <span class="subnavigation__headline">Reference</span>
+                        <ul class="subnavigation__list">
+                            
+                                
+    <li class="subnavigation__list-item ">
+        <a href="../static-resources/" class="subnavigation__link">Static Resources</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item ">
+        <a href="../logging/" class="subnavigation__link">Logging</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item ">
+        <a href="../how-it-works/" class="subnavigation__link">How it works</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item subnavigation__list-item--active">
+        <a href="./" class="subnavigation__link">Considerations when using Swoole</a>
+    </li>
+
+                            
+                        </ul>
+                    </li>
+                
+            
+        </ul>
+    </div>
+
+                
+            </div>
+        </div>
+    </div>
+
+    
+    <footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9">
+                <h5>Zend Framework</h5>
+                <ul>
+                    <li><a href="https://framework.zend.com/">framework.zend.com</a></li>
+                    <li><a href="https://docs.zendframework.com">docs.zendframework.com</a></li>
+                    <li><a href="https://packages.zendframework.com">packages.zendframework.com</a></li>
+                    <li><a href="https://apigility.org">apigility.org</a></li>
+                    <li><a href="https://getexpressive.org/">getexpressive.org</a></li>
+                </ul>
+            </div>
+        </div>
+
+        
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <a class="footer__button" href="#page-top"><i class="fa fa-chevron-up" aria-hidden="true"></i></a>
+            </div>
+        </div>
+
+        <div class="row">
+
+            
+            <div class="col-md-9">
+                <h4 class="footer__headline">Copyright</h4>
+                <p>&copy; 2006-2018 by <a href="https://www.zend.com/">Zend</a>, a <a href="https://www.roguewave.com/">Rogue Wave Company</a>.</p>
+            </div>
+
+            
+            <div class="col-md-3">
+                <h4 class="footer__headline">Support</h4>
+                <ul class="support__list">
+                    <li class="support__list-item">
+                        <a href="https://discourse.zendframework.com" class="support__link" title="Forum"><i class="fa fa-comments"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://zendframework-slack.herokuapp.com" class="support__link" title="Chat"><i class="fa fa-slack"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://github.com/zendframework" class="support__link" title="Github"><i class="fa fa-github"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://twitter.com/zfdevteam" class="support__link" title="Twitter"><i class="fa fa-twitter"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://tinyletter.com/mwopzend" class="support__link" title="Newsletter"><i class="fa fa-envelope"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://framework.zend.com/blog/feed-rss.xml" class="support__link" title="Blog feed"><i class="fa fa-rss"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://framework.zend.com/security/feed" class="support__link" title="Security feed"><i class="fa fa-rss-square"></i></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <script>
+        var base_url = '../..',
+            siteName = 'zend-expressive-swoole';
+    </script>
+    <script src="../../js/scripts-a978f1ec1a.js"></script>
+        <script src="../../search/require.js"></script>
+        <script src="../../search/search.js"></script>
+
+    
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        From here you can search these documents. Enter your search terms below.
+                    </p>
+                    <form role="form">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                        </div>
+                    </form>
+                    <div id="mkdocs-search-results"></div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</body>
+
+
+</html>

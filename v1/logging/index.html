@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Swoole support for Expressive">  
+    <link rel="shortcut icon" href="../../img/favicon.ico">
+
+    <title>Logging - zend-expressive-swoole</title>
+
+    <link rel="stylesheet" href="../../css/styles-3eb6fab3fb.css">
+</head>
+<body id="page-top">
+
+    
+    <div class="navbar navbar-default" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+
+            
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            
+            <span class="navbar-brand">
+                <a class="logo-link" href="https://framework.zend.com/" data-tooltip data-placement="bottom" title="Go to the ZF homepage">
+                    <img src="../../img/zend-framework-logo.svg" height="28" alt="Zend Framework">
+                </a>
+            </span>
+        </div>
+
+        <div class="navbar-collapse collapse">
+
+            
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="https://framework.zend.com/about">About</a>
+                </li>
+                <li>
+                    <a href="https://framework.zend.com/downloads">Install</a>
+                </li>
+                <li class="active">
+                    <a href="https://docs.zendframework.com">Documentation</a>
+                </li>
+                <li>
+                    <a href="https://www.zend.com/en/services/training">Training</a>
+                </li>
+                <li>
+                    <a href="https://framework.zend.com/blog">Blog</a>
+                </li>
+                <li>
+                    <a href="https://framework.zend.com/participate">Participate</a>
+                </li>
+            </ul>
+
+            
+            
+                <div class="nav navbar-nav navbar-collapse visible-xs-block ">
+                    
+    <div class="subnavigation hidden-print">
+        <h4 class="subnavigation__title">
+            <a href="../..">zend-expressive-swoole</a>
+        </h4>
+
+        <h5 class="subnavigation__subtitle">Table of Contents</h5>
+
+        <ul class="subnavigation__list">
+            
+                
+                    <li class="subnavigation__list-item ">
+                        <a href="../.." class="subnavigation__link">zend-expressive-swoole</a>
+                    </li>
+                
+            
+                
+                    <li class="subnavigation__list-item">
+                        <span class="subnavigation__headline">Reference</span>
+                        <ul class="subnavigation__list">
+                            
+                                
+    <li class="subnavigation__list-item ">
+        <a href="../static-resources/" class="subnavigation__link">Static Resources</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item subnavigation__list-item--active">
+        <a href="./" class="subnavigation__link">Logging</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item ">
+        <a href="../how-it-works/" class="subnavigation__link">How it works</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item ">
+        <a href="../considerations/" class="subnavigation__link">Considerations when using Swoole</a>
+    </li>
+
+                            
+                        </ul>
+                    </li>
+                
+            
+        </ul>
+    </div>
+
+                </div>
+            
+
+            
+            <div class="nav navbar-nav navbar-collapse visible-xs-block">
+                <div class="component-selector">
+    <h4 class="component-selector__title">Components</h4>
+    <h5 class="component-selector__subtitle">Find documentation…</h5>
+    <select class="form-control component-selector__control">
+        <option value="/">Overview</option>
+        <optgroup label="Components"></optgroup>
+    </select>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+    <header class="header">
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="col-xs-8">
+                <h1 class="header__title">
+                    Documentation
+
+                    
+                        <small class="header__subtitle">zend-expressive-swoole</small>
+                    
+                </h1>
+            </div>
+
+            
+            <div class="col-xs-4 text-right">
+                
+                    <a href="#" class="header__link header__link--search" data-toggle="modal" data-target="#mkdocs_search_modal" title="Open search">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                    <a href="https://github.com/zendframework/zend-expressive-swoole/" class="header__link header__link--github" title="Go to repository of zend-expressive-swoole">
+                        <i class="fa fa-github"></i> GitHub
+                    </a>
+                
+            </div>
+        </div>
+    </div>
+</header>
+
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 col-xs-12 content" role="main">
+            <!-- content:begin -->
+                
+                    <ol class="breadcrumb" role="navigation" aria-label="breadcrumbs navigation">
+  <li><a href="https://framework.zend.com/">Home</a></li>
+  <li><a href="https://docs.zendframework.com/">Docs</a></li>
+  <li><a href="../..">zend-expressive-swoole</a></li>
+  
+    
+      
+        <li>Reference</li>
+      
+    
+  
+  <li class="active">Logging</li>
+</ol>
+
+
+    
+    
+
+    
+    
+        <div class="toc">
+            <h6 class="toc__headline">In This Article</h6>
+            <ul class="toc__list">
+                
+                    <li class="toc__entry">
+                        <a href="#access-logs" class="toc__link">Access Logs</a>
+                    </li>
+                
+                    <li class="toc__entry">
+                        <a href="#configuring-a-logger" class="toc__link">Configuring a logger</a>
+                    </li>
+                
+            </ul>
+        </div>
+    
+
+
+    <h1 id="logging">Logging</h1>
+<p>Web servers typically log request details, so that you can perform tasks such as
+analytics, identification of invalid requests, and more.</p>
+<p>Out-of-the-box, Swoole does not do this. As such, we provide these capabilities
+with this integration.</p>
+<p>We log a number of items:</p>
+<ul>
+<li>When the web server starts, indicating the host and port on which it is running.</li>
+<li>When workers start, including the working directory and worker ID.</li>
+<li>When the web server stops.</li>
+<li>When the web server reloads workers.</li>
+<li>Each request (more on this below)</li>
+</ul>
+<p>By default, logging is performed to STDOUT, using an internal logger. However,
+you can use any <a href="https://www.php-fig.org/psr/psr-3/">PSR-3 compliant logger</a> to
+log application details. We emit logs detailing server operations using the
+priority <code>Psr\Log\LogLevel::NOTICE</code> (unless detailing an error, such as
+inability to reload)), while <code>Psr\Log\LogLevel::INFO</code> and <code>Psr\Log\LogLevel::ERROR</code>
+are used to log requests (errors are used for response statuses greater than or
+equal to 400).</p>
+<h2 id="access-logs">Access Logs</h2>
+<p>Technically, the <code>SwooleRequestHandlerRunner</code> doesn't use PSR-3 loggers
+directly, but, rather, instances of <code>Zend\Expressive\Swoole\Log\AccessLogInterface</code>.
+This package-specific interface extends the PSR-3 interface to add two methods:</p>
+<pre class="codehilite"><code class="language-php">use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
+use Swoole\Http\Request;
+use Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse;
+
+interface AccessLogInterface extends LoggerInterface
+{
+    public function logAccessForStaticResource(
+        Request $request,
+        StaticResourceResponse $response
+    ) : void;
+
+    public function logAccessForPsr7Resource(
+        Request $request,
+        ResponseInterface $response
+    ) : void;
+}</code></pre>
+
+<p>To allow usage of a standard PSR-3 logger, we also provide a decorator,
+<code>Zend\Expressive\Swoole\Log\Psr3AccessLogDecorator</code>, which decorates the PSR-3
+logger and provides a standard implementation for the two methods listed above.
+If you have defined a PSR-3 <code>LoggerInterface</code> service in your application, it
+will be used automatically.</p>
+<h3 id="formatting-logs">Formatting logs</h3>
+<p>The Apache web server has long provided flexible and robust logging
+capabilities, and its formats are used across a variety of web servers and
+logging platforms. As such, we have chosen to use its formats for our standard
+implementation. However, we allow you to plug in your own system as needed.</p>
+<p>You can refer to the <a href="http://httpd.apache.org/docs/current/mod/mod_log_config.html">Apache mod_log_config documentation</a>
+in order to understand the available placeholders available for format strings.</p>
+<p>Formatting is provided to the <code>Psr3AccessLogDecorator</code> via instances of the
+interface <code>Zend\Expressive\Swoole\Log\AccessLogFormatterInterface</code>:</p>
+<pre class="codehilite"><code class="language-php">interface AccessLogFormatterInterface
+{
+    public function format(AccessLogDataMap $map) : string;
+}</code></pre>
+
+<p><code>AccessLogDataMap</code> is a class used internally by the <code>Psr3AccessLogDecorator</code> in
+order to map Apache log placeholders to request/response values.</p>
+<p>Our default <code>AccessLogFormatterInterface</code> implementation, <code>AccessLogFormatter</code>,
+provides constants referencing the most common formats, but also allows you to
+use arbitrary log formats that use the standard Apache placeholders. The formats
+we include by default are:</p>
+<ul>
+<li><code>AccessLogFormatter::FORMAT_COMMON</code>: Apache common log format: <code>%h %l %u %t "%r" %&gt;s %b</code></li>
+<li><code>AccessLogFormatter::FORMAT_COMMON_VHOST</code>: Apache common log format + vhost: <code>%v %h %l %u %t "%r" %&gt;s %b</code></li>
+<li><code>AccessLogFormatter::FORMAT_COMBINED</code>: Apache combined log format: <code>%h %l %u %t "%r" %&gt;s %b "%{Referer}i" "%{User-Agent}i"</code></li>
+<li><code>AccessLogFormatter::FORMAT_REFERER</code>: <code>%{Referer}i -&gt; %U</code></li>
+<li><code>AccessLogFormatter::FORMAT_AGENT</code>: <code>%{User-Agent}i</code></li>
+<li><code>AccessLogFormatter::FORMAT_VHOST</code>: Alternative Apache vhost format: '%v %l %u %t "%r" %&gt;s %b';</li>
+<li><code>AccessLogFormatter::FORMAT_COMMON_DEBIAN</code>: Debian variant of common log format: <code>%h %l %u %t “%r” %&gt;s %O</code>;</li>
+<li><code>AccessLogFormatter::FORMAT_COMBINED_DEBIAN</code>: Debian variant of combined log format: <code>%h %l %u %t “%r” %&gt;s %O “%{Referer}i” “%{User-Agent}i”</code>;</li>
+<li><code>AccessLogFormatter::FORMAT_VHOST_COMBINED_DEBIAN</code>: Debian variant of combined log format + vhost: <code>%v:%p %h %l %u %t “%r” %&gt;s %O “%{Referer}i” “%{User-Agent}i"</code>;</li>
+</ul>
+<h2 id="configuring-a-logger">Configuring a logger</h2>
+<p>You may subsitute your own logger implementation into the Swoole request handler
+runner.</p>
+<h3 id="manual-usage">Manual usage</h3>
+<p>If you are manually instantiating a <code>Zend\Expressive\Swoole\SwooleRequestHandlerRunner</code>
+instance, you may provide it as the seventh argument to the constructor:</p>
+<pre class="codehilite"><code class="language-php">use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
+
+$runner = new SwooleRequestHandlerRunner(
+    $application,
+    $serverRequestFactory,
+    $serverRequestErrorResponseGenerator,
+    $pidManager,
+    $serverFactory,
+    $staticResourceHandler,
+    $logger // &lt;-- AccessLoggerInterface instance
+);</code></pre>
+
+<h3 id="container-usage">Container usage</h3>
+<p>If you are using a <a href="https://www.php-fig.org/psr/psr-11/">PSR-11</a> container, the
+<code>SwooleRequestHandlerRunnerFactory</code> will retrieve a log instance using the
+<code>Zend\Expressive\Swoole\Log\AccessLogInterface</code> service.</p>
+<p>You have two options for substituting your own logger from there.</p>
+<p>First, you can create your own factory that produces an <code>AccessLogInterface</code>
+instance, and map it to the service. This is the best route if you want to write
+your own implementation, or want to use a different PSR-3 logger service.</p>
+<p>If you are okay with re-using your existing PSR-3 logger, the provided
+<code>Zend\Expressive\Swoole\Log\AccessLogFactory</code> will use the
+<code>Psr\Log\LoggerInterface</code> service to create a <code>Psr3AccessLogDecorator</code> instance.</p>
+<p>This factory also allows you to specify a custom <code>AccessLogFormatterInterface</code>
+instance if you want. It will look up a service by the fully-qualified interface
+name, and use it if present. Otherwise, it creates an <code>AccessLogFormatter</code>
+instance for you.</p>
+<p>The factory will also look at the following configuration values:</p>
+<pre class="codehilite"><code class="language-php">'zend-expressive-swoole' =&gt; [
+    'swoole-http-server' =&gt; [
+        'logger' =&gt; [
+            'format' =&gt; string, // one of the AccessLogFormatter::FORMAT_*
+                                // constants, or a custom format string
+            'use-hostname-lookups' =&gt; bool, // Set to true to enable hostname lookups
+        ],
+    ],
+],</code></pre>
+
+<h3 id="using-monolog-as-a-psr-3-logger">Using Monolog as a PSR-3 logger</h3>
+<p>When using <a href="https://seldaek.github.io/monolog/">Monolog</a> with a <code>StreamHandler</code>,
+you must supply a file or a stream resource descriptor. We recommend using one
+of the following:</p>
+<ul>
+<li>
+<p><code>php://stdout</code> is a good choice, as this will generally write to the current
+  console.</p>
+</li>
+<li>
+<p><code>php://stderr</code> is also a good choice, as this will generally write to the
+  current console, and allows you to filter based on that output stream.</p>
+</li>
+<li>
+<p>When using <a href="https://www.docker.com/">Docker</a>, generally one of either
+  <code>/proc/1/fd/1</code> or <code>/proc/1/fd/2</code> can be used, and are analogous to <code>STDOUT</code>
+  and <code>STDERR</code>, respectively.  We recommend using <code>php://stdout</code> and
+  <code>php://stderr</code> instead, as these will be mapped to the correct locations by
+  the language.</p>
+</li>
+</ul>
+<blockquote>
+<h3 id="errorloghandler">ErrorLogHandler</h3>
+<p>If you plan to write to <code>STDERR</code>, you might consider instead using the
+Monolog <code>ErrorLogHandler</code>, as this will use PHP's <code>error_log()</code> mechanism to
+write to the configured PHP error log. You can then either introspect that
+location, or configure the <code>error_log</code> <code>php.ini</code> setting to point to
+either <code>/dev/stderr</code> or, if on Docker, <code>/proc/1/fd/2</code>.</p>
+</blockquote>
+<p>Additionally, we recommend using the <code>PsrLogMessageProcessor</code> with any Monolog
+handler to ensure that any templated parameters are expanded by the logger.</p>
+<p>As an example, the following is a factory that wires a <code>StreamHandler</code> to a
+<code>Monolog\Logger</code> instance. </p>
+<pre class="codehilite"><code class="language-php">use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+use Monolog\Processor\PsrLogMessageProcessor;
+
+class LoggerFactory
+{
+    public function __invoke(ContainerInterface $container) : LoggerInterface
+    {
+        $logger = new Logger('swoole-http-server');
+        $logger-&gt;pushHandler(new StreamHandler(
+            'php://stdout',
+            Logger::INFO,
+            $bubble = true,
+            $expandNewLines = true
+        ));
+        $logger-&gt;pushProcessor(new PsrLogMessageProcessor());
+        return $logger;
+    }
+}</code></pre>
+
+<p>If you then wire this to the <code>Psr\Log\LoggerInterface</code> service, it will be used
+by Swoole for the purposes of access logs as well.</p>
+
+
+
+    <nav>
+    <ul class="page-nav hidden-print">
+
+        
+        <li class="page-nav__item">
+            
+                <a rel="prev" class="page-nav__link page-nav__link--prev" href="../static-resources/">
+                    <i class="fa fa-chevron-left"></i> Previous
+                </a>
+            
+        </li>
+
+        
+        <li class="page-nav__item">
+            
+                <a rel="next" class="page-nav__link page-nav__link--next" href="../how-it-works/">
+                    Next <i class="fa fa-chevron-right"></i>
+                </a>
+            
+        </li>
+    </ul>
+</nav>
+
+
+
+    <div class="help-wanted">
+        <p>
+            Found a mistake or want to contribute to the documentation?
+            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/book/v1/logging.md" target="_blank" class="help-wanted__link">
+                Edit this page on GitHub!
+            </a>
+        </p>
+    </div>
+
+                
+            <!-- content:end -->
+            </div>
+            <div class="col-md-3 col-xs-12 sidebar">
+                
+                    <div class="component-selector">
+    <h4 class="component-selector__title">Components</h4>
+    <h5 class="component-selector__subtitle">Find documentation…</h5>
+    <select class="form-control component-selector__control">
+        <option value="/">Overview</option>
+        <optgroup label="Components"></optgroup>
+    </select>
+</div>
+                    
+    <div class="subnavigation hidden-print">
+        <h4 class="subnavigation__title">
+            <a href="../..">zend-expressive-swoole</a>
+        </h4>
+
+        <h5 class="subnavigation__subtitle">Table of Contents</h5>
+
+        <ul class="subnavigation__list">
+            
+                
+                    <li class="subnavigation__list-item ">
+                        <a href="../.." class="subnavigation__link">zend-expressive-swoole</a>
+                    </li>
+                
+            
+                
+                    <li class="subnavigation__list-item">
+                        <span class="subnavigation__headline">Reference</span>
+                        <ul class="subnavigation__list">
+                            
+                                
+    <li class="subnavigation__list-item ">
+        <a href="../static-resources/" class="subnavigation__link">Static Resources</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item subnavigation__list-item--active">
+        <a href="./" class="subnavigation__link">Logging</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item ">
+        <a href="../how-it-works/" class="subnavigation__link">How it works</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item ">
+        <a href="../considerations/" class="subnavigation__link">Considerations when using Swoole</a>
+    </li>
+
+                            
+                        </ul>
+                    </li>
+                
+            
+        </ul>
+    </div>
+
+                
+            </div>
+        </div>
+    </div>
+
+    
+    <footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9">
+                <h5>Zend Framework</h5>
+                <ul>
+                    <li><a href="https://framework.zend.com/">framework.zend.com</a></li>
+                    <li><a href="https://docs.zendframework.com">docs.zendframework.com</a></li>
+                    <li><a href="https://packages.zendframework.com">packages.zendframework.com</a></li>
+                    <li><a href="https://apigility.org">apigility.org</a></li>
+                    <li><a href="https://getexpressive.org/">getexpressive.org</a></li>
+                </ul>
+            </div>
+        </div>
+
+        
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <a class="footer__button" href="#page-top"><i class="fa fa-chevron-up" aria-hidden="true"></i></a>
+            </div>
+        </div>
+
+        <div class="row">
+
+            
+            <div class="col-md-9">
+                <h4 class="footer__headline">Copyright</h4>
+                <p>&copy; 2006-2018 by <a href="https://www.zend.com/">Zend</a>, a <a href="https://www.roguewave.com/">Rogue Wave Company</a>.</p>
+            </div>
+
+            
+            <div class="col-md-3">
+                <h4 class="footer__headline">Support</h4>
+                <ul class="support__list">
+                    <li class="support__list-item">
+                        <a href="https://discourse.zendframework.com" class="support__link" title="Forum"><i class="fa fa-comments"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://zendframework-slack.herokuapp.com" class="support__link" title="Chat"><i class="fa fa-slack"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://github.com/zendframework" class="support__link" title="Github"><i class="fa fa-github"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://twitter.com/zfdevteam" class="support__link" title="Twitter"><i class="fa fa-twitter"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://tinyletter.com/mwopzend" class="support__link" title="Newsletter"><i class="fa fa-envelope"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://framework.zend.com/blog/feed-rss.xml" class="support__link" title="Blog feed"><i class="fa fa-rss"></i></a>
+                    </li>
+                    <li class="support__list-item">
+                        <a href="https://framework.zend.com/security/feed" class="support__link" title="Security feed"><i class="fa fa-rss-square"></i></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <script>
+        var base_url = '../..',
+            siteName = 'zend-expressive-swoole';
+    </script>
+    <script src="../../js/scripts-a978f1ec1a.js"></script>
+        <script src="../../search/require.js"></script>
+        <script src="../../search/search.js"></script>
+
+    
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span>
+                    </button>
+                    <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        From here you can search these documents. Enter your search terms below.
+                    </p>
+                    <form role="form">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                        </div>
+                    </form>
+                    <div id="mkdocs-search-results"></div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</body>
+
+
+</html>

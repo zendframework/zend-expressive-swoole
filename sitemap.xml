@@ -11,13 +11,47 @@
 
     
     <url>
-     <loc>/intro/</loc>
+     <loc>/v1/intro/</loc>
      <lastmod>2018-10-02</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
 
     
+        
+    <url>
+     <loc>/v1/static-resources/</loc>
+     <lastmod>2018-10-02</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/v1/logging/</loc>
+     <lastmod>2018-10-02</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/v1/how-it-works/</loc>
+     <lastmod>2018-10-02</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/v1/considerations/</loc>
+     <lastmod>2018-10-02</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    
+
+    
+        
+    <url>
+     <loc>/intro/</loc>
+     <lastmod>2018-10-02</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
         
     <url>
      <loc>/static-resources/</loc>
