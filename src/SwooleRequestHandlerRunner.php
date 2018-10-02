@@ -311,7 +311,7 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
             $psr7Request = ($this->serverRequestFactory)($request);
         } catch (Throwable $e) {
             // Error in generating the request
-            $this->emitMarshalServerRequestException($emitter, $e);
+            $this->emitMarshalServerRequestException($emitter, $e, $request);
             return;
         }
 
