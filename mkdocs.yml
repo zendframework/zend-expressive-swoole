@@ -2,12 +2,17 @@ docs_dir: docs/book
 site_dir: docs/html
 pages:
     - index.md
-    - Introduction: intro.md
+    - Home: v1/intro.md
     - Reference:
-      - "Static Resources": static-resources.md
-      - Logging: logging.md
-      - "How it works": how_it_works.md
+      - "Static Resources": v1/static-resources.md
+      - Logging: v1/logging.md
+      - "How it works": v1/how-it-works.md
+      - "Considerations when using Swoole": v1/considerations.md
+    - "_ignore_legacy_pages":
+      - "_introduction": intro.md
+      - "_static-resources": static-resources.md
+      - "_logging": logging.md
+      - "_how-it-works": how_it_works.md
 site_name: 'zend-expressive-swoole'
 site_description: 'Swoole support for Expressive'
 repo_url: 'https://github.com/zendframework/zend-expressive-swoole'
-copyright: 'Copyright (c) 2018 <a href="https://www.zend.com/">Zend Technologies USA Inc.</a>'

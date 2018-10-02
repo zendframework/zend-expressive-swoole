@@ -9,7 +9,8 @@
         "expressive",
         "swoole",
         "psr-7",
-        "psr-15"
+        "psr-15",
+        "psr-17"
     ],
     "support": {
         "docs": "https://docs.zendframework.com/zend-expressive-swoole/",
@@ -53,7 +54,8 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.0-dev"
+            "dev-master": "1.0.x-dev",
+            "dev-develop": "1.1.x-dev"
         }
     },
     "scripts": {

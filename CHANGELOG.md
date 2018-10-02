@@ -2,6 +2,41 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 1.0.0 - 2018-10-02
+
+### Added
+
+- [#38](https://github.com/zendframework/zend-expressive-swoole/pull/38) adds documentation covering potential issues when using a long-running
+  server such as Swoole, as well as how to avoid them.
+
+- [#38](https://github.com/zendframework/zend-expressive-swoole/pull/38) adds documentation covering how to use Monolog as a PSR-3 logger for the
+  Swoole server.
+
+- [#38](https://github.com/zendframework/zend-expressive-swoole/pull/38) adds a default value of 1024 for the `max_conn` Swoole HTTP server option.
+  By default, Swoole uses the value of `ulimit -n` on the system; however, in
+  containers and virtualized environments, this value often reports far higher
+  than the host system can allow, which can lead to resource problems and
+  termination of the server. Setting a default ensures the component can work
+  out-of-the-box for most situations. Users should consult their host machine
+  specifications and set an appropriate value in production.
+
+### Changed
+
+- [#38](https://github.com/zendframework/zend-expressive-swoole/pull/38) versions the documentation, moving all URLS below the `/v1/` subpath.
+  Redirects from the original pages to the new ones were also added.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 0.2.4 - 2018-10-02
 
 ### Added
