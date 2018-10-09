@@ -11,7 +11,7 @@
 
     <title>Considerations when using Swoole - zend-expressive-swoole</title>
 
-    <link rel="stylesheet" href="../../css/styles-3eb6fab3fb.css">
+    <link rel="stylesheet" href="../../css/styles-e95dab66f8.css">
 </head>
 <body id="page-top">
 
@@ -171,17 +171,23 @@
             <!-- content:begin -->
                 
                     <ol class="breadcrumb" role="navigation" aria-label="breadcrumbs navigation">
-  <li><a href="https://framework.zend.com/">Home</a></li>
-  <li><a href="https://docs.zendframework.com/">Docs</a></li>
-  <li><a href="../..">zend-expressive-swoole</a></li>
-  
+    <li><a href="https://framework.zend.com/">Home</a></li>
+
     
-      
-        <li>Reference</li>
-      
+        <li><a href="https://docs.zendframework.com/">Documentation</a></li>
+
+        
+            <li><a href="../..">zend-expressive-swoole</a></li>
+
+            
+                
+                    <li>Reference</li>
+                
+            
+
+            <li class="active">Considerations when using Swoole</li>
+        
     
-  
-  <li class="active">Considerations when using Swoole</li>
 </ol>
 
 
@@ -196,6 +202,10 @@
                 
                     <li class="toc__entry">
                         <a href="#long-running-processes" class="toc__link">Long-running processes</a>
+                    </li>
+                
+                    <li class="toc__entry">
+                        <a href="#sessions" class="toc__link">Sessions</a>
                     </li>
                 
                     <li class="toc__entry">
@@ -227,6 +237,21 @@ and far-between, this may not be an issue for you. However, it is a commonly
 documented issue in other similar systems such as Node.js. <strong>The solution in these
 cases is the same as for general PHP applications: add a message queue to your
 systems infrastructure, and delegate such work to the message queue instead.</strong></p>
+<h2 id="sessions">Sessions</h2>
+<p>Because Swoole runs as a PHP CLI application, it generally does not play well
+with the PHP Session extension. However, there are alternatives.</p>
+<h3 id="zend-expressive-session-cache">zend-expressive-session-cache</h3>
+<p><a href="https://docs.zendframework.com/zend-expressive-session-cache/">zend-expressive-session-cache</a>
+provides a persistence adapter for <a href="https://docs.zendframework.com/zend-expressive-session/">zend-expressive-session</a>
+that uses a <a href="https://www.php-fig.org/psr/psr-6/">PSR-6 CacheItemPoolInterface implementation</a>
+for storing and retrieving sessions. This approach requires that you setup a
+backend cache storage for your session data.</p>
+<h3 id="psr7-sessionsstorageless">psr7-sessions/storageless</h3>
+<p><a href="https://github.com/psr7-sessions/storageless">PSR7Session</a> provides session
+middleware that uses <a href="https://tools.ietf.org/html/rfc7519">JWT tokens</a> within
+the session cookie to transmit session data between the server and client.
+This approach requires no central session storage, but does impose limits on the
+amount of information you can store in a session.</p>
 <h2 id="stateless-services">Stateless services</h2>
 <p>The typical PHP model is that the engine is fired up, runs your code, and then
 tears down again, <em>for every single request</em>. As such, PHP is said to have a
