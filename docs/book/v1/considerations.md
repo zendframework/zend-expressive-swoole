@@ -24,6 +24,27 @@ documented issue in other similar systems such as Node.js. **The solution in the
 cases is the same as for general PHP applications: add a message queue to your
 systems infrastructure, and delegate such work to the message queue instead.**
 
+## Sessions
+
+Because Swoole runs as a PHP CLI application, it generally does not play well
+with the PHP Session extension. However, there are alternatives.
+
+### zend-expressive-session-cache
+
+[zend-expressive-session-cache](https://docs.zendframework.com/zend-expressive-session-cache/)
+provides a persistence adapter for [zend-expressive-session](https://docs.zendframework.com/zend-expressive-session/)
+that uses a [PSR-6 CacheItemPoolInterface implementation](https://www.php-fig.org/psr/psr-6/)
+for storing and retrieving sessions. This approach requires that you setup a
+backend cache storage for your session data.
+
+### psr7-sessions/storageless
+
+[PSR7Session](https://github.com/psr7-sessions/storageless) provides session
+middleware that uses [JWT tokens](https://tools.ietf.org/html/rfc7519) within
+the session cookie to transmit session data between the server and client.
+This approach requires no central session storage, but does impose limits on the
+amount of information you can store in a session.
+
 ## Stateless services
 
 The typical PHP model is that the engine is fired up, runs your code, and then
