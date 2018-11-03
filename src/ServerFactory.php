@@ -13,40 +13,10 @@ use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Runtime as SwooleRuntime;
 
 use function array_replace;
-use function in_array;
 use function method_exists;
-
-use const SWOOLE_BASE;
-use const SWOOLE_PROCESS;
-use const SWOOLE_SOCK_TCP;
-use const SWOOLE_SOCK_TCP6;
-use const SWOOLE_SOCK_UDP;
-use const SWOOLE_SOCK_UDP6;
-use const SWOOLE_SSL;
-use const SWOOLE_UNIX_DGRAM;
-use const SWOOLE_UNIX_STREAM;
 
 class ServerFactory
 {
-    /**
-     * Swoole server supported modes
-     */
-    const MODES = [
-        SWOOLE_BASE,
-        SWOOLE_PROCESS
-    ];
-
-    /**
-     * Swoole server supported protocols
-     */
-    const PROTOCOLS = [
-        SWOOLE_SOCK_TCP,
-        SWOOLE_SOCK_TCP6,
-        SWOOLE_SOCK_UDP,
-        SWOOLE_SOCK_UDP6,
-        SWOOLE_UNIX_DGRAM,
-        SWOOLE_UNIX_STREAM
-    ];
 
     /**
      * Enable coroutines within the Swoole HTTP server.
@@ -64,26 +34,6 @@ class ServerFactory
     private $enableCoroutine = false;
 
     /**
-     * @var string
-     */
-    private $host;
-
-    /**
-     * @var int
-     */
-    private $port;
-
-    /**
-     * @var int
-     */
-    private $mode;
-
-    /**
-     * @var int
-     */
-    private $protocol;
-
-    /**
      * @var array
      */
     private $options = [];
@@ -93,37 +43,16 @@ class ServerFactory
      */
     private $swooleServer;
 
-    /**
-     * @see https://www.swoole.co.uk/docs/modules/swoole-server-methods#swoole_server-__construct
-     * @see https://www.swoole.co.uk/docs/modules/swoole-server/predefined-constants for $mode and $protocol constant
-     * @throws Exception\InvalidArgumentException for invalid $port values
-     * @throws Exception\InvalidArgumentException for invalid $mode values
-     * @throws Exception\InvalidArgumentException for invalid $protocol values
-     */
-    public function __construct(string $host, int $port, int $mode, int $protocol, array $options = [])
+    public function __construct(SwooleHttpServer $swooleServer, array $options = [])
     {
-        if ($port < 1 || $port > 65535) {
-            throw new Exception\InvalidArgumentException('Invalid port');
+        /**
+         * It's expected that the swoole server will not yet be running, so an exception is thrown
+         * if the master or manager pids are > 0
+         */
+        if ($swooleServer->master_pid > 0 || $swooleServer->manager_pid > 0) {
+            throw new Exception\InvalidArgumentException('The Swoole server has already been started');
         }
-
-        if (! in_array($mode, static::MODES, true)) {
-            throw new Exception\InvalidArgumentException('Invalid server mode');
-        }
-
-        $validProtocols = static::PROTOCOLS;
-        if (defined('SWOOLE_SSL')) {
-            $validProtocols[] = SWOOLE_SOCK_TCP | SWOOLE_SSL;
-            $validProtocols[] = SWOOLE_SOCK_TCP6 | SWOOLE_SSL;
-        }
-
-        if (! in_array($protocol, $validProtocols, true)) {
-            throw new Exception\InvalidArgumentException('Invalid server protocol');
-        }
-
-        $this->host = $host;
-        $this->port = $port;
-        $this->mode = $mode;
-        $this->protocol = $protocol;
+        $this->swooleServer = $swooleServer;
         $this->options = $options;
 
         // If provided, and Swoole 4.1.0 or later is in use, this flag can be
@@ -138,15 +67,9 @@ class ServerFactory
      */
     public function createSwooleServer(array $appendOptions = []): SwooleHttpServer
     {
-        if ($this->swooleServer) {
-            return $this->swooleServer;
-        }
-
         if ($this->enableCoroutine && method_exists(SwooleRuntime::class, 'enableCoroutine')) {
             SwooleRuntime::enableCoroutine(true);
         }
-
-        $this->swooleServer = new SwooleHttpServer($this->host, $this->port, $this->mode, $this->protocol);
 
         $options = array_replace($this->options, $appendOptions);
         if ([] !== $options) {

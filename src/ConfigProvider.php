@@ -10,7 +10,10 @@ declare(strict_types=1);
 namespace Zend\Expressive\Swoole;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Swoole\Http\Server as SwooleHttpServer;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
+use function extension_loaded;
+
 use function extension_loaded;
 
 class ConfigProvider
@@ -53,6 +56,7 @@ class ConfigProvider
                 ServerFactory::class                  => ServerFactoryFactory::class,
                 ServerRequestInterface::class         => ServerRequestSwooleFactory::class,
                 StaticResourceHandlerInterface::class => StaticResourceHandlerFactory::class,
+                SwooleHttpServer::class               => HttpServerFactory::class,
             ],
             'aliases' => [
                 RequestHandlerRunner::class           => SwooleRequestHandlerRunner::class,
