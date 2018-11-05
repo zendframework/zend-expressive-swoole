@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace ZendTest\Expressive\Swoole;
 
+use function json_decode;
+use function json_encode;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
@@ -69,16 +71,25 @@ class HttpServerFactoryTest extends TestCase
             ]);
             $factory = new HttpServerFactory();
             $swooleServer = $factory($this->container->reveal());
-            $this->assertSame('0.0.0.0', $swooleServer->host);
-            $this->assertSame(8081, $swooleServer->port);
-            $this->assertSame(SWOOLE_PROCESS, $swooleServer->mode);
-            $this->assertSame(SWOOLE_SOCK_TCP6, $swooleServer->mode);
-            $worker->write('Process Complete');
+            $worker->write(json_encode([
+                'host' => $swooleServer->host,
+                'port' => $swooleServer->port,
+                'mode' => $swooleServer->mode,
+                'type' => $swooleServer->type,
+            ]));
             $worker->exit(0);
         });
         $process->start();
-        $this->assertSame('Process Complete', $process->read());
+        $data = $process->read();
         Process::wait(true);
+
+        $result = json_decode($data, true);
+        $this->assertSame([
+            'host' => '0.0.0.0',
+            'port' => 8081,
+            'mode' => SWOOLE_PROCESS,
+            'type' => SWOOLE_SOCK_TCP6,
+        ], $result);
     }
 
     public function getInvalidPortNumbers() : array
