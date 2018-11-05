@@ -14,11 +14,6 @@ use Swoole\Http\Server as SwooleHttpServer;
 
 class ServerFactoryFactory
 {
-    /** @todo Remove these factory constants */
-
-    public const DEFAULT_HOST = '127.0.0.1';
-    public const DEFAULT_PORT = 8080;
-
     public function __invoke(ContainerInterface $container) : ServerFactory
     {
         $config = $container->get('config');

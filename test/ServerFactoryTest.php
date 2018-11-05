@@ -12,27 +12,29 @@ namespace ZendTest\Expressive\Swoole;
 use PHPUnit\Framework\TestCase;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Process;
+use Swoole\Server;
 use Throwable;
+use Zend\Expressive\Swoole\Exception\InvalidArgumentException;
 use Zend\Expressive\Swoole\ServerFactory;
 
 use const SWOOLE_BASE;
-use const SWOOLE_PROCESS;
 use const SWOOLE_SOCK_TCP;
-use const SWOOLE_SOCK_TCP6;
-use const SWOOLE_SOCK_UDP;
-use const SWOOLE_SOCK_UDP6;
-use const SWOOLE_SSL;
-use const SWOOLE_UNIX_DGRAM;
-use const SWOOLE_UNIX_STREAM;
 
 class ServerFactoryTest extends TestCase
 {
-    public function testCreateSwooleServerCreatesAndReturnsASwooleHttpServerInstance()
+
+    public function testCreateSwooleServerReturnsASwooleHttpServerInstance() : void
     {
-        $process = new Process(function ($worker) {
-            $factory = new ServerFactory('0.0.0.0', 65535, SWOOLE_BASE, SWOOLE_SOCK_TCP);
-            $server = $factory->createSwooleServer();
-            $worker->write(sprintf('%s:%d', $server->host, $server->port));
+        $process = new Process(function (Process $worker) {
+            try {
+                $swooleServer = new SwooleHttpServer('127.0.0.1', 65535, SWOOLE_BASE, SWOOLE_SOCK_TCP);
+                $factory = new ServerFactory($swooleServer);
+                $server = $factory->createSwooleServer();
+                $this->assertSame($swooleServer, $server);
+                $worker->write('Process Complete');
+            } catch (Throwable $exception) {
+                $worker->write($exception->getMessage());
+            }
             $worker->exit(0);
         }, true, 1);
 
@@ -40,16 +42,17 @@ class ServerFactoryTest extends TestCase
         $data = $process->read();
         Process::wait(true);
 
-        $this->assertSame('0.0.0.0:65535', $data);
+        $this->assertSame('Process Complete', $data);
     }
 
     public function testSubsequentCallsToCreateSwooleServerReturnSameInstance()
     {
-        $process = new Process(function ($worker) {
-            $factory = new ServerFactory('0.0.0.0', 65535, SWOOLE_BASE, SWOOLE_SOCK_TCP);
-            $server = $factory->createSwooleServer();
+        $process = new Process(function (Process $worker) {
+            $swooleServer = new SwooleHttpServer('127.0.0.1', 65534, SWOOLE_BASE, SWOOLE_SOCK_TCP);
+            $factory = new ServerFactory($swooleServer);
+            $server1 = $factory->createSwooleServer();
             $server2 = $factory->createSwooleServer();
-            $message = $server2 === $server ? 'SAME' : 'NOT SAME';
+            $message = $server2 === $server1 ? 'SAME' : 'NOT SAME';
             $worker->write($message);
             $worker->exit(0);
         }, true, 1);
@@ -61,14 +64,15 @@ class ServerFactoryTest extends TestCase
         $this->assertSame('SAME', $data);
     }
 
-    public function testCreateSwooleServerWillUseProvidedAppendOptionsWhenCreatingInstance()
+    public function testCreateSwooleServerWillUseProvidedAppendOptionsWhenCreatingInstance() : void
     {
         $options = [
             'daemonize' => false,
             'worker_num' => 1,
         ];
-        $process = new Process(function ($worker) use ($options) {
-            $factory = new ServerFactory('0.0.0.0', 65535, SWOOLE_BASE, SWOOLE_SOCK_TCP);
+        $process = new Process(function (Process $worker) use ($options) {
+            $swooleServer = new SwooleHttpServer('0.0.0.0', 65533, SWOOLE_BASE, SWOOLE_SOCK_TCP);
+            $factory = new ServerFactory($swooleServer, $options);
             $server = $factory->createSwooleServer($options);
             $worker->write(serialize([
                 'host' => $server->host,
@@ -84,59 +88,23 @@ class ServerFactoryTest extends TestCase
 
         $this->assertSame([
             'host' => '0.0.0.0',
-            'port' => 65535,
+            'port' => 65533,
             'options' => $options,
         ], $data);
     }
 
-    public function validSocketTypes() : iterable
+    public function testAnExceptionIsThrownIfTheServerHasAlreadyStarted() : void
     {
-        yield 'SWOOLE_SOCK_TCP'    => [SWOOLE_SOCK_TCP, []];
-        yield 'SWOOLE_SOCK_TCP6'   => [SWOOLE_SOCK_TCP6, []];
-        yield 'SWOOLE_SOCK_UDP'    => [SWOOLE_SOCK_UDP, []];
-        yield 'SWOOLE_SOCK_UDP6'   => [SWOOLE_SOCK_UDP6, []];
-        yield 'SWOOLE_UNIX_DGRAM'  => [SWOOLE_UNIX_DGRAM, []];
-        yield 'SWOOLE_UNIX_STREAM' => [SWOOLE_UNIX_STREAM, []];
-
-        if (defined('SWOOLE_SSL')) {
-            $extraOptions = [
-                'ssl_cert_file' => __DIR__ . '/TestAsset/ssl/server.crt',
-                'ssl_key_file' => __DIR__ . '/TestAsset/ssl/server.key',
-            ];
-            yield 'SWOOLE_SOCK_TCP | SWOOLE_SSL'  => [SWOOLE_SOCK_TCP | SWOOLE_SSL, $extraOptions];
-            yield 'SWOOLE_SOCK_TCP6 | SWOOLE_SSL' => [SWOOLE_SOCK_TCP6 | SWOOLE_SSL, $extraOptions];
+        $this->markTestSkipped('It’s not possible to mock the Swoole server like this…');
+        return;
+        $server = $this->prophesize(SwooleHttpServer::class);
+        $server->master_pid = 1;
+        $server->manager_pid = 1;
+        try {
+            new ServerFactory($server);
+            $this->fail('Exception not thrown');
+        } catch (InvalidArgumentException $exception) {
+            $this->assertSame('The Swoole server has already been started', $exception->getMessage());
         }
-    }
-
-    /**
-     * @dataProvider validSocketTypes
-     */
-    public function testServerCanBeStartedForKnownSocketTypeCombinations($socketType, array $additionalOptions)
-    {
-        $process = new Process(function (Process $worker) use ($socketType, $additionalOptions) {
-            try {
-                $factory = new ServerFactory('127.0.0.1', 65535, SWOOLE_PROCESS, $socketType, $additionalOptions);
-                $swooleServer = $factory->createSwooleServer();
-                $swooleServer->on('Start', function (SwooleHttpServer $server) use ($worker) {
-                    // Give the server a chance to start up and avoid zombies
-                    usleep(10000);
-                    $worker->write('Server Started');
-                    $server->stop();
-                    $server->shutdown();
-                });
-                $swooleServer->on('Request', function ($req, $rep) {
-                    // noop
-                });
-                $swooleServer->start();
-            } catch (Throwable $exception) {
-                $worker->write('Exception Thrown: ' . $exception->getMessage());
-            }
-            $worker->exit();
-        });
-
-        $process->start();
-        $output = $process->read();
-        Process::wait(true);
-        $this->assertSame('Server Started', $output);
     }
 }

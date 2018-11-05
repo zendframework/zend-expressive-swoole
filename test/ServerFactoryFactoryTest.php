@@ -10,23 +10,56 @@ declare(strict_types=1);
 namespace ZendTest\Expressive\Swoole;
 
 use PHPUnit\Framework\TestCase;
+use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
+use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Process;
+use Zend\Expressive\Swoole\HttpServerFactory;
+use Zend\Expressive\Swoole\ServerFactory;
 use Zend\Expressive\Swoole\ServerFactoryFactory;
+use const SWOOLE_BASE;
+use const SWOOLE_SOCK_TCP;
 
 class ServerFactoryFactoryTest extends TestCase
 {
+    /** @var ContainerInterface|ObjectProphecy */
+    private $container;
+
+    /** @var ServerFactoryFactory */
+    private $factory;
+
     public function setUp()
     {
         $this->container = $this->prophesize(ContainerInterface::class);
         $this->factory = new ServerFactoryFactory();
     }
 
-    public function testFactoryCreatesInstanceUsingDefaultsWhenNoConfigIsAvailable()
+    public function tearDown()
     {
-        $process = new Process(function ($worker) {
-            $server = ($this->factory)($this->container->reveal());
-            $swooleServer = $server->createSwooleServer();
+        parent::tearDown();
+        $this->container = null;
+        $this->factory = null;
+    }
+
+    private function injectSwooleServerIntoContainer() : void
+    {
+        $swooleServer = new SwooleHttpServer(
+            HttpServerFactory::DEFAULT_HOST,
+            HttpServerFactory::DEFAULT_PORT,
+            SWOOLE_BASE,
+            SWOOLE_SOCK_TCP
+        );
+        $this->container->get(SwooleHttpServer::class)->willReturn($swooleServer);
+    }
+
+    public function testFactoryReturnsServerInstanceComposedInContainer() : void
+    {
+        $process = new Process(function (Process $worker) {
+            $this->injectSwooleServerIntoContainer();
+            $this->container->get('config')->willReturn([]);
+            /** @var ServerFactory $serverFactory */
+            $serverFactory = ($this->factory)($this->container->reveal());
+            $swooleServer = $serverFactory->createSwooleServer();
             $worker->write(sprintf('%s:%d', $swooleServer->host, $swooleServer->port));
             $worker->exit(0);
         }, true, 1);
@@ -35,42 +68,13 @@ class ServerFactoryFactoryTest extends TestCase
         Process::wait(true);
 
         $this->assertSame(
-            sprintf('%s:%d', ServerFactoryFactory::DEFAULT_HOST, ServerFactoryFactory::DEFAULT_PORT),
+            sprintf('%s:%d', HttpServerFactory::DEFAULT_HOST, HttpServerFactory::DEFAULT_PORT),
             $data
         );
     }
 
-    public function testFactoryCreatesInstanceUsingConfigurationWhenAvailable()
-    {
-        $config = [
-            'zend-expressive-swoole' => [
-                'swoole-http-server' => [
-                    'host' => 'localhost',
-                    'port' => 9501,
-                ],
-            ],
-        ];
-        $this->container
-            ->get('config')
-            ->willReturn($config);
-
-        $process = new Process(function ($worker) {
-            $server = ($this->factory)($this->container->reveal());
-            $swooleServer = $server->createSwooleServer();
-            $worker->write(sprintf('%s:%d', $swooleServer->host, $swooleServer->port));
-            $worker->exit(0);
-        }, true, 1);
-        $process->start();
-        $data = $process->read();
-        Process::wait(true);
-
-        $this->assertSame('localhost:9501', $data);
-    }
-
     public function testFactoryPassesOptionsFromConfigurationToGeneratedServerFactory()
     {
-        $host = 'localhost';
-        $port = 9501;
         $options = [
             'daemonize' => false,
             'worker_num' => 1,
@@ -79,8 +83,6 @@ class ServerFactoryFactoryTest extends TestCase
         $config = [
             'zend-expressive-swoole' => [
                 'swoole-http-server' => [
-                    'host' => $host,
-                    'port' => $port,
                     'options' => $options,
                 ],
             ],
@@ -89,9 +91,11 @@ class ServerFactoryFactoryTest extends TestCase
             ->get('config')
             ->willReturn($config);
 
-        $process = new Process(function ($worker) {
-            $server = ($this->factory)($this->container->reveal());
-            $swooleServer = $server->createSwooleServer();
+        $process = new Process(function (Process $worker) {
+            $this->injectSwooleServerIntoContainer();
+            /** @var ServerFactory $serverFactory */
+            $serverFactory = ($this->factory)($this->container->reveal());
+            $swooleServer = $serverFactory->createSwooleServer();
             $worker->write(serialize([
                 'host' => $swooleServer->host,
                 'port' => $swooleServer->port,
@@ -104,8 +108,8 @@ class ServerFactoryFactoryTest extends TestCase
         Process::wait(true);
 
         $this->assertSame([
-            'host' => $host,
-            'port' => $port,
+            'host' => HttpServerFactory::DEFAULT_HOST,
+            'port' => HttpServerFactory::DEFAULT_PORT,
             'options' => $options,
         ], $data);
     }
