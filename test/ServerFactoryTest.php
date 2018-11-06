@@ -97,7 +97,8 @@ class ServerFactoryTest extends TestCase
     {
         $process = new Process(function (Process $worker) {
             $swooleServer = new SwooleHttpServer('0.0.0.0', 65533, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
-            $swooleServer->on('Request', function() {});
+            $swooleServer->on('Request', function () {
+            });
             $swooleServer->on('Start', function (SwooleHttpServer $server) use ($worker) {
                 try {
                     new ServerFactory($server);
