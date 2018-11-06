@@ -9,14 +9,16 @@ declare(strict_types=1);
 
 namespace ZendTest\Expressive\Swoole;
 
-use function json_decode;
-use function json_encode;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
 use Swoole\Process;
 use Zend\Expressive\Swoole\Exception\InvalidArgumentException;
 use Zend\Expressive\Swoole\HttpServerFactory;
+
+use function json_decode;
+use function json_encode;
+
 use const SWOOLE_BASE;
 use const SWOOLE_PROCESS;
 use const SWOOLE_SOCK_TCP;
@@ -64,7 +66,7 @@ class HttpServerFactoryTest extends TestCase
                     'swoole-http-server' => [
                         'host' => '0.0.0.0',
                         'port' => 8081,
-                        'mode' => SWOOLE_PROCESS,
+                        'mode' => SWOOLE_BASE,
                         'protocol' => SWOOLE_SOCK_TCP6,
                     ],
                 ],
@@ -87,7 +89,7 @@ class HttpServerFactoryTest extends TestCase
         $this->assertSame([
             'host' => '0.0.0.0',
             'port' => 8081,
-            'mode' => SWOOLE_PROCESS,
+            'mode' => SWOOLE_BASE,
             'type' => SWOOLE_SOCK_TCP6,
         ], $result);
     }

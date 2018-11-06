@@ -12,9 +12,7 @@ namespace ZendTest\Expressive\Swoole;
 use PHPUnit\Framework\TestCase;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Process;
-use Swoole\Server;
 use Throwable;
-use Zend\Expressive\Swoole\Exception\InvalidArgumentException;
 use Zend\Expressive\Swoole\ServerFactory;
 
 use const SWOOLE_BASE;
@@ -97,6 +95,9 @@ class ServerFactoryTest extends TestCase
     {
         $process = new Process(function (Process $worker) {
             $swooleServer = new SwooleHttpServer('0.0.0.0', 65533, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
+            $swooleServer->set([
+                'worker_num' => 1,
+            ]);
             $swooleServer->on('Request', function () {
             });
             $swooleServer->on('Start', function (SwooleHttpServer $server) use ($worker) {
@@ -107,7 +108,7 @@ class ServerFactoryTest extends TestCase
                     $worker->write($exception->getMessage());
                 } finally {
                     $server->stop();
-                    $server->shutdown();
+                    Process::kill($server->master_pid);
                 }
             });
             $swooleServer->start();
