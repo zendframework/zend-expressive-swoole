@@ -95,16 +95,28 @@ class ServerFactoryTest extends TestCase
 
     public function testAnExceptionIsThrownIfTheServerHasAlreadyStarted() : void
     {
-        $this->markTestSkipped('It’s not possible to mock the Swoole server like this…');
-        return;
-        $server = $this->prophesize(SwooleHttpServer::class);
-        $server->master_pid = 1;
-        $server->manager_pid = 1;
-        try {
-            new ServerFactory($server);
-            $this->fail('Exception not thrown');
-        } catch (InvalidArgumentException $exception) {
-            $this->assertSame('The Swoole server has already been started', $exception->getMessage());
-        }
+        $process = new Process(function (Process $worker) {
+            $swooleServer = new SwooleHttpServer('0.0.0.0', 65533, SWOOLE_PROCESS, SWOOLE_SOCK_TCP);
+            $swooleServer->on('Request', function() {});
+            $swooleServer->on('Start', function (SwooleHttpServer $server) use ($worker) {
+                try {
+                    new ServerFactory($server);
+                    $worker->write('Exception not thrown');
+                } catch (Throwable $exception) {
+                    $worker->write($exception->getMessage());
+                } finally {
+                    $server->stop();
+                    $server->shutdown();
+                }
+            });
+            $swooleServer->start();
+            $worker->exit(0);
+        }, true, 1);
+
+        $process->start();
+        $data = $process->read();
+        Process::wait(true);
+
+        $this->assertSame('The Swoole server has already been started', $data);
     }
 }
