@@ -11,6 +11,7 @@ namespace Zend\Expressive\Swoole;
 
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Swoole\Http\Server as SwooleHttpServer;
 use Zend\Expressive\ApplicationPipeline;
 use Zend\Expressive\Response\ServerRequestErrorResponseGenerator;
 
@@ -30,7 +31,7 @@ class SwooleRequestHandlerRunnerFactory
             $container->get(ServerRequestInterface::class),
             $container->get(ServerRequestErrorResponseGenerator::class),
             $container->get(PidManager::class),
-            $container->get(ServerFactory::class),
+            $container->get(SwooleHttpServer::class),
             $staticResourceHandler,
             $logger
         );

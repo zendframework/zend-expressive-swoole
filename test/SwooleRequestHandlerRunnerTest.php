@@ -40,14 +40,9 @@ class SwooleRequestHandlerRunnerTest extends TestCase
             return $this->prophesize(ServerRequestErrorResponseGenerator::class)->reveal();
         };
 
-        $this->pidManager = $this->prophesize(PidManager::class)->reveal();
+        $this->pidManager = $this->prophesize(PidManager::class);
 
-        $serverFactory = $this->prophesize(ServerFactory::class);
-        $serverFactory->createSwooleServer([
-            'daemonize' => false,
-            'worker_num' => 4,
-        ])->willReturn($this->createMock(SwooleHttpServer::class));
-        $this->serverFactory = $serverFactory->reveal();
+        $this->httpServer = $this->createMock(SwooleHttpServer::class);
 
         $this->staticResourceHandler = $this->prophesize(StaticResourceHandlerInterface::class);
 
@@ -66,8 +61,8 @@ class SwooleRequestHandlerRunnerTest extends TestCase
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
-            $this->pidManager,
-            $this->serverFactory,
+            $this->pidManager->reveal(),
+            $this->httpServer,
             $this->staticResourceHandler->reveal(),
             $this->logger
         );
@@ -77,14 +72,13 @@ class SwooleRequestHandlerRunnerTest extends TestCase
 
     public function testRun()
     {
-        $swooleServer = $this->serverFactory->createSwooleServer([
-            'daemonize' => false,
-            'worker_num' => 4,
-        ]);
-        $swooleServer->method('on')
+        $this->pidManager->read()
+            ->willReturn([null, null]);
+
+        $this->httpServer->method('on')
             ->willReturn(null);
 
-        $swooleServer->method('start')
+        $this->httpServer->method('start')
             ->willReturn(null);
 
         $this->staticResourceHandler
@@ -95,21 +89,21 @@ class SwooleRequestHandlerRunnerTest extends TestCase
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
-            $this->pidManager,
-            $this->serverFactory,
+            $this->pidManager->reveal(),
+            $this->httpServer,
             $this->staticResourceHandler->reveal(),
             $this->logger
         );
         $requestHandler->exitFromCommand = false;
 
-        $swooleServer->expects($this->once())
+        $this->httpServer->expects($this->once())
             ->method('start');
 
         // Listeners are attached to each of:
         // - start
         // - workerstart
         // - request
-        $swooleServer->expects($this->exactly(3))
+        $this->httpServer->expects($this->exactly(3))
             ->method('on');
 
         // Clear command options, like phpunit --colors=always
@@ -127,8 +121,8 @@ class SwooleRequestHandlerRunnerTest extends TestCase
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
-            $this->pidManager,
-            $this->serverFactory,
+            $this->pidManager->reveal(),
+            $this->httpServer,
             $this->staticResourceHandler->reveal(),
             $this->logger
         );
@@ -170,8 +164,8 @@ class SwooleRequestHandlerRunnerTest extends TestCase
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
-            $this->pidManager,
-            $this->serverFactory,
+            $this->pidManager->reveal(),
+            $this->httpServer,
             null,
             $this->logger
         );
@@ -215,8 +209,8 @@ class SwooleRequestHandlerRunnerTest extends TestCase
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
-            $this->pidManager,
-            $this->serverFactory,
+            $this->pidManager->reveal(),
+            $this->httpServer,
             $this->staticResourceHandler->reveal(),
             $this->logger
         );
@@ -254,8 +248,8 @@ class SwooleRequestHandlerRunnerTest extends TestCase
             $this->requestHandler->reveal(),
             $this->serverRequestFactory,
             $this->serverRequestError,
-            $this->pidManager,
-            $this->serverFactory,
+            $this->pidManager->reveal(),
+            $this->httpServer,
             $this->staticResourceHandler->reveal(),
             $this->logger
         );

@@ -75,11 +75,11 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
     private $pidManager;
 
     /**
-     * Factory for creating an HTTP server instance.
+     * Swoole HTTP Server Instance
      *
-     * @var ServerFactory
+     * @var SwooleHttpServer
      */
-    private $serverFactory;
+    private $httpServer;
 
     /**
      * A factory capable of generating an error response in the scenario that
@@ -111,7 +111,7 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
         callable $serverRequestFactory,
         callable $serverRequestErrorResponseGenerator,
         PidManager $pidManager,
-        ServerFactory $serverFactory,
+        SwooleHttpServer $httpServer,
         StaticResourceHandlerInterface $staticResourceHandler = null,
         Log\AccessLogInterface $logger = null
     ) {
@@ -127,7 +127,11 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
                 return $serverRequestErrorResponseGenerator($exception);
             };
 
-        $this->serverFactory = $serverFactory;
+        // The HTTP server should not yet be running
+        if ($httpServer->master_pid > 0 || $httpServer->manager_pid > 0) {
+            throw new Exception\InvalidArgumentException('The Swoole server has already been started');
+        }
+        $this->httpServer = $httpServer;
         $this->pidManager = $pidManager;
         $this->staticResourceHandler = $staticResourceHandler;
         $this->logger = $logger ?: new Log\Psr3AccessLogDecorator(
@@ -162,11 +166,15 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
      */
     public function startServer(array $options = []) : void
     {
-        $swooleServer = $this->serverFactory->createSwooleServer($options);
-        $swooleServer->on('start', [$this, 'onStart']);
-        $swooleServer->on('workerstart', [$this, 'onWorkerStart']);
-        $swooleServer->on('request', [$this, 'onRequest']);
-        $swooleServer->start();
+        if ($this->isRunning()) {
+            $this->logger->notice('The server is already running');
+            return;
+        }
+        $this->httpServer->set($options);
+        $this->httpServer->on('start', [$this, 'onStart']);
+        $this->httpServer->on('workerstart', [$this, 'onWorkerStart']);
+        $this->httpServer->on('request', [$this, 'onRequest']);
+        $this->httpServer->start();
     }
 
     /**
