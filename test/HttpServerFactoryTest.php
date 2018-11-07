@@ -189,4 +189,28 @@ class HttpServerFactoryTest extends TestCase
             $this->assertSame('Invalid server protocol', $e->getMessage());
         }
     }
+
+    public function testServerOptionsAreCorrectlySetFromConfig()
+    {
+        $serverOptions = [
+            'pid_file' => '/tmp/swoole.pid',
+        ];
+        $this->container->get('config')->willReturn([
+            'zend-expressive-swoole' => [
+                'swoole-http-server' => [
+                    'options' => $serverOptions,
+                ],
+            ],
+        ]);
+        $process = new Process(function (Process $worker) {
+            $factory = new HttpServerFactory();
+            $swooleServer = $factory($this->container->reveal());
+            $worker->write(json_encode($swooleServer->setting));
+            $worker->exit();
+        });
+        $process->start();
+        $setOptions = json_decode($process->read(), true);
+        Process::wait(true);
+        $this->assertSame($serverOptions, $setOptions);
+    }
 }

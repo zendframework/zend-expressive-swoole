@@ -71,6 +71,10 @@ class HttpServerFactory
             throw new Exception\InvalidArgumentException('Invalid server protocol');
         }
 
-        return new SwooleHttpServer($host, $port, $mode, $protocol);
+        $httpServer = new SwooleHttpServer($host, $port, $mode, $protocol);
+        $serverOptions = $swooleConfig['options'] ?? [];
+        $httpServer->set($serverOptions);
+
+        return $httpServer;
     }
 }
