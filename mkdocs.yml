@@ -2,12 +2,19 @@ docs_dir: docs/book
 site_dir: docs/html
 pages:
     - index.md
-    - Home: v1/intro.md
+    - Intro: v2/intro.md
     - Reference:
-      - "Static Resources": v1/static-resources.md
-      - Logging: v1/logging.md
-      - "How it works": v1/how-it-works.md
-      - "Considerations when using Swoole": v1/considerations.md
+      - "Static Resources": v2/static-resources.md
+      - Logging: v2/logging.md
+      - "How it works": v2/how-it-works.md
+      - "Considerations when using Swoole": v2/considerations.md
+    - v1:
+      - Intro: v1/intro.md
+      - Reference:
+        - "Static Resources": v1/static-resources.md
+        - Logging: v1/logging.md
+        - "How it works": v1/how-it-works.md
+        - "Considerations when using Swoole": v1/considerations.md
     - "_ignore_legacy_pages":
       - "_introduction": intro.md
       - "_static-resources": static-resources.md
