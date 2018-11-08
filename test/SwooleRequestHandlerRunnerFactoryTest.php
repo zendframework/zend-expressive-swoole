@@ -91,11 +91,11 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
     {
         $this->configureAbsentStaticResourceHandler();
         $this->configureAbsentLoggerService();
-            $factory = new SwooleRequestHandlerRunnerFactory();
-            $runner = $factory($this->container->reveal());
-            $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $runner);
-            $this->assertAttributeEmpty('staticResourceHandler', $runner);
-            $this->assertAttributeInstanceOf(Psr3AccessLogDecorator::class, 'logger', $runner);
+        $factory = new SwooleRequestHandlerRunnerFactory();
+        $runner = $factory($this->container->reveal());
+        $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $runner);
+        $this->assertAttributeEmpty('staticResourceHandler', $runner);
+        $this->assertAttributeInstanceOf(Psr3AccessLogDecorator::class, 'logger', $runner);
     }
 
     public function testFactoryWillUseConfiguredPsr3LoggerWhenPresent()
@@ -108,10 +108,10 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
             ->get(AccessLogInterface::class)
             ->will([$this->logger, 'reveal']);
 
-            $factory = new SwooleRequestHandlerRunnerFactory();
-            $runner = $factory($this->container->reveal());
-            $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $runner);
-            $this->assertAttributeSame($this->logger->reveal(), 'logger', $runner);
+        $factory = new SwooleRequestHandlerRunnerFactory();
+        $runner = $factory($this->container->reveal());
+        $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $runner);
+        $this->assertAttributeSame($this->logger->reveal(), 'logger', $runner);
     }
 
     public function testFactoryWillUseConfiguredStaticResourceHandlerWhenPresent()
@@ -124,9 +124,9 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
             ->get(StaticResourceHandlerInterface::class)
             ->will([$this->staticResourceHandler, 'reveal']);
 
-            $factory = new SwooleRequestHandlerRunnerFactory();
-            $runner = $factory($this->container->reveal());
-            $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $runner);
-            $this->assertAttributeSame($this->staticResourceHandler->reveal(), 'staticResourceHandler', $runner);
+        $factory = new SwooleRequestHandlerRunnerFactory();
+        $runner = $factory($this->container->reveal());
+        $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $runner);
+        $this->assertAttributeSame($this->staticResourceHandler->reveal(), 'staticResourceHandler', $runner);
     }
 }
