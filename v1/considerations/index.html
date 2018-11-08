@@ -237,6 +237,13 @@ and far-between, this may not be an issue for you. However, it is a commonly
 documented issue in other similar systems such as Node.js. <strong>The solution in these
 cases is the same as for general PHP applications: add a message queue to your
 systems infrastructure, and delegate such work to the message queue instead.</strong></p>
+<blockquote>
+<h3 id="pdo-coroutine-support">PDO Coroutine Support</h3>
+<p>Please be aware that enabling coroutine support with <code>Swoole\Runtime::enableCoroutine()</code>
+only decorates MySql PDO connections with coroutines; other drivers (e.g.,
+pdo_pgsql) remain blocking as of Swoole 4.1.2.  &gt; For more details,
+<a href="https://github.com/swoole/swoole-src/issues/2051">visit the related bug report on the Swoole issue tracker</a>.</p>
+</blockquote>
 <h2 id="sessions">Sessions</h2>
 <p>Because Swoole runs as a PHP CLI application, it generally does not play well
 with the PHP Session extension. However, there are alternatives.</p>
