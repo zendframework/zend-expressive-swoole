@@ -32,6 +32,18 @@ class SwooleStreamTest extends TestCase
         $this->stream = new SwooleStream($this->request->reveal());
     }
 
+    public function testGetContentsWithNoRawContent()
+    {
+        $request = $this->prophesize(SwooleHttpRequest::class);
+        $request
+            ->rawcontent()
+            ->willReturn(false);
+
+        $stream = new SwooleStream($request->reveal());
+
+        $this->assertEquals('', $stream->getContents());
+    }
+
     public function testStreamIsAPsr7StreamInterface()
     {
         $this->assertInstanceOf(StreamInterface::class, $this->stream);
