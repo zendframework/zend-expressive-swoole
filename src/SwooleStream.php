@@ -252,6 +252,6 @@ final class SwooleStream implements StreamInterface
         if ($this->body) {
             return;
         }
-        $this->body = $this->request->rawContent();
+        $this->body = $this->request->rawContent() ?: '';
     }
 }
