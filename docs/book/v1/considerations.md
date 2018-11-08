@@ -24,12 +24,12 @@ documented issue in other similar systems such as Node.js. **The solution in the
 cases is the same as for general PHP applications: add a message queue to your
 systems infrastructure, and delegate such work to the message queue instead.**
 
-## PDO Coroutine Support
-
-Please be aware that enabling coroutine support with `Swoole\Runtime::enableCoroutine()`
-only wraps MySql PDO connections into coroutines. That said, if you connect f.e.
-to PostgreSQL, queries are still blocking (tested with Swoole v4.1.2).
-You can find a Swoole bug report [here](https://github.com/swoole/swoole-src/issues/2051).
+> ### PDO Coroutine Support
+> 
+> Please be aware that enabling coroutine support with `Swoole\Runtime::enableCoroutine()`
+> only decorates MySql PDO connections with coroutines; other drivers (e.g.,
+> pdo_pgsql) remain blocking as of Swoole 4.1.2.  > For more details,
+> [visit the related bug report on the Swoole issue tracker](https://github.com/swoole/swoole-src/issues/2051).
 
 ## Sessions
 
