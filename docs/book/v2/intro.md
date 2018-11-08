@@ -82,6 +82,11 @@ demonstrates enabling SSL:
 // config/autoload/swoole.local.php
 return [
     'zend-expressive-swoole' => [
+        // Available in Swoole 4.1 and up; enables coroutine support
+        // for most I/O operations:
+        'enable_coroutine' => true,
+
+        // Configure Swoole HTTP Server:
         'swoole-http-server' => [
             'host' => '192.168.0.1',
             'port' => 9501,
@@ -92,8 +97,8 @@ return [
                 // Set the SSL certificate and key paths for SSL support:
                 'ssl_cert_file' => 'path/to/ssl.crt',
                 'ssl_key_file' => 'path/to/ssl.key',
-                // Available in Swoole 4.1 and up; enables coroutine support
-                // for most I/O operations:
+                // Whether or not the HTTP server should use coroutines;
+                // enabled by default, and generally should not be disabled:
                 'enable_coroutine' => true,
             ],
         ],

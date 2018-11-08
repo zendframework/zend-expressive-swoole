@@ -6,8 +6,10 @@ pages:
     - Reference:
       - "Static Resources": v2/static-resources.md
       - Logging: v2/logging.md
+      - "Async Tasks": v2/async-tasks.md
       - "How it works": v2/how-it-works.md
       - "Considerations when using Swoole": v2/considerations.md
+      - Migration: v2/migration.md
     - v1:
       - Intro: v1/intro.md
       - Reference:

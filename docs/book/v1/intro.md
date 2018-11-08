@@ -92,11 +92,11 @@ return [
                 // Set the SSL certificate and key paths for SSL support:
                 'ssl_cert_file' => 'path/to/ssl.crt',
                 'ssl_key_file' => 'path/to/ssl.key',
+                // Available in Swoole 4.1 and up; enables coroutine support
+                // for most I/O operations:
+                'enable_coroutine' => true,
             ],
         ],
-        // Available in Swoole 4.1 and up; enables coroutine support
-        // for most I/O operations:
-        'enable_coroutine' => true,
     ],
 ];
 ```
