@@ -22,7 +22,10 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#41](https://github.com/zendframework/zend-expressive-swoole/pull/41) fixes an issue that occurs when the HTTP request body is empty.
+  `Swoole\Http\Request::rawcontent()` returns `false` in such situations, when a
+  string is expected. `Zend\Expressive\Swoole\SwooleStream` now detects this and
+  casts to an empty string.
 
 ## 1.0.0 - 2018-10-02
 
