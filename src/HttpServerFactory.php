@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Zend\Expressive\Swoole;
 
 use Psr\Container\ContainerInterface;
+use SwooleRuntime;
 use Swoole\Http\Server as SwooleHttpServer;
 
 use function in_array;
@@ -52,12 +53,13 @@ class HttpServerFactory
     public function __invoke(ContainerInterface $container) : SwooleHttpServer
     {
         $config = $container->get('config');
-        $swooleConfig = $config['zend-expressive-swoole']['swoole-http-server'] ?? [];
+        $swooleConfig = $config['zend-expressive-swoole'] ?? [];
+        $serverConfig = $swooleConfig['swoole-http-server'] ?? [];
 
-        $host = $swooleConfig['host'] ?? static::DEFAULT_HOST;
-        $port = $swooleConfig['port'] ?? static::DEFAULT_PORT;
-        $mode = $swooleConfig['mode'] ?? SWOOLE_BASE;
-        $protocol = $swooleConfig['protocol'] ?? SWOOLE_SOCK_TCP;
+        $host = $serverConfig['host'] ?? static::DEFAULT_HOST;
+        $port = $serverConfig['port'] ?? static::DEFAULT_PORT;
+        $mode = $serverConfig['mode'] ?? SWOOLE_BASE;
+        $protocol = $serverConfig['protocol'] ?? SWOOLE_SOCK_TCP;
 
         if ($port < 1 || $port > 65535) {
             throw new Exception\InvalidArgumentException('Invalid port');
@@ -71,8 +73,13 @@ class HttpServerFactory
             throw new Exception\InvalidArgumentException('Invalid server protocol');
         }
 
+        $enableCoroutine = $swooleConfig['enable_coroutine'] ?? false;
+        if ($enableCoroutine && method_exists(SwooleRuntime::class, 'enableCoroutine')) {
+            SwooleRuntime::enableCoroutine(true);
+        }
+
         $httpServer = new SwooleHttpServer($host, $port, $mode, $protocol);
-        $serverOptions = $swooleConfig['options'] ?? [];
+        $serverOptions = $serverConfig['options'] ?? [];
         $httpServer->set($serverOptions);
 
         return $httpServer;
