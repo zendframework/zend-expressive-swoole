@@ -11,6 +11,7 @@ namespace Zend\Expressive\Swoole;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
+use function extension_loaded;
 
 class ConfigProvider
 {
@@ -48,10 +49,13 @@ class ConfigProvider
             'factories'  => [
                 Log\AccessLogInterface::class         => Log\AccessLogFactory::class,
                 PidManager::class                     => PidManagerFactory::class,
-                RequestHandlerRunner::class           => SwooleRequestHandlerRunnerFactory::class,
+                SwooleRequestHandlerRunner::class     => SwooleRequestHandlerRunnerFactory::class,
                 ServerFactory::class                  => ServerFactoryFactory::class,
                 ServerRequestInterface::class         => ServerRequestSwooleFactory::class,
                 StaticResourceHandlerInterface::class => StaticResourceHandlerFactory::class,
+            ],
+            'aliases' => [
+                RequestHandlerRunner::class           => SwooleRequestHandlerRunner::class,
             ],
         ];
     }
