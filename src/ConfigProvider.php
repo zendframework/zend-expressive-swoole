@@ -14,8 +14,6 @@ use Swoole\Http\Server as SwooleHttpServer;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 use function extension_loaded;
 
-use function extension_loaded;
-
 class ConfigProvider
 {
     public function __invoke() : array
