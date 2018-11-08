@@ -10,7 +10,8 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Changed
 
-- Nothing.
+- [#42](https://github.com/zendframework/zend-expressive-swoole/pull/42) adds a discrete factory service for the `SwooleRequestHandlerRunner`, and now aliases
+  `Zend\HttpHandlerRunner\RequestHandlerRunner` to that service.
 
 ### Deprecated
 
