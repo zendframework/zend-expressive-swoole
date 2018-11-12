@@ -106,6 +106,9 @@ return [
 ];
 ```
 
+_Note_: By default, Swoole will not be compiled with SSL support. To enable SSL in Swoole, it must be configured with
+`--enable-openssl` or `--with-openssl-dir=/path/to/openssl`
+
 ### Serving static files
 
 We support serving static files. By default, we serve files with extensions in
