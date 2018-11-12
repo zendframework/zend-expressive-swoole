@@ -38,7 +38,8 @@
     "require-dev": {
         "filp/whoops": "^2.3",
         "phpunit/phpunit": "^7.1.1",
-        "zendframework/zend-coding-standard": "~1.0.0"
+        "zendframework/zend-coding-standard": "~1.0.0",
+        "zendframework/zend-servicemanager": "^3.3"
     },
     "autoload": {
         "psr-4": {

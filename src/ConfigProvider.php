@@ -58,6 +58,11 @@ class ConfigProvider
             'aliases' => [
                 RequestHandlerRunner::class           => SwooleRequestHandlerRunner::class,
             ],
+            'delegators' => [
+                'Zend\Expressive\WhoopsPageHandler' => [
+                    WhoopsPrettyPageHandlerDelegator::class,
+                ],
+            ],
         ];
     }
 }

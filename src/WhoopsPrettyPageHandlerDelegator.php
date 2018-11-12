@@ -12,14 +12,12 @@ namespace Zend\Expressive\Swoole;
 use Psr\Container\ContainerInterface;
 use Whoops\Handler\PrettyPageHandler;
 
-class WhoopsPrettyPageHandlerFactory
+class WhoopsPrettyPageHandlerDelegator
 {
-    public function __invoke(ContainerInterface $container) : PrettyPageHandler
+    public function __invoke(ContainerInterface $container, $serviceName, callable $callback) : PrettyPageHandler
     {
-        if ($container->has('Zend\Expressive\WhoopsPageHandler')) {
-            $pageHandler = $container->get('Zend\Expressive\WhoopsPageHandler');
-        }
-        $pageHandler = $pageHandler ?? new PrettyPageHandler();
+        /** @var PrettyPageHandler $pageHandler */
+        $pageHandler = $callback();
         $pageHandler->handleUnconditionally(true);
         return $pageHandler;
     }
