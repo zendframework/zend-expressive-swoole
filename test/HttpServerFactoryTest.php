@@ -12,10 +12,14 @@ namespace ZendTest\Expressive\Swoole;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
+use Swoole\Http\Server as SwooleServer;
 use Swoole\Process;
+use Throwable;
 use Zend\Expressive\Swoole\Exception\InvalidArgumentException;
 use Zend\Expressive\Swoole\HttpServerFactory;
 
+use function array_merge;
+use function defined;
 use function json_decode;
 use function json_encode;
 
@@ -23,6 +27,11 @@ use const SWOOLE_BASE;
 use const SWOOLE_PROCESS;
 use const SWOOLE_SOCK_TCP;
 use const SWOOLE_SOCK_TCP6;
+use const SWOOLE_SOCK_UDP;
+use const SWOOLE_SOCK_UDP6;
+use const SWOOLE_SSL;
+use const SWOOLE_UNIX_DGRAM;
+use const SWOOLE_UNIX_STREAM;
 
 class HttpServerFactoryTest extends TestCase
 {
@@ -212,5 +221,74 @@ class HttpServerFactoryTest extends TestCase
         $setOptions = json_decode($process->read(), true);
         Process::wait(true);
         $this->assertSame($serverOptions, $setOptions);
+    }
+
+    public function validSocketTypes() : array
+    {
+        $validTypes = [
+            [SWOOLE_SOCK_TCP, []],
+            [SWOOLE_SOCK_TCP6, []],
+            [SWOOLE_SOCK_UDP, []],
+            [SWOOLE_SOCK_UDP6, []],
+            [SWOOLE_UNIX_DGRAM, []],
+            [SWOOLE_UNIX_STREAM, []],
+        ];
+
+        if (defined('SWOOLE_SSL')) {
+            $extraOptions = [
+                'ssl_cert_file' => __DIR__ . '/TestAsset/ssl/server.crt',
+                'ssl_key_file' => __DIR__ . '/TestAsset/ssl/server.key',
+            ];
+            $validTypes[] = [SWOOLE_SOCK_TCP | SWOOLE_SSL, $extraOptions];
+            $validTypes[] = [SWOOLE_SOCK_TCP6 | SWOOLE_SSL, $extraOptions];
+        }
+
+        return $validTypes;
+    }
+
+    /**
+     * @dataProvider validSocketTypes
+     * @param int $socketType
+     * @param array $additionalOptions
+     */
+    public function testServerCanBeStartedForKnownSocketTypeCombinations($socketType, array $additionalOptions) : void
+    {
+        $this->container->get('config')->willReturn([
+            'zend-expressive-swoole' => [
+                'swoole-http-server' => [
+                    'host' => '127.0.0.1',
+                    'port' => 8080,
+                    'protocol' => $socketType,
+                    'mode' => SWOOLE_PROCESS,
+                    'options' => array_merge([
+                        'worker_num' => 1,
+                    ], $additionalOptions),
+                ],
+            ],
+        ]);
+        $process = new Process(function (Process $worker) {
+            try {
+                $factory = new HttpServerFactory();
+                $swooleServer = $factory($this->container->reveal());
+                $swooleServer->on('Start', function (SwooleServer $server) use ($worker) {
+                    // Give the server a chance to start up and avoid zombies
+                    usleep(10000);
+                    $worker->write('Server Started');
+                    $server->stop();
+                    $server->shutdown();
+                });
+                $swooleServer->on('Request', function ($req, $rep) {
+                    // noop
+                });
+                $swooleServer->start();
+            } catch (Throwable $exception) {
+                $worker->write('Exception Thrown: ' . $exception->getMessage());
+            }
+            $worker->exit();
+        });
+        $process->start();
+        $output = $process->read();
+        Process::wait(true);
+        $this->assertSame('Server Started', $output);
     }
 }
