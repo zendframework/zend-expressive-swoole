@@ -51,7 +51,6 @@ class ConfigProvider
                 Log\AccessLogInterface::class         => Log\AccessLogFactory::class,
                 PidManager::class                     => PidManagerFactory::class,
                 SwooleRequestHandlerRunner::class     => SwooleRequestHandlerRunnerFactory::class,
-                ServerFactory::class                  => ServerFactoryFactory::class,
                 ServerRequestInterface::class         => ServerRequestSwooleFactory::class,
                 StaticResourceHandlerInterface::class => StaticResourceHandlerFactory::class,
                 SwooleHttpServer::class               => HttpServerFactory::class,
