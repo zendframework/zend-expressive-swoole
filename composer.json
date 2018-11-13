@@ -51,6 +51,9 @@
             "ZendTest\\Expressive\\Swoole\\": "test/"
         }
     },
+    "bin": [
+        "bin/zend-expressive-swoole"
+    ],
     "config": {
         "sort-packages": true
     },

@@ -48,6 +48,10 @@ class ConfigProvider
     {
         return [
             'factories'  => [
+                Command\ReloadCommand::class          => Command\ReloadCommandFactory::class,
+                Command\StartCommand::class           => Command\StartCommandFactory::class,
+                Command\StatusCommand::class          => Command\StatusCommandFactory::class,
+                Command\StopCommand::class            => Command\StopCommandFactory::class,
                 Log\AccessLogInterface::class         => Log\AccessLogFactory::class,
                 PidManager::class                     => PidManagerFactory::class,
                 SwooleRequestHandlerRunner::class     => SwooleRequestHandlerRunnerFactory::class,

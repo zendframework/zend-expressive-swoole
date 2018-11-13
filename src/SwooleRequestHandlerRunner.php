@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Zend\Expressive\Swoole;
 
-use PackageVersions\Versions;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -17,7 +16,6 @@ use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Http\Response as SwooleHttpResponse;
 use Swoole\Http\Server as SwooleHttpServer;
 use Swoole\Process as SwooleProcess;
-use Symfony\Component\Console\Application as CommandLine;
 use Throwable;
 use Zend\Expressive\Swoole\Exception;
 use Zend\HttpHandlerRunner\Emitter\EmitterInterface;
@@ -41,13 +39,6 @@ use function usleep;
  */
 class SwooleRequestHandlerRunner extends RequestHandlerRunner
 {
-    /**
-     * @internal
-     * @var bool Whether or not to exit from the command; used during unit
-     *     testing only.
-     */
-    public $exitFromCommand = true;
-
     /**
      * Keep CWD in daemon mode.
      *
@@ -150,115 +141,10 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
      */
     public function run() : void
     {
-        $version = strstr(Versions::getVersion('zendframework/zend-expressive-swoole'), '@', true);
-        $commandLine = new CommandLine('Expressive web server', $version);
-        $commandLine->setAutoExit($this->exitFromCommand);
-        $commandLine->add(new Command\StartCommand($this, 'start'));
-        $commandLine->add(new Command\StopCommand($this, 'stop'));
-        $commandLine->add(new Command\ReloadCommand($this, 'reload'));
-        $commandLine->run();
-    }
-
-    /**
-     * Start the swoole HTTP server
-     *
-     * @param array $options Swoole server options
-     */
-    public function startServer(array $options = []) : void
-    {
-        if ($this->isRunning()) {
-            $this->logger->notice('The server is already running');
-            return;
-        }
-        $this->httpServer->set($options);
         $this->httpServer->on('start', [$this, 'onStart']);
         $this->httpServer->on('workerstart', [$this, 'onWorkerStart']);
         $this->httpServer->on('request', [$this, 'onRequest']);
         $this->httpServer->start();
-    }
-
-    /**
-     * Stop the swoole HTTP server
-     *
-     * @return bool Return value indicates whether or not the server was stopped.
-     */
-    public function stopServer() : bool
-    {
-        if (! $this->isRunning()) {
-            $this->logger->notice('Server is not running yet');
-            return false;
-        }
-
-        $this->logger->notice('Server stopping ...');
-
-        [$masterPid, ] = $this->pidManager->read();
-        $startTime = time();
-        $result = SwooleProcess::kill((int) $masterPid);
-
-        while (! $result) {
-            if (! SwooleProcess::kill((int) $masterPid, 0)) {
-                continue;
-            }
-            if (time() - $startTime >= 60) {
-                $result = false;
-                break;
-            }
-            usleep(10000);
-        }
-
-        if (! $result) {
-            $this->logger->error('Server stop failure');
-            return false;
-        }
-
-        $this->pidManager->delete();
-        $this->logger->notice('Server stopped');
-
-        return true;
-    }
-
-    /**
-     * Reload all workers
-     *
-     * Please note: the reload worker action can ONLY run when operating in
-     * SWOOLE_PROCESS mode.
-     *
-     * @return bool Return value indicates whether or not the server was
-     *     reloaded.
-     */
-    public function reloadWorker() : bool
-    {
-        if (! $this->isRunning()) {
-            $this->logger->notice('Server is not running yet');
-            return false;
-        }
-
-        $this->logger->notice('Worker reloading ...');
-
-        [$masterPid, ] = $this->pidManager->read();
-        $result = SwooleProcess::kill((int) $masterPid, SIGUSR1);
-
-        if (! $result) {
-            $this->logger->error('Worker reload failure');
-            return false;
-        }
-
-        $this->logger->notice('Worker reloaded');
-        return true;
-    }
-
-    /**
-     * Is the swoole HTTP server running?
-     */
-    public function isRunning() : bool
-    {
-        [$masterPid, $managerPid] = $this->pidManager->read();
-        if ($managerPid) {
-            // Swoole process mode
-            return $masterPid && $managerPid && SwooleProcess::kill((int) $managerPid, 0);
-        }
-        // Swoole base mode, no manager process
-        return $masterPid && SwooleProcess::kill((int) $masterPid, 0);
     }
 
     /**

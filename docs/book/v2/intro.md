@@ -34,10 +34,21 @@ application from the command line, **without requiring a web server**.
 You can run the application using the following command:
 
 ```bash
-$ php public/index.php
+$ ./vendor/bin/zend-expressive-swoole start
 ```
 
 This command will execute Swoole on `localhost` via port `8080`.
+
+> ### Other commands
+>
+> To get a list of all available commands, run the command without arguments:
+>
+> ```bash
+> $ ./vendor/bin/zend-expressive-swoole
+> ```
+>
+> If you add the argument `help` before any command name, the tooling will
+> provide you with more detailed information on that command.
 
 > ### Expressive skeleton versions prior to 3.1.0
 >

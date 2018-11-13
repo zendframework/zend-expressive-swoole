@@ -9,13 +9,19 @@ declare(strict_types=1);
 
 namespace Zend\Expressive\Swoole\Command;
 
+use Swoole\Process as SwooleProcess;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
+use Zend\Expressive\Swoole\PidManager;
+
+use function time;
+use function usleep;
 
 class StopCommand extends Command
 {
+    use IsRunningTrait;
+
     public const HELP = <<< 'EOH'
 Stop the web server. Kills all worker processes and stops the web server.
 
@@ -24,13 +30,13 @@ This command is only relevant when the server was started using the
 EOH;
 
     /**
-     * @var SwooleRequestHandlerRunner
+     * @var PidManager
      */
-    private $runner;
+    private $pidManager;
 
-    public function __construct(SwooleRequestHandlerRunner $runner, string $name = null)
+    public function __construct(PidManager $pidManager, string $name = 'stop')
     {
-        $this->runner = $runner;
+        $this->pidManager = $pidManager;
         parent::__construct($name);
     }
 
@@ -42,12 +48,45 @@ EOH;
 
     protected function execute(InputInterface $input, OutputInterface $output) : int
     {
-        if ($this->runner->stopServer()) {
-            $output->writeln('<info>Server stopped</info>');
+        if (! $this->isRunning()) {
+            $output->writeln('<info>Server is not running</info>');
             return 0;
         }
 
-        $output->writeln('<error>Error stopping server; check logs for details</error>');
-        return 1;
+        $output->writeln('<info>Stopping server ...</info>');
+
+        if (! $this->stopServer()) {
+            $output->writeln('<error>Error stopping server; check logs for details</error>');
+            return 1;
+        }
+
+        $output->writeln('<info>Server stopped</info>');
+        return 0;
+    }
+
+    private function stopServer() : bool
+    {
+        [$masterPid, ] = $this->pidManager->read();
+        $startTime     = time();
+        $result        = SwooleProcess::kill((int) $masterPid);
+
+        while (! $result) {
+            if (! SwooleProcess::kill((int) $masterPid, 0)) {
+                continue;
+            }
+            if (time() - $startTime >= 60) {
+                $result = false;
+                break;
+            }
+            usleep(10000);
+        }
+
+        if (! $result) {
+            return false;
+        }
+
+        $this->pidManager->delete();
+
+        return true;
     }
 }

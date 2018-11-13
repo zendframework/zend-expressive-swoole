@@ -3,6 +3,31 @@
 This document covers changes between version 1 and version 2, and how you may
 update your code to adapt to them.
 
+## Controlling the server
+
+In version 1, you would execute the web server via the entry script, e.g.:
+
+```bash
+$ php public/index.php start
+```
+
+With version 2, we ship the command line tools for controlling your server via
+the binary `zend-expressive-swoole`:
+
+```bash
+# Start the server:
+$ ./vendor/bin/zend-expressive-swoole start -d
+# Reload the server:
+$ ./vendor/bin/zend-expressive-swoole reload
+# Stop the server:
+$ ./vendor/bin/zend-expressive-swoole stop
+```
+
+While you can still call `php public/index.php`, you cannot daemonize the server
+using that command, nor reload or stop it (other than using `Ctrl-C`). You will
+need to change any deployment commands you currently use to consume the new
+command line tooling.
+
 ## Coroutine support
 
 In version 1, to enable Swoole's coroutine support, you were expected to pass a

@@ -14,7 +14,7 @@ enables the execution of an Expressive application inside the `on('request')`
 event of `Swoole\Http\Server`. This runner is implemented in the
 `Zend\Expressive\Swoole\SwooleRequestHandlerRunner` class.
 
-The basic implementation looks similar to the following:
+The basic implementation acts similar to the following:
 
 ```php
 public function run() : void
