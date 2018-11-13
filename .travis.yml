@@ -17,14 +17,17 @@ matrix:
     - php: 7.1
       env:
         - DEPS=lowest
+        - LEGACY_DEPS="dflydev/fig-cookies"
     - php: 7.1
       env:
         - DEPS=locked
+        - LEGACY_DEPS="dflydev/fig-cookies"
         - CS_CHECK=true
         - TEST_COVERAGE=true
     - php: 7.1
       env:
         - DEPS=latest
+        - LEGACY_DEPS="dflydev/fig-cookies"
     - php: 7.2
       env:
         - DEPS=lowest
@@ -44,7 +47,8 @@ before_install:
   - if [[ $TEST_COVERAGE != 'true' ]]; then phpenv config-rm xdebug.ini || return 0 ; fi
 
 install:
-  - travis_retry composer install $COMPOSER_ARGS
+  - travis_retry composer install $COMPOSER_ARGS --ignore-platform-reqs
+  - if [[ $LEGACY_DEPS != '' ]]; then travis_retry composer update $COMPOSER_ARGS --with-dependencies $LEGACY_DEPS ; fi
   - if [[ $DEPS == 'latest' ]]; then travis_retry composer update $COMPOSER_ARGS ; fi
   - if [[ $DEPS == 'lowest' ]]; then travis_retry composer update --prefer-lowest --prefer-stable $COMPOSER_ARGS ; fi
   - if [[ $TEST_COVERAGE == 'true' ]]; then travis_retry composer require --dev $COMPOSER_ARGS $COVERAGE_DEPS ; fi
