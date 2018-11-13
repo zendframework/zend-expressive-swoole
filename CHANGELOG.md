@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Added
 
+- [#43](https://github.com/zendframework/zend-expressive-swoole/pull/43) adds the class `Zend\Expressive\Swoole\WhoopsPrettyPageHandlerDelegator`, and registers
+  it to the service `Zend\Expressive\WhoopsPageHandler`. The delegator calls `handleUnconditionally()` on the
+  handler in order to ensure it will operate under the CLI SAPI that Swoole runs under.
+
 - [#40](https://github.com/zendframework/zend-expressive-swoole/pull/40) adds the class `Zend\Expressive\Swoole\HttpServerFactory`, which
   generates a `Swoole\Http\Server` instance based on provided configuration; it
   replaces the former `Zend\Expressive\Swoole\ServerFactory` (as well as the
