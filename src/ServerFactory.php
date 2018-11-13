@@ -22,6 +22,7 @@ use const SWOOLE_SOCK_TCP;
 use const SWOOLE_SOCK_TCP6;
 use const SWOOLE_SOCK_UDP;
 use const SWOOLE_SOCK_UDP6;
+use const SWOOLE_SSL;
 use const SWOOLE_UNIX_DGRAM;
 use const SWOOLE_UNIX_STREAM;
 
@@ -109,7 +110,13 @@ class ServerFactory
             throw new Exception\InvalidArgumentException('Invalid server mode');
         }
 
-        if (! in_array($protocol, static::PROTOCOLS, true)) {
+        $validProtocols = static::PROTOCOLS;
+        if (defined('SWOOLE_SSL')) {
+            $validProtocols[] = SWOOLE_SOCK_TCP | SWOOLE_SSL;
+            $validProtocols[] = SWOOLE_SOCK_TCP6 | SWOOLE_SSL;
+        }
+
+        if (! in_array($protocol, $validProtocols, true)) {
             throw new Exception\InvalidArgumentException('Invalid server protocol');
         }
 
