@@ -22,8 +22,6 @@ class WhoopsPrettyPageHandlerDelegatorTest extends TestCase
 
     public function setUp()
     {
-        parent::setUp();
-
         $dependencies = (new ConfigProvider())()['dependencies'];
         // @see https://github.com/zendframework/zend-expressive-skeleton/blob/master/src/ExpressiveInstaller/Resources/config/error-handler-whoops.php
         $dependencies['factories']['Zend\Expressive\WhoopsPageHandler'] = WhoopsPageHandlerFactory::class;
