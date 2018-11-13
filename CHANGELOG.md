@@ -2,13 +2,25 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 1.1.0 - TBD
+## 2.0.0 - TBD
 
 ### Added
 
-- Nothing.
+- [#40](https://github.com/zendframework/zend-expressive-swoole/pull/40) adds the class `Zend\Expressive\Swoole\HttpServerFactory`, which
+  generates a `Swoole\Http\Server` instance based on provided configuration; it
+  replaces the former `Zend\Expressive\Swoole\ServerFactory` (as well as the
+  factory for that class). The new factory class is now registered as a factory
+  for the `Swoole\Http\Server` class, which allows users to further configure
+  the Swoole server instance via delegators, specifically for the purpose of
+  [enabling async task workers](https://docs.zendframework.com/zend-expressive-swoole/v2/async-tasks/).
 
 ### Changed
+
+- [#40](https://github.com/zendframework/zend-expressive-swoole/pull/40) changes how you configure Swoole's coroutine support. Previously, you
+  would toggle the configuration flag `zend-expressive-swoole.swoole-http-server.options.enable_coroutine`;
+  you should now use the flag `zend-expressive-swoole.enable_coroutine`. The
+  original flag still exists, but is now used to toggle coroutine support in the
+  `Swoole\Http\Server` instance specifically.
 
 - [#42](https://github.com/zendframework/zend-expressive-swoole/pull/42) adds a discrete factory service for the `SwooleRequestHandlerRunner`, and now aliases
   `Zend\HttpHandlerRunner\RequestHandlerRunner` to that service.
@@ -19,7 +31,11 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Removed
 
-- Nothing.
+- [#40](https://github.com/zendframework/zend-expressive-swoole/pull/40) removes the `Zend\Expressive\Swoole\ServerFactory` and
+  `ServerFactoryFactory` classes, as well as the `Zend\Expressive\Swoole\ServerFactory` 
+  service. Users should instead reference the `Swoole\Http\Server` service,
+  which is now registered via the `Zend\Expressive\Swoole\HttpServerFactory`
+  factory, detailed in the "Added" section above.
 
 ### Fixed
 
