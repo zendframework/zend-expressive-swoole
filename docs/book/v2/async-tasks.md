@@ -13,7 +13,7 @@ In order to facilitate async processing, Swoole servers provides task worker
 processes, allowing your application to trigger tasks without the need for an
 external message queue, and without impacting the server worker processes
 &mdash; allowing your application to continue responding to requests while the
-task is processed.
+server processes your task.
 
 ## Configuring the Server Process
 
@@ -53,12 +53,12 @@ refuse to start.
 
 The two events are:
 
-- `onTask`/`task`, which will define the code for handling tasks.
-- `onFinish`/`finish`, which will execute when a task has completed.
+- `task`, which will define the code for handling tasks.
+- `finish`, which will execute when a task has completed.
 
 ### Registering the Handlers
 
-The signature for the `onTask` event handler is:
+The signature for the `task` event handler is:
 
 ```php
 function (
@@ -79,18 +79,15 @@ where:
   exception of a `resource`.
 
 To register the handler with the server, you must call it's `on()` method,
-**before** the server has been started in either of the following ways:
+**before** the server has been started:
 
 ```php
-// Using the `onTask` method:
-$server->onTask($callable);
-
-// Using general event registration (this is more the more accepted form):
 $server->on('task', $callable);
 ```
 
 As previously mentioned, you must also register an event handler for the
-`'finish'` event. This event handler has the following signature:
+`finish` event. This callback for this event should have the following
+signature:
 
 ```php
 function (
@@ -100,17 +97,13 @@ function (
 ) : void
 ```
 
-The first two parameters are identical to the `onTask` event handler. The
-`$userData` parameter will contain the return value of the `onTask` event
+The first two parameters are identical to the `task` event handler. The
+`$userData` parameter will contain the return value of the `task` event
 handler. 
 
-Registering your callable for the finish event is accomplished like this:
+Registering your callable for the `finish` event is accomplished like this:
 
 ```php
-// Using the `onFinish` method:
-$server->onFinish($callable);
-
-// Using general event registration (this is more the more accepted form):
 $server->on('finish', $callable);
 ```
 
@@ -121,8 +114,8 @@ $server->on('finish', $callable);
 
 > ### Finishing a task
 >
-> If you do not return anything from your `onTask` event handler, the
-> `onFinish` handler **will not be called**. The Swoole documentation recommends
+> If you do not return anything from your `task` event handler, the
+> `finish` handler **will not be called**. The Swoole documentation recommends
 > that the task worker callback manually finish the task in these situations:
 >
 > ```php
