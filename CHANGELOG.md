@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 1.0.2 - TBD
+## 1.0.2 - 2018-11-13
 
 ### Added
 
@@ -22,7 +22,11 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#45](https://github.com/zendframework/zend-expressive-swoole/pull/45) provides a patch that ensures that SSL support can be enabled when
+  creating the `Swoole\Http\Server` instance. SSL support requires not just the
+  SSL certificate and private key, but also providing a protocol of either
+  `SWOOLE_SOCK_TCP | SWOOLE_SSL` or `SWOOLE_SOCK_TCP6 | SWOOLE_SSL`.
+  Previously, the union types would raise an exception during instantiation.
 
 ## 1.0.1 - 2018-11-08
 
