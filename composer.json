@@ -36,7 +36,7 @@
         "zendframework/zend-httphandlerrunner": "^1.0.1"
     },
     "require-dev": {
-        "filp/whoops": "^2.3",
+        "filp/whoops": "^2.1",
         "phpunit/phpunit": "^7.1.1",
         "zendframework/zend-coding-standard": "~1.0.0",
         "zendframework/zend-servicemanager": "^3.3"
