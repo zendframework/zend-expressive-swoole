@@ -1,4 +1,4 @@
-# Triggering Async Tasks in Swoole HTTP Server
+# Triggering Async Tasks
 
 Application resources requiring lengthy processing are not uncommon. In order to
 prevent these processes from impacting user experience, particularly when the
