@@ -231,4 +231,47 @@ class StartCommandTest extends TestCase
             ->writeln(Argument::containingString('Server is already running'))
             ->shouldNotHaveBeenCalled();
     }
+
+    /**
+     * @dataProvider noRunningProcesses
+     */
+    public function testExecuteRunsApplicationWithoutSettingOptionsIfNoneProvided(array $pids)
+    {
+        $this->input->getOption('daemonize')->willReturn(false);
+        $this->input->getOption('num-workers')->willReturn(null);
+
+        $this->pidManager->read()->willReturn($pids);
+        $this->pushServiceToContainer(PidManager::class, $this->pidManager);
+
+        $httpServer = $this->prophesize(TestAsset\HttpServer::class);
+        $this->pushServiceToContainer(SwooleHttpServer::class, $httpServer);
+
+        $middlewareFactory = $this->prophesize(MiddlewareFactory::class);
+        $this->pushServiceToContainer(MiddlewareFactory::class, $middlewareFactory);
+
+        $application = $this->prophesize(Application::class);
+        $this->pushServiceToContainer(Application::class, $application);
+
+        $command = new StartCommand($this->container->reveal());
+
+        $execute = $this->reflectMethod($command, 'execute');
+
+        $this->assertSame(0, $execute->invoke(
+            $command,
+            $this->input->reveal(),
+            $this->output->reveal()
+        ));
+
+        $this->container->get(SwooleHttpServer::class)->shouldNotHaveBeenCalled();
+
+        $httpServer
+            ->set(Argument::any())
+            ->shouldNotHaveBeenCalled();
+
+        $application->run()->shouldHaveBeenCalled();
+
+        $this->output
+            ->writeln(Argument::containingString('Server is already running'))
+            ->shouldNotHaveBeenCalled();
+    }
 }

@@ -71,11 +71,20 @@ EOH;
             return 1;
         }
 
-        $server = $this->container->get(SwooleHttpServer::class);
-        $server->set([
-            'daemonize' => $input->getOption('daemonize'),
-            'worker_num' => $input->getOption('num-workers') ?? self::DEFAULT_NUM_WORKERS,
-        ]);
+        $serverOptions = [];
+        $daemonize     = $input->getOption('daemonize');
+        $numWorkers    = $input->getOption('num-workers');
+        if ($daemonize) {
+            $serverOptions['daemonize'] = $daemonize;
+        }
+        if (null !== $numWorkers) {
+            $serverOptions['worker_num'] = $numWorkers;
+        }
+
+        if ([] !== $serverOptions) {
+            $server = $this->container->get(SwooleHttpServer::class);
+            $server->set($serverOptions);
+        }
 
         /** @var \Zend\Expressive\Application $app */
         $app = $this->container->get(Application::class);
