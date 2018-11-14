@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Zend\Expressive\Swoole\Command;
 
+use Closure;
 use Swoole\Process as SwooleProcess;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -30,12 +31,28 @@ This command is only relevant when the server was started using the
 EOH;
 
     /**
+     * @internal
+     * @var Closure Callable to execute when attempting to kill the server
+     *     process. Generally speaking, this is SwooleProcess::kill; only
+     *     change the value when testing.
+     */
+    public $killProcess;
+
+    /**
+     * @internal
+     * @var int How long to wait for the server process to end. Only change
+     *     the value when testing.
+     */
+    public $waitThreshold = 60;
+
+    /**
      * @var PidManager
      */
     private $pidManager;
 
     public function __construct(PidManager $pidManager, string $name = 'stop')
     {
+        $this->killProcess = Closure::fromCallable([SwooleProcess::class, 'kill']);
         $this->pidManager = $pidManager;
         parent::__construct($name);
     }
@@ -68,13 +85,13 @@ EOH;
     {
         [$masterPid, ] = $this->pidManager->read();
         $startTime     = time();
-        $result        = SwooleProcess::kill((int) $masterPid);
+        $result        = ($this->killProcess)((int) $masterPid);
 
         while (! $result) {
-            if (! SwooleProcess::kill((int) $masterPid, 0)) {
+            if (! ($this->killProcess)((int) $masterPid, 0)) {
                 continue;
             }
-            if (time() - $startTime >= 60) {
+            if (time() - $startTime >= $this->waitThreshold) {
                 $result = false;
                 break;
             }
