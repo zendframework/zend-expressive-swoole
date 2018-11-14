@@ -1,8 +1,8 @@
 docs_dir: docs/book
 site_dir: docs/html
 pages:
-    - index.md
-    - Home: v1/intro.md
+    - Home: index.md
+    - Introduction: v1/intro.md
     - Reference:
       - "Static Resources": v1/static-resources.md
       - Logging: v1/logging.md
