@@ -67,7 +67,14 @@ Once you have performed the configuration steps as outlined above, you can run
 an Expressive application with Swoole using the following command:
 
 ```bash
-php public/index.php start
+$ ./vendor/bin/zend-expressive-swoole start
+```
+
+Call the command without arguments to get a list of available commands, and use
+the `help` meta-argument to get help on individual commands:
+
+```bash
+$ ./vendor/bin/zend-expressive-swoole help start
 ```
 
 ## Documentation
