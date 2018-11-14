@@ -6,9 +6,13 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Added
 
-- [#43](https://github.com/zendframework/zend-expressive-swoole/pull/43) adds the class `Zend\Expressive\Swoole\WhoopsPrettyPageHandlerDelegator`, and registers
-  it to the service `Zend\Expressive\WhoopsPageHandler`. The delegator calls `handleUnconditionally()` on the
-  handler in order to ensure it will operate under the CLI SAPI that Swoole runs under.
+- [#46](https://github.com/zendframework/zend-expressive-swoole/pull/46) adds a new command for the command line tooling, `status`; the command
+  simply tells you if the server is running or not.
+
+- [#43](https://github.com/zendframework/zend-expressive-swoole/pull/43) adds the class `Zend\Expressive\Swoole\WhoopsPrettyPageHandlerDelegator`,
+  and registers it to the service `Zend\Expressive\WhoopsPageHandler`. The
+  delegator calls `handleUnconditionally()` on the handler in order to ensure it
+  will operate under the CLI SAPI that Swoole runs under.
 
 - [#40](https://github.com/zendframework/zend-expressive-swoole/pull/40) adds the class `Zend\Expressive\Swoole\HttpServerFactory`, which
   generates a `Swoole\Http\Server` instance based on provided configuration; it
@@ -19,6 +23,14 @@ All notable changes to this project will be documented in this file, in reverse 
   [enabling async task workers](https://docs.zendframework.com/zend-expressive-swoole/v2/async-tasks/).
 
 ### Changed
+
+- [#46](https://github.com/zendframework/zend-expressive-swoole/pull/46) moves the command line utilities for controlling the web server out of
+  the application runner, and into a new vendor binary, `zend-expressive-swoole`
+  (called via `./vendor/bin/zend-expressive-swoole`). This change was required
+  to allow us to expose the `Swoole\Http\Server` instance as a service, and has
+  the added benefit that `reload` operations now will fully stop and start the
+  server, allowing it to pick up configuration and code changes. **You will need
+  to update any deployment scripts to use the new vendor binary.**
 
 - [#40](https://github.com/zendframework/zend-expressive-swoole/pull/40) changes how you configure Swoole's coroutine support. Previously, you
   would toggle the configuration flag `zend-expressive-swoole.swoole-http-server.options.enable_coroutine`;
