@@ -72,13 +72,16 @@ class SwooleRequestHandlerRunnerTest extends TestCase
 
     public function testRun()
     {
-        $this->pidManager->read()
-            ->willReturn([null, null]);
+        $this->pidManager
+            ->read()
+            ->willReturn([]);
 
-        $this->httpServer->method('on')
+        $this->httpServer
+            ->method('on')
             ->willReturn(null);
 
-        $this->httpServer->method('start')
+        $this->httpServer
+            ->method('start')
             ->willReturn(null);
 
         $this->staticResourceHandler
@@ -94,24 +97,19 @@ class SwooleRequestHandlerRunnerTest extends TestCase
             $this->staticResourceHandler->reveal(),
             $this->logger
         );
-        $requestHandler->exitFromCommand = false;
 
-        $this->httpServer->expects($this->once())
+        $this->httpServer
+            ->expects($this->once())
             ->method('start');
 
         // Listeners are attached to each of:
         // - start
         // - workerstart
         // - request
-        $this->httpServer->expects($this->exactly(3))
+        $this->httpServer
+            ->expects($this->exactly(3))
             ->method('on');
 
-        // Clear command options, like phpunit --colors=always
-        $_SERVER['argv'] = [
-            $_SERVER['argv'][0],
-            'start'
-        ];
-        $_SERVER['argc'] = 2;
         $requestHandler->run();
     }
 
