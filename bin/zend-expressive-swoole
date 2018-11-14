@@ -47,6 +47,7 @@ chdir($cwd);
 
 require 'vendor/autoload.php';
 
+// Setup/verify application DI container
 $containerFile = sprintf('%s/config/container.php', $cwd);
 if (! file_exists($containerFile)) {
     fwrite(STDERR, sprintf(
@@ -60,6 +61,7 @@ if (! file_exists($containerFile)) {
 $container = require $containerFile;
 $version   = strstr(Versions::getVersion('zendframework/zend-expressive-swoole'), '@', true);
 
+// Create, populate, and run the CLI tooling
 $commandLine = new CommandLine('Expressive web server', $version);
 $commandLine->setAutoExit(true);
 $commandLine->setCommandLoader(new ContainerCommandLoader($container, [
