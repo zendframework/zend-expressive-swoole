@@ -2,11 +2,12 @@ docs_dir: docs/book
 site_dir: docs/html
 pages:
     - index.md
-    - Intro: v2/intro.md
+    - Introduction: v2/intro.md
     - Reference:
       - "Static Resources": v2/static-resources.md
       - Logging: v2/logging.md
       - "Async Tasks": v2/async-tasks.md
+      - "Command Line Tooling": v2/command-line.md
       - "How it works": v2/how-it-works.md
       - "Considerations when using Swoole": v2/considerations.md
       - Migration: v2/migration.md
