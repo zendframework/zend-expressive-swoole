@@ -1,7 +1,7 @@
 docs_dir: docs/book
 site_dir: docs/html
 pages:
-    - index.md
+    - Home: index.md
     - Introduction: v2/intro.md
     - Reference:
       - "Static Resources": v2/static-resources.md
