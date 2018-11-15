@@ -9,7 +9,7 @@
     <meta name="description" content="Swoole support for Expressive">  
     <link rel="shortcut icon" href="../../img/favicon.ico">
 
-    <title>Logging - zend-expressive-swoole</title>
+    <title>Async Tasks - zend-expressive-swoole</title>
 
     <link rel="stylesheet" href="../../css/styles-e95dab66f8.css">
 </head>
@@ -75,7 +75,7 @@
             
                 
                     <li class="subnavigation__list-item ">
-                        <a href="../../v2/intro/" class="subnavigation__link">Introduction</a>
+                        <a href="../intro/" class="subnavigation__link">Introduction</a>
                     </li>
                 
             
@@ -86,43 +86,43 @@
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/static-resources/" class="subnavigation__link">Static Resources</a>
+        <a href="../static-resources/" class="subnavigation__link">Static Resources</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/logging/" class="subnavigation__link">Logging</a>
+        <a href="../logging/" class="subnavigation__link">Logging</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item subnavigation__list-item--active">
+        <a href="./" class="subnavigation__link">Async Tasks</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/async-tasks/" class="subnavigation__link">Async Tasks</a>
+        <a href="../command-line/" class="subnavigation__link">Command Line Tooling</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/command-line/" class="subnavigation__link">Command Line Tooling</a>
+        <a href="../how-it-works/" class="subnavigation__link">How it works</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/how-it-works/" class="subnavigation__link">How it works</a>
+        <a href="../considerations/" class="subnavigation__link">Considerations when using Swoole</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/considerations/" class="subnavigation__link">Considerations when using Swoole</a>
-    </li>
-
-                            
-                                
-    <li class="subnavigation__list-item ">
-        <a href="../../v2/migration/" class="subnavigation__link">Migration</a>
+        <a href="../migration/" class="subnavigation__link">Migration</a>
     </li>
 
                             
@@ -137,7 +137,7 @@
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../intro/" class="subnavigation__link">Intro</a>
+        <a href="../../v1/intro/" class="subnavigation__link">Intro</a>
     </li>
 
                             
@@ -148,25 +148,25 @@
             
                 
     <li class="subnavigation__list-item ">
-        <a href="../static-resources/" class="subnavigation__link">Static Resources</a>
-    </li>
-
-            
-                
-    <li class="subnavigation__list-item subnavigation__list-item--active">
-        <a href="./" class="subnavigation__link">Logging</a>
+        <a href="../../v1/static-resources/" class="subnavigation__link">Static Resources</a>
     </li>
 
             
                 
     <li class="subnavigation__list-item ">
-        <a href="../how-it-works/" class="subnavigation__link">How it works</a>
+        <a href="../../v1/logging/" class="subnavigation__link">Logging</a>
     </li>
 
             
                 
     <li class="subnavigation__list-item ">
-        <a href="../considerations/" class="subnavigation__link">Considerations when using Swoole</a>
+        <a href="../../v1/how-it-works/" class="subnavigation__link">How it works</a>
+    </li>
+
+            
+                
+    <li class="subnavigation__list-item ">
+        <a href="../../v1/considerations/" class="subnavigation__link">Considerations when using Swoole</a>
     </li>
 
             
@@ -247,15 +247,11 @@
 
             
                 
-                    <li>v1</li>
-                
-            
-                
                     <li>Reference</li>
                 
             
 
-            <li class="active">Logging</li>
+            <li class="active">Async Tasks</li>
         
     
 </ol>
@@ -271,11 +267,19 @@
             <ul class="toc__list">
                 
                     <li class="toc__entry">
-                        <a href="#access-logs" class="toc__link">Access Logs</a>
+                        <a href="#configuring-the-server-process" class="toc__link">Configuring the Server Process</a>
                     </li>
                 
                     <li class="toc__entry">
-                        <a href="#configuring-a-logger" class="toc__link">Configuring a logger</a>
+                        <a href="#task-event-handlers" class="toc__link">Task Event Handlers</a>
+                    </li>
+                
+                    <li class="toc__entry">
+                        <a href="#an-example-task-worker" class="toc__link">An example task worker</a>
+                    </li>
+                
+                    <li class="toc__entry">
+                        <a href="#triggering-tasks-in-middleware" class="toc__link">Triggering Tasks in Middleware</a>
                     </li>
                 
             </ul>
@@ -283,185 +287,260 @@
     
 
 
-    <h1 id="logging">Logging</h1>
-<p>Web servers typically log request details, so that you can perform tasks such as
-analytics, identification of invalid requests, and more.</p>
-<p>Out-of-the-box, Swoole does not do this. As such, we provide these capabilities
-with this integration.</p>
-<p>We log a number of items:</p>
-<ul>
-<li>When the web server starts, indicating the host and port on which it is running.</li>
-<li>When workers start, including the working directory and worker ID.</li>
-<li>When the web server stops.</li>
-<li>When the web server reloads workers.</li>
-<li>Each request (more on this below)</li>
-</ul>
-<p>By default, logging is performed to STDOUT, using an internal logger. However,
-you can use any <a href="https://www.php-fig.org/psr/psr-3/">PSR-3 compliant logger</a> to
-log application details. We emit logs detailing server operations using the
-priority <code>Psr\Log\LogLevel::NOTICE</code> (unless detailing an error, such as
-inability to reload)), while <code>Psr\Log\LogLevel::INFO</code> and <code>Psr\Log\LogLevel::ERROR</code>
-are used to log requests (errors are used for response statuses greater than or
-equal to 400).</p>
-<h2 id="access-logs">Access Logs</h2>
-<p>Technically, the <code>SwooleRequestHandlerRunner</code> doesn't use PSR-3 loggers
-directly, but, rather, instances of <code>Zend\Expressive\Swoole\Log\AccessLogInterface</code>.
-This package-specific interface extends the PSR-3 interface to add two methods:</p>
-<pre class="codehilite"><code class="language-php">use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
-use Swoole\Http\Request;
-use Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse;
-
-interface AccessLogInterface extends LoggerInterface
-{
-    public function logAccessForStaticResource(
-        Request $request,
-        StaticResourceResponse $response
-    ) : void;
-
-    public function logAccessForPsr7Resource(
-        Request $request,
-        ResponseInterface $response
-    ) : void;
-}</code></pre>
-
-<p>To allow usage of a standard PSR-3 logger, we also provide a decorator,
-<code>Zend\Expressive\Swoole\Log\Psr3AccessLogDecorator</code>, which decorates the PSR-3
-logger and provides a standard implementation for the two methods listed above.
-If you have defined a PSR-3 <code>LoggerInterface</code> service in your application, it
-will be used automatically.</p>
-<h3 id="formatting-logs">Formatting logs</h3>
-<p>The Apache web server has long provided flexible and robust logging
-capabilities, and its formats are used across a variety of web servers and
-logging platforms. As such, we have chosen to use its formats for our standard
-implementation. However, we allow you to plug in your own system as needed.</p>
-<p>You can refer to the <a href="http://httpd.apache.org/docs/current/mod/mod_log_config.html">Apache mod_log_config documentation</a>
-in order to understand the available placeholders available for format strings.</p>
-<p>Formatting is provided to the <code>Psr3AccessLogDecorator</code> via instances of the
-interface <code>Zend\Expressive\Swoole\Log\AccessLogFormatterInterface</code>:</p>
-<pre class="codehilite"><code class="language-php">interface AccessLogFormatterInterface
-{
-    public function format(AccessLogDataMap $map) : string;
-}</code></pre>
-
-<p><code>AccessLogDataMap</code> is a class used internally by the <code>Psr3AccessLogDecorator</code> in
-order to map Apache log placeholders to request/response values.</p>
-<p>Our default <code>AccessLogFormatterInterface</code> implementation, <code>AccessLogFormatter</code>,
-provides constants referencing the most common formats, but also allows you to
-use arbitrary log formats that use the standard Apache placeholders. The formats
-we include by default are:</p>
-<ul>
-<li><code>AccessLogFormatter::FORMAT_COMMON</code>: Apache common log format: <code>%h %l %u %t "%r" %&gt;s %b</code></li>
-<li><code>AccessLogFormatter::FORMAT_COMMON_VHOST</code>: Apache common log format + vhost: <code>%v %h %l %u %t "%r" %&gt;s %b</code></li>
-<li><code>AccessLogFormatter::FORMAT_COMBINED</code>: Apache combined log format: <code>%h %l %u %t "%r" %&gt;s %b "%{Referer}i" "%{User-Agent}i"</code></li>
-<li><code>AccessLogFormatter::FORMAT_REFERER</code>: <code>%{Referer}i -&gt; %U</code></li>
-<li><code>AccessLogFormatter::FORMAT_AGENT</code>: <code>%{User-Agent}i</code></li>
-<li><code>AccessLogFormatter::FORMAT_VHOST</code>: Alternative Apache vhost format: '%v %l %u %t "%r" %&gt;s %b';</li>
-<li><code>AccessLogFormatter::FORMAT_COMMON_DEBIAN</code>: Debian variant of common log format: <code>%h %l %u %t “%r” %&gt;s %O</code>;</li>
-<li><code>AccessLogFormatter::FORMAT_COMBINED_DEBIAN</code>: Debian variant of combined log format: <code>%h %l %u %t “%r” %&gt;s %O “%{Referer}i” “%{User-Agent}i”</code>;</li>
-<li><code>AccessLogFormatter::FORMAT_VHOST_COMBINED_DEBIAN</code>: Debian variant of combined log format + vhost: <code>%v:%p %h %l %u %t “%r” %&gt;s %O “%{Referer}i” “%{User-Agent}i"</code>;</li>
-</ul>
-<h2 id="configuring-a-logger">Configuring a logger</h2>
-<p>You may subsitute your own logger implementation into the Swoole request handler
-runner.</p>
-<h3 id="manual-usage">Manual usage</h3>
-<p>If you are manually instantiating a <code>Zend\Expressive\Swoole\SwooleRequestHandlerRunner</code>
-instance, you may provide it as the seventh argument to the constructor:</p>
-<pre class="codehilite"><code class="language-php">use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
-
-$runner = new SwooleRequestHandlerRunner(
-    $application,
-    $serverRequestFactory,
-    $serverRequestErrorResponseGenerator,
-    $pidManager,
-    $serverFactory,
-    $staticResourceHandler,
-    $logger // &lt;-- AccessLoggerInterface instance
-);</code></pre>
-
-<h3 id="container-usage">Container usage</h3>
-<p>If you are using a <a href="https://www.php-fig.org/psr/psr-11/">PSR-11</a> container, the
-<code>SwooleRequestHandlerRunnerFactory</code> will retrieve a log instance using the
-<code>Zend\Expressive\Swoole\Log\AccessLogInterface</code> service.</p>
-<p>You have two options for substituting your own logger from there.</p>
-<p>First, you can create your own factory that produces an <code>AccessLogInterface</code>
-instance, and map it to the service. This is the best route if you want to write
-your own implementation, or want to use a different PSR-3 logger service.</p>
-<p>If you are okay with re-using your existing PSR-3 logger, the provided
-<code>Zend\Expressive\Swoole\Log\AccessLogFactory</code> will use the
-<code>Psr\Log\LoggerInterface</code> service to create a <code>Psr3AccessLogDecorator</code> instance.</p>
-<p>This factory also allows you to specify a custom <code>AccessLogFormatterInterface</code>
-instance if you want. It will look up a service by the fully-qualified interface
-name, and use it if present. Otherwise, it creates an <code>AccessLogFormatter</code>
-instance for you.</p>
-<p>The factory will also look at the following configuration values:</p>
+    <h1 id="triggering-async-tasks">Triggering Async Tasks</h1>
+<p>Application resources requiring lengthy processing are not uncommon. In order to
+prevent these processes from impacting user experience, particularly when the
+user does not need to wait for the process to complete, we often delegate these
+to a <a href="https://en.wikipedia.org/wiki/Message_queue">message queue</a>.</p>
+<p>While message queues are powerful, they also require additional infrastructure
+for your application, and can be hard to justify when you have a small number of
+heavy processes, or a small number of users.</p>
+<p>In order to facilitate async processing, Swoole servers provides task worker
+processes, allowing your application to trigger tasks without the need for an
+external message queue, and without impacting the server worker processes
+&mdash; allowing your application to continue responding to requests while the
+server processes your task.</p>
+<h2 id="configuring-the-server-process">Configuring the Server Process</h2>
+<p>In order to take advantage of this feature, you will first need to configure the
+server to start up task workers. In your local configuration for the server,
+you'll need to add <code>task_worker_num</code>. The number of workers you configure define
+the number of concurrent tasks that can be executed at once. Tasks are queued in
+the order that they triggered, meaning that a <code>task_worker_num</code> of 1 will offer
+no concurrency and tasks will execute one after the other.</p>
 <pre class="codehilite"><code class="language-php">'zend-expressive-swoole' =&gt; [
     'swoole-http-server' =&gt; [
-        'logger' =&gt; [
-            'format' =&gt; string, // one of the AccessLogFormatter::FORMAT_*
-                                // constants, or a custom format string
-            'use-hostname-lookups' =&gt; bool, // Set to true to enable hostname lookups
+        'host' =&gt; '127.0.0.1',
+        'port' =&gt; 8080,
+        'options' =&gt; [
+            'worker_num'      =&gt; 4, // The number of HTTP Server Workers
+            'task_worker_num' =&gt; 4, // The number of Task Workers
         ],
     ],
-],</code></pre>
+];</code></pre>
 
-<h3 id="using-monolog-as-a-psr-3-logger">Using Monolog as a PSR-3 logger</h3>
-<p>When using <a href="https://seldaek.github.io/monolog/">Monolog</a> with a <code>StreamHandler</code>,
-you must supply a file or a stream resource descriptor. We recommend using one
-of the following:</p>
-<ul>
-<li>
-<p><code>php://stdout</code> is a good choice, as this will generally write to the current
-  console.</p>
-</li>
-<li>
-<p><code>php://stderr</code> is also a good choice, as this will generally write to the
-  current console, and allows you to filter based on that output stream.</p>
-</li>
-<li>
-<p>When using <a href="https://www.docker.com/">Docker</a>, generally one of either
-  <code>/proc/1/fd/1</code> or <code>/proc/1/fd/2</code> can be used, and are analogous to <code>STDOUT</code>
-  and <code>STDERR</code>, respectively.  We recommend using <code>php://stdout</code> and
-  <code>php://stderr</code> instead, as these will be mapped to the correct locations by
-  the language.</p>
-</li>
-</ul>
 <blockquote>
-<h3 id="errorloghandler">ErrorLogHandler</h3>
-<p>If you plan to write to <code>STDERR</code>, you might consider instead using the
-Monolog <code>ErrorLogHandler</code>, as this will use PHP's <code>error_log()</code> mechanism to
-write to the configured PHP error log. You can then either introspect that
-location, or configure the <code>error_log</code> <code>php.ini</code> setting to point to
-either <code>/dev/stderr</code> or, if on Docker, <code>/proc/1/fd/2</code>.</p>
+<h3 id="no-cli-option-for-task_worker_num">No CLI option for task_worker_num</h3>
+<p>Unlike <code>worker_num</code>, there is no CLI option for <code>task_worker_num</code>. This is
+because enabling the task worker also requires registering a task worker
+with the server. To prevent accidental startup failures due to passing an
+option to specify the number of task workers without having registered a
+task worker, we omitted the CLI option.</p>
 </blockquote>
-<p>Additionally, we recommend using the <code>PsrLogMessageProcessor</code> with any Monolog
-handler to ensure that any templated parameters are expanded by the logger.</p>
-<p>As an example, the following is a factory that wires a <code>StreamHandler</code> to a
-<code>Monolog\Logger</code> instance. </p>
-<pre class="codehilite"><code class="language-php">use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
-use Monolog\Processor\PsrLogMessageProcessor;
+<h2 id="task-event-handlers">Task Event Handlers</h2>
+<p>When task workers are enabled, the Swoole server will now <strong>require</strong> that you
+register two event callbacks with the server; without them, the server will
+refuse to start.</p>
+<p>The two events are:</p>
+<ul>
+<li><code>task</code>, which will define the code for handling tasks.</li>
+<li><code>finish</code>, which will execute when a task has completed.</li>
+</ul>
+<h3 id="registering-the-handlers">Registering the Handlers</h3>
+<p>The signature for the <code>task</code> event handler is:</p>
+<p><pre class="codehilite"><code class="language-php">function (
+    \Swoole\Http\Server $server,
+    int $taskId,
+    int $sourceWorkerId,
+    $dataForWorker
+) : void</code></pre>
+where:</p>
+<ul>
+<li><code>$server</code> is the main HTTP server process</li>
+<li><code>$taskId</code> is a number that increments each time the server triggers a new task.</li>
+<li><code>$sourceWorkerId</code> is an integer that defines the worker process that is
+  executing the workload.</li>
+<li><code>$dataForWorker</code> contains the value passed to the <code>$server-&gt;task()</code> method
+  when initially triggering the task. This value can be any PHP value, with the
+  exception of a <code>resource</code>.</li>
+</ul>
+<p>To register the handler with the server, you must call it's <code>on()</code> method,
+<strong>before</strong> the server has been started:</p>
+<pre class="codehilite"><code class="language-php">$server-&gt;on('task', $callable);</code></pre>
 
-class LoggerFactory
+<p>As previously mentioned, you must also register an event handler for the
+<code>finish</code> event. This callback for this event should have the following
+signature:</p>
+<pre class="codehilite"><code class="language-php">function (
+    \Swoole\Http\Server $server,
+    int $taskId,
+    $userData
+) : void</code></pre>
+
+<p>The first two parameters are identical to the <code>task</code> event handler. The
+<code>$userData</code> parameter will contain the return value of the <code>task</code> event
+handler. </p>
+<p>Registering your callable for the <code>finish</code> event is accomplished like this:</p>
+<pre class="codehilite"><code class="language-php">$server-&gt;on('finish', $callable);</code></pre>
+
+<blockquote>
+<h3 id="there-can-be-only-one">There can be only one</h3>
+<p>There can be <strong>only one</strong> event handler per event type. Subsequent calls to
+<code>on('&lt;EventName&gt;')</code> replace the previously registered callable.</p>
+<h3 id="finishing-a-task">Finishing a task</h3>
+<p>If you do not return anything from your <code>task</code> event handler, the
+<code>finish</code> handler <strong>will not be called</strong>. The Swoole documentation recommends
+that the task worker callback manually finish the task in these situations:</p>
+<pre class="codehilite"><code class="language-php">$server-&gt;finish('');</code></pre>
+
+<p>Even if you do not call the above method, the handler <strong>must</strong> be defined, or
+the server will refuse to start.</p>
+</blockquote>
+<h2 id="an-example-task-worker">An example task worker</h2>
+<p>The following example code illustrates a task worker with logging capabilities
+that uses a message notifier to process data:</p>
+<pre class="codehilite"><code class="language-php">// In src/App/TaskWorker.php:
+
+namespace App;
+
+use Psr\EventDispatcher\MessageInterface;
+use Psr\EventDispatcher\MessageNotifierInterface;
+use Psr\Log\LoggerInterface;
+use Throwable;
+
+class TaskWorker
 {
-    public function __invoke(ContainerInterface $container) : LoggerInterface
+    private $notifier;
+    private $logger;
+
+    public function __construct(LoggerInterface $logger, MessageNotifierInterface $notifier)
     {
-        $logger = new Logger('swoole-http-server');
-        $logger-&gt;pushHandler(new StreamHandler(
-            'php://stdout',
-            Logger::INFO,
-            $bubble = true,
-            $expandNewLines = true
-        ));
-        $logger-&gt;pushProcessor(new PsrLogMessageProcessor());
-        return $logger;
+        $this-&gt;logger = $logger;
+        $this-&gt;notifier = $notifier;
+    }
+
+    public function __invoke($server, $taskId, $fromId, $data)
+    {
+        if (! $data instanceof MessageInterface) {
+            $this-&gt;logger-&gt;error('Invalid data type provided to task worker: {type}', [
+                'type' =&gt; is_object($data) ? get_class($data) : gettype($data)
+            ]);
+            return;
+        }
+
+        $this-&gt;logger-&gt;notice('Starting work on task {taskId} using data: {data}', [
+            'taskId' =&gt; $taskId,
+            'data' =&gt; json_encode($data),
+        ]);
+
+        try {
+            $this-&gt;notifier-&gt;notify($data);
+        } catch (Throwable $e) {
+            $this-&gt;logger-&gt;error('Error processing task {taskId}: {error}', [
+                'taskId' =&gt; $taskId,
+                'error' =&gt; $e-&gt;getTraceAsString(),
+            ]);
+        }
+
+        // Notify the server that processing of the task has finished:
+        $server-&gt;finish('');
     }
 }</code></pre>
 
-<p>If you then wire this to the <code>Psr\Log\LoggerInterface</code> service, it will be used
-by Swoole for the purposes of access logs as well.</p>
+<p>This invokable class needs to be attached to the <code>$server-&gt;on('task')</code> event
+before the server has started. The easiest place to accomplish this is in a
+<a href="https://docs.zendframework.com/zend-expressive/v3/features/container/delegator-factories/">delegator factory</a>
+targeting the Swoole HTTP server. First, we'll create the delegator factory:</p>
+<pre class="codehilite"><code class="language-php">// In src/App/TaskWorkerDelegator.php:
+
+namespace App;
+
+use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
+use Swoole\Http\Server as HttpServer;
+
+class TaskWorkerDelegator
+{
+    public function __invoke(ContainerInterface $container, $serviceName, callable $callback) : HttpServer
+    {
+        $server = $callback();
+        $logger = $container-&gt;get(LoggerInterface::class);
+
+        $server-&gt;on('task', $container-&gt;get(TaskWorker::class));
+        $server-&gt;on('finish', function ($server, $taskId, $data) use ($logger) {
+            $logger-&gt;notice('Task #{taskId} has finished processing', ['taskId' =&gt; $taskId]);
+        });
+
+        return $server;
+    }
+}</code></pre>
+
+<p>Next, we'll register it with our container:</p>
+<pre class="codehilite"><code class="language-php">// In config/autoload/dependencies.php:
+
+return [
+    'dependencies' =&gt; [
+        'delegators' =&gt; [
+            \Swoole\Http\Server::class =&gt; [
+                \App\TaskWorkerDelegator::class,
+            ],
+        ],
+    ],
+];</code></pre>
+
+<p>With this in place, we can now trigger tasks within our application. In the
+scenario outlined above, the task worker expects <em>messages</em>; it then <em>notifies</em>
+listeners of that message so they may respond to it.</p>
+<h2 id="triggering-tasks-in-middleware">Triggering Tasks in Middleware</h2>
+<p>Considering that this library provides an application runner for middleware
+applications, you will likely trigger tasks from within your middleware or
+request handlers. In each case, you will need to compose the Swoole HTTP server
+instance as a class dependency, as tasks are triggered via the server via its
+<code>task()</code> method. The method can accept any value except a resource as an
+argument.</p>
+<p>In the example below, <code>ContactMessage</code> will implement the <code>MessageInterface</code>
+from the above example. The request handler uses values from the request to
+create the <code>ContactMessage</code> instance, and then create a task from it. It then
+immediately returns a response.</p>
+<pre class="codehilite"><code class="language-php">// in src/App/Handler/TaskTriggeringHandler.php:
+
+namespace App\Handler;
+
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Swoole\Http\Server as HttpServer;
+use Zend\Expressive\Template\TemplateRendererInterface;
+
+class TaskTriggeringHandler implements RequestHandlerInterface
+{
+    private $responseFactory;
+    private $server;
+    private $template;
+
+    public function __construct(
+        HttpServer $server,
+        TemplateRendererInterface $template,
+        ResponseFactoryInterface $responseFactory
+    ) {
+        $this-&gt;server          = $server;
+        $this-&gt;template        = $template;
+        $this-&gt;responseFactory = $responseFactory;
+    }
+
+    public function handle(ServerRequestInterface $request) : ResponseInterface
+    {
+        // Gather data from request
+        $data = $request-&gt;getParsedBody();
+
+        // A fictonal event describing a contact request:
+        $event = new ContactEvent([
+            'to'      =&gt; $data['email'],
+            'subject' =&gt; $data['subject'],
+            'message' =&gt; $data['message'],
+        ]);
+
+        // task() returns a task identifier, if you want to use it; otherwise,
+        // you can ignore the return value.
+        $taskIdentifier = $this-&gt;server-&gt;task($event);
+
+        // The task() method is asynchronous, so execution continues immediately.
+        $response = ($this-&gt;responseFactory()-&gt;createResponse())
+            -&gt;withHeader('Content-Type', 'text/html');
+        $response-&gt;getBody()-&gt;write($this-&gt;template-&gt;render('contact::thank-you', []);
+        return $response;
+    }
+}</code></pre>
 
 
 
@@ -471,7 +550,7 @@ by Swoole for the purposes of access logs as well.</p>
         
         <li class="page-nav__item">
             
-                <a rel="prev" class="page-nav__link page-nav__link--prev" href="../static-resources/">
+                <a rel="prev" class="page-nav__link page-nav__link--prev" href="../logging/">
                     <i class="fa fa-chevron-left"></i> Previous
                 </a>
             
@@ -480,7 +559,7 @@ by Swoole for the purposes of access logs as well.</p>
         
         <li class="page-nav__item">
             
-                <a rel="next" class="page-nav__link page-nav__link--next" href="../how-it-works/">
+                <a rel="next" class="page-nav__link page-nav__link--next" href="../command-line/">
                     Next <i class="fa fa-chevron-right"></i>
                 </a>
             
@@ -493,7 +572,7 @@ by Swoole for the purposes of access logs as well.</p>
     <div class="help-wanted">
         <p>
             Found a mistake or want to contribute to the documentation?
-            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/book/v1/logging.md" target="_blank" class="help-wanted__link">
+            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/book/v2/async-tasks.md" target="_blank" class="help-wanted__link">
                 Edit this page on GitHub!
             </a>
         </p>
@@ -524,7 +603,7 @@ by Swoole for the purposes of access logs as well.</p>
             
                 
                     <li class="subnavigation__list-item ">
-                        <a href="../../v2/intro/" class="subnavigation__link">Introduction</a>
+                        <a href="../intro/" class="subnavigation__link">Introduction</a>
                     </li>
                 
             
@@ -535,43 +614,43 @@ by Swoole for the purposes of access logs as well.</p>
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/static-resources/" class="subnavigation__link">Static Resources</a>
+        <a href="../static-resources/" class="subnavigation__link">Static Resources</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/logging/" class="subnavigation__link">Logging</a>
+        <a href="../logging/" class="subnavigation__link">Logging</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item subnavigation__list-item--active">
+        <a href="./" class="subnavigation__link">Async Tasks</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/async-tasks/" class="subnavigation__link">Async Tasks</a>
+        <a href="../command-line/" class="subnavigation__link">Command Line Tooling</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/command-line/" class="subnavigation__link">Command Line Tooling</a>
+        <a href="../how-it-works/" class="subnavigation__link">How it works</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/how-it-works/" class="subnavigation__link">How it works</a>
+        <a href="../considerations/" class="subnavigation__link">Considerations when using Swoole</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/considerations/" class="subnavigation__link">Considerations when using Swoole</a>
-    </li>
-
-                            
-                                
-    <li class="subnavigation__list-item ">
-        <a href="../../v2/migration/" class="subnavigation__link">Migration</a>
+        <a href="../migration/" class="subnavigation__link">Migration</a>
     </li>
 
                             
@@ -586,7 +665,7 @@ by Swoole for the purposes of access logs as well.</p>
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../intro/" class="subnavigation__link">Intro</a>
+        <a href="../../v1/intro/" class="subnavigation__link">Intro</a>
     </li>
 
                             
@@ -597,25 +676,25 @@ by Swoole for the purposes of access logs as well.</p>
             
                 
     <li class="subnavigation__list-item ">
-        <a href="../static-resources/" class="subnavigation__link">Static Resources</a>
-    </li>
-
-            
-                
-    <li class="subnavigation__list-item subnavigation__list-item--active">
-        <a href="./" class="subnavigation__link">Logging</a>
+        <a href="../../v1/static-resources/" class="subnavigation__link">Static Resources</a>
     </li>
 
             
                 
     <li class="subnavigation__list-item ">
-        <a href="../how-it-works/" class="subnavigation__link">How it works</a>
+        <a href="../../v1/logging/" class="subnavigation__link">Logging</a>
     </li>
 
             
                 
     <li class="subnavigation__list-item ">
-        <a href="../considerations/" class="subnavigation__link">Considerations when using Swoole</a>
+        <a href="../../v1/how-it-works/" class="subnavigation__link">How it works</a>
+    </li>
+
+            
+                
+    <li class="subnavigation__list-item ">
+        <a href="../../v1/considerations/" class="subnavigation__link">Considerations when using Swoole</a>
     </li>
 
             

@@ -4,42 +4,76 @@
     
     <url>
      <loc>/</loc>
-     <lastmod>2018-11-14</lastmod>
+     <lastmod>2018-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
 
     
+    <url>
+     <loc>/v2/intro/</loc>
+     <lastmod>2018-11-15</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+        
+    <url>
+     <loc>/v2/static-resources/</loc>
+     <lastmod>2018-11-15</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/v2/logging/</loc>
+     <lastmod>2018-11-15</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/v2/async-tasks/</loc>
+     <lastmod>2018-11-15</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/v2/command-line/</loc>
+     <lastmod>2018-11-15</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/v2/how-it-works/</loc>
+     <lastmod>2018-11-15</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/v2/considerations/</loc>
+     <lastmod>2018-11-15</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/v2/migration/</loc>
+     <lastmod>2018-11-15</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    
+
+    
+        
     <url>
      <loc>/v1/intro/</loc>
-     <lastmod>2018-11-14</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-    
-
-    
-        
-    <url>
-     <loc>/v1/static-resources/</loc>
-     <lastmod>2018-11-14</lastmod>
+     <lastmod>2018-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
-     <loc>/v1/logging/</loc>
-     <lastmod>2018-11-14</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-        
-    <url>
-     <loc>/v1/how-it-works/</loc>
-     <lastmod>2018-11-14</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-        
-    <url>
-     <loc>/v1/considerations/</loc>
-     <lastmod>2018-11-14</lastmod>
+     <loc></loc>
+     <lastmod></lastmod>
      <changefreq>daily</changefreq>
     </url>
         
@@ -49,25 +83,25 @@
         
     <url>
      <loc>/intro/</loc>
-     <lastmod>2018-11-14</lastmod>
+     <lastmod>2018-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/static-resources/</loc>
-     <lastmod>2018-11-14</lastmod>
+     <lastmod>2018-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/logging/</loc>
-     <lastmod>2018-11-14</lastmod>
+     <lastmod>2018-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/how_it_works/</loc>
-     <lastmod>2018-11-14</lastmod>
+     <lastmod>2018-11-15</lastmod>
      <changefreq>daily</changefreq>
     </url>
         

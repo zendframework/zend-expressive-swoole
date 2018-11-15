@@ -9,7 +9,7 @@
     <meta name="description" content="Swoole support for Expressive">  
     <link rel="shortcut icon" href="../../img/favicon.ico">
 
-    <title>Logging - zend-expressive-swoole</title>
+    <title>How it works - zend-expressive-swoole</title>
 
     <link rel="stylesheet" href="../../css/styles-e95dab66f8.css">
 </head>
@@ -75,7 +75,7 @@
             
                 
                     <li class="subnavigation__list-item ">
-                        <a href="../../v2/intro/" class="subnavigation__link">Introduction</a>
+                        <a href="../intro/" class="subnavigation__link">Introduction</a>
                     </li>
                 
             
@@ -86,43 +86,43 @@
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/static-resources/" class="subnavigation__link">Static Resources</a>
+        <a href="../static-resources/" class="subnavigation__link">Static Resources</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/logging/" class="subnavigation__link">Logging</a>
+        <a href="../logging/" class="subnavigation__link">Logging</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/async-tasks/" class="subnavigation__link">Async Tasks</a>
+        <a href="../async-tasks/" class="subnavigation__link">Async Tasks</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/command-line/" class="subnavigation__link">Command Line Tooling</a>
+        <a href="../command-line/" class="subnavigation__link">Command Line Tooling</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item subnavigation__list-item--active">
+        <a href="./" class="subnavigation__link">How it works</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/how-it-works/" class="subnavigation__link">How it works</a>
+        <a href="../considerations/" class="subnavigation__link">Considerations when using Swoole</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/considerations/" class="subnavigation__link">Considerations when using Swoole</a>
-    </li>
-
-                            
-                                
-    <li class="subnavigation__list-item ">
-        <a href="../../v2/migration/" class="subnavigation__link">Migration</a>
+        <a href="../migration/" class="subnavigation__link">Migration</a>
     </li>
 
                             
@@ -137,7 +137,7 @@
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../intro/" class="subnavigation__link">Intro</a>
+        <a href="../../v1/intro/" class="subnavigation__link">Intro</a>
     </li>
 
                             
@@ -148,25 +148,25 @@
             
                 
     <li class="subnavigation__list-item ">
-        <a href="../static-resources/" class="subnavigation__link">Static Resources</a>
-    </li>
-
-            
-                
-    <li class="subnavigation__list-item subnavigation__list-item--active">
-        <a href="./" class="subnavigation__link">Logging</a>
+        <a href="../../v1/static-resources/" class="subnavigation__link">Static Resources</a>
     </li>
 
             
                 
     <li class="subnavigation__list-item ">
-        <a href="../how-it-works/" class="subnavigation__link">How it works</a>
+        <a href="../../v1/logging/" class="subnavigation__link">Logging</a>
     </li>
 
             
                 
     <li class="subnavigation__list-item ">
-        <a href="../considerations/" class="subnavigation__link">Considerations when using Swoole</a>
+        <a href="../../v1/how-it-works/" class="subnavigation__link">How it works</a>
+    </li>
+
+            
+                
+    <li class="subnavigation__list-item ">
+        <a href="../../v1/considerations/" class="subnavigation__link">Considerations when using Swoole</a>
     </li>
 
             
@@ -247,15 +247,11 @@
 
             
                 
-                    <li>v1</li>
-                
-            
-                
                     <li>Reference</li>
                 
             
 
-            <li class="active">Logging</li>
+            <li class="active">How it works</li>
         
     
 </ol>
@@ -271,11 +267,7 @@
             <ul class="toc__list">
                 
                     <li class="toc__entry">
-                        <a href="#access-logs" class="toc__link">Access Logs</a>
-                    </li>
-                
-                    <li class="toc__entry">
-                        <a href="#configuring-a-logger" class="toc__link">Configuring a logger</a>
+                        <a href="#performance" class="toc__link">Performance</a>
                     </li>
                 
             </ul>
@@ -283,185 +275,77 @@
     
 
 
-    <h1 id="logging">Logging</h1>
-<p>Web servers typically log request details, so that you can perform tasks such as
-analytics, identification of invalid requests, and more.</p>
-<p>Out-of-the-box, Swoole does not do this. As such, we provide these capabilities
-with this integration.</p>
-<p>We log a number of items:</p>
-<ul>
-<li>When the web server starts, indicating the host and port on which it is running.</li>
-<li>When workers start, including the working directory and worker ID.</li>
-<li>When the web server stops.</li>
-<li>When the web server reloads workers.</li>
-<li>Each request (more on this below)</li>
-</ul>
-<p>By default, logging is performed to STDOUT, using an internal logger. However,
-you can use any <a href="https://www.php-fig.org/psr/psr-3/">PSR-3 compliant logger</a> to
-log application details. We emit logs detailing server operations using the
-priority <code>Psr\Log\LogLevel::NOTICE</code> (unless detailing an error, such as
-inability to reload)), while <code>Psr\Log\LogLevel::INFO</code> and <code>Psr\Log\LogLevel::ERROR</code>
-are used to log requests (errors are used for response statuses greater than or
-equal to 400).</p>
-<h2 id="access-logs">Access Logs</h2>
-<p>Technically, the <code>SwooleRequestHandlerRunner</code> doesn't use PSR-3 loggers
-directly, but, rather, instances of <code>Zend\Expressive\Swoole\Log\AccessLogInterface</code>.
-This package-specific interface extends the PSR-3 interface to add two methods:</p>
-<pre class="codehilite"><code class="language-php">use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
-use Swoole\Http\Request;
-use Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse;
-
-interface AccessLogInterface extends LoggerInterface
+    <h1 id="how-it-works">How it works</h1>
+<p>When you run an Expressive application using Swoole, you will execute PHP from
+the command line interface, <strong>without using a web server</strong>.</p>
+<p>This sounds a bit strange in PHP, though it will be familiar to <a href="https://nodejs.org">Node.js</a>
+developers; the execution model under Swoole is similar to that technology.</p>
+<p>The HTTP server of Swoole is a PHP class that offers callbacks on a number of events,
+using the <code>on(string $name, callable $action)</code> method.</p>
+<p>The request handler implemented in zend-expressive-swoole is a runner that
+enables the execution of an Expressive application inside the <code>on('request')</code>
+event of <code>Swoole\Http\Server</code>. This runner is implemented in the
+<code>Zend\Expressive\Swoole\SwooleRequestHandlerRunner</code> class.</p>
+<p>The basic implementation acts similar to the following:</p>
+<pre class="codehilite"><code class="language-php">public function run() : void
 {
-    public function logAccessForStaticResource(
-        Request $request,
-        StaticResourceResponse $response
-    ) : void;
+    $this-&gt;swooleHttpServer-&gt;on('start', function ($server) {
+        printf(&quot;Swoole is running at %s:%s\n&quot;, $server-&gt;host, $server-&gt;port);
+    });
 
-    public function logAccessForPsr7Resource(
-        Request $request,
-        ResponseInterface $response
-    ) : void;
+    $this-&gt;swooleHttpServer-&gt;on('request', function ($request, $response) {
+        printf(
+            &quot;%s - %s - %s %s\n&quot;,
+            date('Y-m-d H:i:sO', time()),
+            $request-&gt;server['remote_addr'],
+            $request-&gt;server['request_method'],
+            $request-&gt;server['request_uri']
+        );
+        $emitter = new SwooleEmitter($response);
+        try {
+            $psr7Request = ($this-&gt;serverRequestFactory)($request);
+        } catch (Throwable $e) {
+            // Error in generating the request
+            $this-&gt;emitMarshalServerRequestException($emitter, $e);
+            return;
+        }
+        $emitter-&gt;emit($this-&gt;handler-&gt;handle($psr7Request));
+    });
+
+    $this-&gt;swooleHttpServer-&gt;start();
 }</code></pre>
 
-<p>To allow usage of a standard PSR-3 logger, we also provide a decorator,
-<code>Zend\Expressive\Swoole\Log\Psr3AccessLogDecorator</code>, which decorates the PSR-3
-logger and provides a standard implementation for the two methods listed above.
-If you have defined a PSR-3 <code>LoggerInterface</code> service in your application, it
-will be used automatically.</p>
-<h3 id="formatting-logs">Formatting logs</h3>
-<p>The Apache web server has long provided flexible and robust logging
-capabilities, and its formats are used across a variety of web servers and
-logging platforms. As such, we have chosen to use its formats for our standard
-implementation. However, we allow you to plug in your own system as needed.</p>
-<p>You can refer to the <a href="http://httpd.apache.org/docs/current/mod/mod_log_config.html">Apache mod_log_config documentation</a>
-in order to understand the available placeholders available for format strings.</p>
-<p>Formatting is provided to the <code>Psr3AccessLogDecorator</code> via instances of the
-interface <code>Zend\Expressive\Swoole\Log\AccessLogFormatterInterface</code>:</p>
-<pre class="codehilite"><code class="language-php">interface AccessLogFormatterInterface
-{
-    public function format(AccessLogDataMap $map) : string;
-}</code></pre>
-
-<p><code>AccessLogDataMap</code> is a class used internally by the <code>Psr3AccessLogDecorator</code> in
-order to map Apache log placeholders to request/response values.</p>
-<p>Our default <code>AccessLogFormatterInterface</code> implementation, <code>AccessLogFormatter</code>,
-provides constants referencing the most common formats, but also allows you to
-use arbitrary log formats that use the standard Apache placeholders. The formats
-we include by default are:</p>
-<ul>
-<li><code>AccessLogFormatter::FORMAT_COMMON</code>: Apache common log format: <code>%h %l %u %t "%r" %&gt;s %b</code></li>
-<li><code>AccessLogFormatter::FORMAT_COMMON_VHOST</code>: Apache common log format + vhost: <code>%v %h %l %u %t "%r" %&gt;s %b</code></li>
-<li><code>AccessLogFormatter::FORMAT_COMBINED</code>: Apache combined log format: <code>%h %l %u %t "%r" %&gt;s %b "%{Referer}i" "%{User-Agent}i"</code></li>
-<li><code>AccessLogFormatter::FORMAT_REFERER</code>: <code>%{Referer}i -&gt; %U</code></li>
-<li><code>AccessLogFormatter::FORMAT_AGENT</code>: <code>%{User-Agent}i</code></li>
-<li><code>AccessLogFormatter::FORMAT_VHOST</code>: Alternative Apache vhost format: '%v %l %u %t "%r" %&gt;s %b';</li>
-<li><code>AccessLogFormatter::FORMAT_COMMON_DEBIAN</code>: Debian variant of common log format: <code>%h %l %u %t “%r” %&gt;s %O</code>;</li>
-<li><code>AccessLogFormatter::FORMAT_COMBINED_DEBIAN</code>: Debian variant of combined log format: <code>%h %l %u %t “%r” %&gt;s %O “%{Referer}i” “%{User-Agent}i”</code>;</li>
-<li><code>AccessLogFormatter::FORMAT_VHOST_COMBINED_DEBIAN</code>: Debian variant of combined log format + vhost: <code>%v:%p %h %l %u %t “%r” %&gt;s %O “%{Referer}i” “%{User-Agent}i"</code>;</li>
-</ul>
-<h2 id="configuring-a-logger">Configuring a logger</h2>
-<p>You may subsitute your own logger implementation into the Swoole request handler
-runner.</p>
-<h3 id="manual-usage">Manual usage</h3>
-<p>If you are manually instantiating a <code>Zend\Expressive\Swoole\SwooleRequestHandlerRunner</code>
-instance, you may provide it as the seventh argument to the constructor:</p>
-<pre class="codehilite"><code class="language-php">use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
-
-$runner = new SwooleRequestHandlerRunner(
-    $application,
-    $serverRequestFactory,
-    $serverRequestErrorResponseGenerator,
-    $pidManager,
-    $serverFactory,
-    $staticResourceHandler,
-    $logger // &lt;-- AccessLoggerInterface instance
-);</code></pre>
-
-<h3 id="container-usage">Container usage</h3>
-<p>If you are using a <a href="https://www.php-fig.org/psr/psr-11/">PSR-11</a> container, the
-<code>SwooleRequestHandlerRunnerFactory</code> will retrieve a log instance using the
-<code>Zend\Expressive\Swoole\Log\AccessLogInterface</code> service.</p>
-<p>You have two options for substituting your own logger from there.</p>
-<p>First, you can create your own factory that produces an <code>AccessLogInterface</code>
-instance, and map it to the service. This is the best route if you want to write
-your own implementation, or want to use a different PSR-3 logger service.</p>
-<p>If you are okay with re-using your existing PSR-3 logger, the provided
-<code>Zend\Expressive\Swoole\Log\AccessLogFactory</code> will use the
-<code>Psr\Log\LoggerInterface</code> service to create a <code>Psr3AccessLogDecorator</code> instance.</p>
-<p>This factory also allows you to specify a custom <code>AccessLogFormatterInterface</code>
-instance if you want. It will look up a service by the fully-qualified interface
-name, and use it if present. Otherwise, it creates an <code>AccessLogFormatter</code>
-instance for you.</p>
-<p>The factory will also look at the following configuration values:</p>
-<pre class="codehilite"><code class="language-php">'zend-expressive-swoole' =&gt; [
-    'swoole-http-server' =&gt; [
-        'logger' =&gt; [
-            'format' =&gt; string, // one of the AccessLogFormatter::FORMAT_*
-                                // constants, or a custom format string
-            'use-hostname-lookups' =&gt; bool, // Set to true to enable hostname lookups
-        ],
-    ],
-],</code></pre>
-
-<h3 id="using-monolog-as-a-psr-3-logger">Using Monolog as a PSR-3 logger</h3>
-<p>When using <a href="https://seldaek.github.io/monolog/">Monolog</a> with a <code>StreamHandler</code>,
-you must supply a file or a stream resource descriptor. We recommend using one
-of the following:</p>
-<ul>
-<li>
-<p><code>php://stdout</code> is a good choice, as this will generally write to the current
-  console.</p>
-</li>
-<li>
-<p><code>php://stderr</code> is also a good choice, as this will generally write to the
-  current console, and allows you to filter based on that output stream.</p>
-</li>
-<li>
-<p>When using <a href="https://www.docker.com/">Docker</a>, generally one of either
-  <code>/proc/1/fd/1</code> or <code>/proc/1/fd/2</code> can be used, and are analogous to <code>STDOUT</code>
-  and <code>STDERR</code>, respectively.  We recommend using <code>php://stdout</code> and
-  <code>php://stderr</code> instead, as these will be mapped to the correct locations by
-  the language.</p>
-</li>
-</ul>
-<blockquote>
-<h3 id="errorloghandler">ErrorLogHandler</h3>
-<p>If you plan to write to <code>STDERR</code>, you might consider instead using the
-Monolog <code>ErrorLogHandler</code>, as this will use PHP's <code>error_log()</code> mechanism to
-write to the configured PHP error log. You can then either introspect that
-location, or configure the <code>error_log</code> <code>php.ini</code> setting to point to
-either <code>/dev/stderr</code> or, if on Docker, <code>/proc/1/fd/2</code>.</p>
-</blockquote>
-<p>Additionally, we recommend using the <code>PsrLogMessageProcessor</code> with any Monolog
-handler to ensure that any templated parameters are expanded by the logger.</p>
-<p>As an example, the following is a factory that wires a <code>StreamHandler</code> to a
-<code>Monolog\Logger</code> instance. </p>
-<pre class="codehilite"><code class="language-php">use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
-use Monolog\Handler\StreamHandler;
-use Monolog\Logger;
-use Monolog\Processor\PsrLogMessageProcessor;
-
-class LoggerFactory
-{
-    public function __invoke(ContainerInterface $container) : LoggerInterface
-    {
-        $logger = new Logger('swoole-http-server');
-        $logger-&gt;pushHandler(new StreamHandler(
-            'php://stdout',
-            Logger::INFO,
-            $bubble = true,
-            $expandNewLines = true
-        ));
-        $logger-&gt;pushProcessor(new PsrLogMessageProcessor());
-        return $logger;
-    }
-}</code></pre>
-
-<p>If you then wire this to the <code>Psr\Log\LoggerInterface</code> service, it will be used
-by Swoole for the purposes of access logs as well.</p>
+<p>This package provides a bridge between <code>Swoole\Http\Request</code> (<code>$request</code>) and
+<a href="https://www.php-fig.org/psr/psr-7/">PSR-7</a> requests (<code>$psr7Request</code>;
+specifically as implemented by <a href="https://docs.zendframework.com/zend-diactoros">zend-diactoros</a>)
+via the class <code>Zend\Expressive\Swoole\ServerRequestSwooleFactory</code>.</p>
+<p>It also provides a Swoole-specific emitter, <code>Zend\Expressive\Swoole\SwooleEmitter</code>,
+that converts a PSR-7 response to a <code>Swoole\Http\Response</code> instance.</p>
+<p>When you run an Expressive application using zend-expressive-swoole, you will
+notice a bunch of PHP processes running. By default, Swoole executes 4 <em>worker</em>
+(or <em>reactor</em>) processes and 1 <em>master</em> process, for a total of 5 PHP processes.</p>
+<p><img alt="Swoole processes" src="../../images/diagram_swoole.png" class="img-responsive"/></p>
+<p>The advantages of this architecture are many: it's very light and simple (just
+PHP processes running); it offers a service layer that is able to restart a
+worker automatically if it's not responding; and it allows executing multiple
+HTTP requests in parallel. The architecture is built for scaling.</p>
+<h2 id="performance">Performance</h2>
+<p>The ZF developers performed a benchmark running the default <a href="https://github.com/zendframework/zend-expressive-skeleton">zend-expressive-skeleton</a>
+application with Swoole 4.0.1, nginx 1.12.1, and Apache 2.4.27 (with mod_php)
+using PHP 7.2.7.</p>
+<p>The results demonstrated that <strong>Expressive with Swoole runs 4 to 5 times faster
+than nginx or Apache</strong>.</p>
+<p>This impressive result is primarily due to the shared memory approach of Swoole.
+Unlike traditional apache/php-fpm usage, the memory allocated in Swoole will not
+be freed after a request. This allows application configuration and artifacts
+(such as middleware and handlers) to persist between requests and processes.</p>
+<p>Under Swoole 4.1+, for even better performance, you can enable the option
+<code>zend-expressive-swoole.enable_coroutine</code>. When this
+is enabled, Swoole will run most I/O processes in coroutines. Doing so provides
+approximately <strong>10 times faster performance</strong> than without coroutines, meaning a
+Swoole-based application can be 40 to 50 times faster than running under nginx
+or Apache. Performance improves with the number of workers (which are restricted
+by the amount of memory); as such, performance can increase from these numbers.</p>
 
 
 
@@ -471,7 +355,7 @@ by Swoole for the purposes of access logs as well.</p>
         
         <li class="page-nav__item">
             
-                <a rel="prev" class="page-nav__link page-nav__link--prev" href="../static-resources/">
+                <a rel="prev" class="page-nav__link page-nav__link--prev" href="../command-line/">
                     <i class="fa fa-chevron-left"></i> Previous
                 </a>
             
@@ -480,7 +364,7 @@ by Swoole for the purposes of access logs as well.</p>
         
         <li class="page-nav__item">
             
-                <a rel="next" class="page-nav__link page-nav__link--next" href="../how-it-works/">
+                <a rel="next" class="page-nav__link page-nav__link--next" href="../considerations/">
                     Next <i class="fa fa-chevron-right"></i>
                 </a>
             
@@ -493,7 +377,7 @@ by Swoole for the purposes of access logs as well.</p>
     <div class="help-wanted">
         <p>
             Found a mistake or want to contribute to the documentation?
-            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/book/v1/logging.md" target="_blank" class="help-wanted__link">
+            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/book/v2/how-it-works.md" target="_blank" class="help-wanted__link">
                 Edit this page on GitHub!
             </a>
         </p>
@@ -524,7 +408,7 @@ by Swoole for the purposes of access logs as well.</p>
             
                 
                     <li class="subnavigation__list-item ">
-                        <a href="../../v2/intro/" class="subnavigation__link">Introduction</a>
+                        <a href="../intro/" class="subnavigation__link">Introduction</a>
                     </li>
                 
             
@@ -535,43 +419,43 @@ by Swoole for the purposes of access logs as well.</p>
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/static-resources/" class="subnavigation__link">Static Resources</a>
+        <a href="../static-resources/" class="subnavigation__link">Static Resources</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/logging/" class="subnavigation__link">Logging</a>
+        <a href="../logging/" class="subnavigation__link">Logging</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/async-tasks/" class="subnavigation__link">Async Tasks</a>
+        <a href="../async-tasks/" class="subnavigation__link">Async Tasks</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/command-line/" class="subnavigation__link">Command Line Tooling</a>
+        <a href="../command-line/" class="subnavigation__link">Command Line Tooling</a>
+    </li>
+
+                            
+                                
+    <li class="subnavigation__list-item subnavigation__list-item--active">
+        <a href="./" class="subnavigation__link">How it works</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/how-it-works/" class="subnavigation__link">How it works</a>
+        <a href="../considerations/" class="subnavigation__link">Considerations when using Swoole</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/considerations/" class="subnavigation__link">Considerations when using Swoole</a>
-    </li>
-
-                            
-                                
-    <li class="subnavigation__list-item ">
-        <a href="../../v2/migration/" class="subnavigation__link">Migration</a>
+        <a href="../migration/" class="subnavigation__link">Migration</a>
     </li>
 
                             
@@ -586,7 +470,7 @@ by Swoole for the purposes of access logs as well.</p>
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../intro/" class="subnavigation__link">Intro</a>
+        <a href="../../v1/intro/" class="subnavigation__link">Intro</a>
     </li>
 
                             
@@ -597,25 +481,25 @@ by Swoole for the purposes of access logs as well.</p>
             
                 
     <li class="subnavigation__list-item ">
-        <a href="../static-resources/" class="subnavigation__link">Static Resources</a>
-    </li>
-
-            
-                
-    <li class="subnavigation__list-item subnavigation__list-item--active">
-        <a href="./" class="subnavigation__link">Logging</a>
+        <a href="../../v1/static-resources/" class="subnavigation__link">Static Resources</a>
     </li>
 
             
                 
     <li class="subnavigation__list-item ">
-        <a href="../how-it-works/" class="subnavigation__link">How it works</a>
+        <a href="../../v1/logging/" class="subnavigation__link">Logging</a>
     </li>
 
             
                 
     <li class="subnavigation__list-item ">
-        <a href="../considerations/" class="subnavigation__link">Considerations when using Swoole</a>
+        <a href="../../v1/how-it-works/" class="subnavigation__link">How it works</a>
+    </li>
+
+            
+                
+    <li class="subnavigation__list-item ">
+        <a href="../../v1/considerations/" class="subnavigation__link">Considerations when using Swoole</a>
     </li>
 
             
