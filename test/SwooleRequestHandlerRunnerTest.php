@@ -106,8 +106,9 @@ class SwooleRequestHandlerRunnerTest extends TestCase
         // - start
         // - workerstart
         // - request
+        // - shutdown
         $this->httpServer
-            ->expects($this->exactly(3))
+            ->expects($this->exactly(4))
             ->method('on');
 
         $requestHandler->run();
