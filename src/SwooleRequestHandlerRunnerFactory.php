@@ -19,9 +19,6 @@ class SwooleRequestHandlerRunnerFactory
 {
     public function __invoke(ContainerInterface $container) : SwooleRequestHandlerRunner
     {
-        $staticResourceHandler = $container->has(StaticResourceHandlerInterface::class)
-            ? $container->get(StaticResourceHandlerInterface::class)
-            : null;
         $logger = $container->has(Log\AccessLogInterface::class)
             ? $container->get(Log\AccessLogInterface::class)
             : null;
@@ -32,8 +29,18 @@ class SwooleRequestHandlerRunnerFactory
             $container->get(ServerRequestErrorResponseGenerator::class),
             $container->get(PidManager::class),
             $container->get(SwooleHttpServer::class),
-            $staticResourceHandler,
+            $this->retrieveStaticResourceHandler($container),
             $logger
         );
+    }
+
+    private function retrieveStaticResourceHandler(ContainerInterface $container) :? StaticResourceHandlerInterface
+    {
+        $config = $container->get('config')['zend-expressive-swoole']['swoole-http-server']['static-files'];
+        $enabled = isset($config['enable']) && true === $config['enable'];
+        if ($enabled && $container->has(StaticResourceHandlerInterface::class)) {
+            return $container->get(StaticResourceHandlerInterface::class);
+        }
+        return null;
     }
 }
