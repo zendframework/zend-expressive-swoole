@@ -40,6 +40,9 @@ class ConfigProvider
                     // and set a production value to match.
                     'max_conn' => 1024,
                 ],
+                'static-files' => [
+                    'enable' => true,
+                ],
             ],
         ];
     }
@@ -56,11 +59,12 @@ class ConfigProvider
                 PidManager::class                     => PidManagerFactory::class,
                 SwooleRequestHandlerRunner::class     => SwooleRequestHandlerRunnerFactory::class,
                 ServerRequestInterface::class         => ServerRequestSwooleFactory::class,
-                StaticResourceHandlerInterface::class => StaticResourceHandlerFactory::class,
+                StaticResourceHandler::class          => StaticResourceHandlerFactory::class,
                 SwooleHttpServer::class               => HttpServerFactory::class,
             ],
             'aliases' => [
                 RequestHandlerRunner::class           => SwooleRequestHandlerRunner::class,
+                StaticResourceHandlerInterface::class => StaticResourceHandler::class,
             ],
             'delegators' => [
                 'Zend\Expressive\WhoopsPageHandler' => [
