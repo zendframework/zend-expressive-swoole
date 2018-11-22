@@ -74,6 +74,18 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
         $this->container
             ->get(StaticResourceHandlerInterface::class)
             ->shouldNotBeCalled();
+
+        $this->container
+            ->get('config')
+            ->willReturn([
+                'zend-expressive-swoole' => [
+                    'swoole-http-server' => [
+                        'static-files' => [
+
+                        ],
+                    ],
+                ],
+            ]);
     }
 
     public function configureAbsentLoggerService()
@@ -123,6 +135,17 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
         $this->container
             ->get(StaticResourceHandlerInterface::class)
             ->will([$this->staticResourceHandler, 'reveal']);
+        $this->container
+            ->get('config')
+            ->willReturn([
+                'zend-expressive-swoole' => [
+                    'swoole-http-server' => [
+                        'static-files' => [
+                            'enable' => true,
+                        ],
+                    ],
+                ],
+            ]);
 
         $factory = new SwooleRequestHandlerRunnerFactory();
         $runner = $factory($this->container->reveal());
