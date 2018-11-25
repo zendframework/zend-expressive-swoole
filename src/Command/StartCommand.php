@@ -19,6 +19,8 @@ use Zend\Expressive\Application;
 use Zend\Expressive\MiddlewareFactory;
 use Zend\Expressive\Swoole\PidManager;
 
+use function file_exists;
+
 class StartCommand extends Command
 {
     use IsRunningTrait;
@@ -33,6 +35,11 @@ server runs in the current process.
 Use --num-workers to control how many worker processes to start. If you
 do not provide the option, 4 workers will be started.
 EOH;
+
+    private const PROGRAMMATIC_CONFIG_FILES = [
+        'config/pipeline.php',
+        'config/routes.php',
+    ];
 
     /**
      * @var ContainerInterface
@@ -93,9 +100,12 @@ EOH;
         $factory = $this->container->get(MiddlewareFactory::class);
 
         // Execute programmatic/declarative middleware pipeline and routing
-        // configuration statements
-        (require 'config/pipeline.php')($app, $factory, $this->container);
-        (require 'config/routes.php')($app, $factory, $this->container);
+        // configuration statements, if they exist
+        foreach (self::PROGRAMMATIC_CONFIG_FILES as $configFile) {
+            if (file_exists($configFile)) {
+                (require $configFile)($app, $factory, $this->container);
+            }
+        }
 
         // Run the application
         $app->run();

@@ -274,4 +274,31 @@ class StartCommandTest extends TestCase
             ->writeln(Argument::containingString('Server is already running'))
             ->shouldNotHaveBeenCalled();
     }
+
+    public function testExecutionDoesNotFailEvenIfProgrammaticConfigFilesDoNotExist()
+    {
+        set_include_path($this->originalIncludePath);
+
+        $this->pidManager->read()->willReturn([]);
+        $this->pushServiceToContainer(PidManager::class, $this->pidManager);
+
+        $httpServer = $this->prophesize(TestAsset\HttpServer::class);
+        $this->pushServiceToContainer(SwooleHttpServer::class, $httpServer);
+
+        $middlewareFactory = $this->prophesize(MiddlewareFactory::class);
+        $this->pushServiceToContainer(MiddlewareFactory::class, $middlewareFactory);
+
+        $application = $this->prophesize(Application::class);
+        $this->pushServiceToContainer(Application::class, $application);
+
+        $command = new StartCommand($this->container->reveal());
+
+        $execute = $this->reflectMethod($command, 'execute');
+
+        $this->assertSame(0, $execute->invoke(
+            $command,
+            $this->input->reveal(),
+            $this->output->reveal()
+        ));
+    }
 }
