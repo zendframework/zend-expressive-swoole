@@ -15,16 +15,10 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Swoole\Http\Request as SwooleHttpRequest;
 use Swoole\Http\Response as SwooleHttpResponse;
 use Swoole\Http\Server as SwooleHttpServer;
-use Swoole\Process as SwooleProcess;
 use Throwable;
 use Zend\Expressive\Swoole\Exception;
 use Zend\HttpHandlerRunner\Emitter\EmitterInterface;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
-
-use function date;
-use function microtime;
-use function time;
-use function usleep;
 use function swoole_set_process_name;
 use const PHP_OS;
 
