@@ -97,10 +97,22 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
             ->shouldNotBeCalled();
     }
 
+    public function configureAbsentConfiguration() : void
+    {
+        $this->container
+            ->has('config')
+            ->willReturn(false);
+
+        $this->container
+            ->get('config')
+            ->shouldNotBeCalled();
+    }
+
     public function testInvocationWithoutOptionalServicesConfiguresInstanceWithDefaults()
     {
         $this->configureAbsentStaticResourceHandler();
         $this->configureAbsentLoggerService();
+        $this->configureAbsentConfiguration();
         $factory = new SwooleRequestHandlerRunnerFactory();
         $runner = $factory($this->container->reveal());
         $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $runner);
@@ -111,6 +123,7 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
     public function testFactoryWillUseConfiguredPsr3LoggerWhenPresent()
     {
         $this->configureAbsentStaticResourceHandler();
+        $this->configureAbsentConfiguration();
         $this->container
             ->has(AccessLogInterface::class)
             ->willReturn(true);
@@ -127,6 +140,7 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
     public function testFactoryWillUseConfiguredStaticResourceHandlerWhenPresent()
     {
         $this->configureAbsentLoggerService();
+        $this->configureAbsentConfiguration();
         $this->container
             ->has(StaticResourceHandlerInterface::class)
             ->willReturn(true);

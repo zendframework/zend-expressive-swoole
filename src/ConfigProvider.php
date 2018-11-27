@@ -31,6 +31,11 @@ class ConfigProvider
     {
         return [
             'swoole-http-server' => [
+                // A prefix for the process name of the master process and workers.
+                // By default the master process will be named `expressive-master`,
+                // each http worker `expressive-worker-n` and each task worker
+                // `expressive-task-worker-n` where n is the id of the worker
+                'process-name' => 'expressive',
                 'options' => [
                     // We set a default for this. Without one, Swoole\Http\Server
                     // defaults to the value of `ulimit -n`. Unfortunately, in

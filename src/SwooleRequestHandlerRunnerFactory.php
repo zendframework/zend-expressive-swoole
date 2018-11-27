@@ -23,24 +23,29 @@ class SwooleRequestHandlerRunnerFactory
             ? $container->get(Log\AccessLogInterface::class)
             : null;
 
+        $config = $container->has('config')
+            ? $container->get('config')['zend-expressive-swoole']['swoole-http-server']
+            : [];
+
         return new SwooleRequestHandlerRunner(
             $container->get(ApplicationPipeline::class),
             $container->get(ServerRequestInterface::class),
             $container->get(ServerRequestErrorResponseGenerator::class),
             $container->get(PidManager::class),
             $container->get(SwooleHttpServer::class),
-            $this->retrieveStaticResourceHandler($container),
-            $logger
+            $this->retrieveStaticResourceHandler($container, $config),
+            $logger,
+            $config['process-name'] ?? SwooleRequestHandlerRunner::DEFAULT_PROCESS_NAME
         );
     }
 
-    private function retrieveStaticResourceHandler(ContainerInterface $container) :? StaticResourceHandlerInterface
+    private function retrieveStaticResourceHandler(ContainerInterface $container, array $config) : ?StaticResourceHandlerInterface
     {
-        $config = $container->get('config')['zend-expressive-swoole']['swoole-http-server']['static-files'];
+        $config = $config['static-files'] ?? [];
         $enabled = isset($config['enable']) && true === $config['enable'];
-        if ($enabled && $container->has(StaticResourceHandlerInterface::class)) {
-            return $container->get(StaticResourceHandlerInterface::class);
-        }
-        return null;
+
+        return $enabled && $container->has(StaticResourceHandlerInterface::class)
+            ? $container->get(StaticResourceHandlerInterface::class)
+            : null;
     }
 }

@@ -25,6 +25,8 @@ use function date;
 use function microtime;
 use function time;
 use function usleep;
+use function swoole_set_process_name;
+use const PHP_OS;
 
 /**
  * "Run" a request handler using Swoole.
@@ -39,6 +41,11 @@ use function usleep;
  */
 class SwooleRequestHandlerRunner extends RequestHandlerRunner
 {
+    /**
+     * Default Process Name
+     */
+    public const DEFAULT_PROCESS_NAME = 'expressive';
+
     /**
      * Keep CWD in daemon mode.
      *
@@ -97,6 +104,11 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
      */
     private $staticResourceHandler;
 
+    /**
+     * @var string
+     */
+    private $processName;
+
     public function __construct(
         RequestHandlerInterface $handler,
         callable $serverRequestFactory,
@@ -104,7 +116,8 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
         PidManager $pidManager,
         SwooleHttpServer $httpServer,
         StaticResourceHandlerInterface $staticResourceHandler = null,
-        Log\AccessLogInterface $logger = null
+        Log\AccessLogInterface $logger = null,
+        string $processName = self::DEFAULT_PROCESS_NAME
     ) {
         $this->handler = $handler;
 
@@ -129,6 +142,7 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
             new Log\StdoutLogger(),
             new Log\AccessLogFormatter()
         );
+        $this->processName = $processName;
         $this->cwd = getcwd();
     }
 
@@ -160,6 +174,7 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
 
         // Reset CWD
         chdir($this->cwd);
+        $this->setProcessName(sprintf('%s-master', $this->processName));
 
         $this->logger->notice('Swoole is running at {host}:{port}, in {cwd}', [
             'host' => $server->host,
@@ -177,6 +192,11 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
     {
         // Reset CWD
         chdir($this->cwd);
+        if ($workerId >= $server->setting['worker_num']) {
+            $this->setProcessName(sprintf('%s-task-worker-%d', $this->processName, $workerId));
+        } else {
+            $this->setProcessName(sprintf('%s-worker-%d', $this->processName, $workerId));
+        }
 
         $this->logger->notice('Worker started in {cwd} with ID {pid}', [
             'cwd' => getcwd(),
@@ -235,5 +255,17 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
         $psr7Response = ($this->serverRequestErrorResponseGenerator)($exception);
         $emitter->emit($psr7Response);
         $this->logger->logAccessForPsr7Resource($request, $psr7Response);
+    }
+
+    /**
+     * Set the process name, only if the current OS supports the operation
+     * @param string $name
+     */
+    private function setProcessName(string $name) : void
+    {
+        if (PHP_OS === 'Darwin') {
+            return;
+        }
+        swoole_set_process_name($name);
     }
 }
