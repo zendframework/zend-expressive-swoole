@@ -144,6 +144,7 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
         $this->httpServer->on('start', [$this, 'onStart']);
         $this->httpServer->on('workerstart', [$this, 'onWorkerStart']);
         $this->httpServer->on('request', [$this, 'onRequest']);
+        $this->httpServer->on('shutdown', [$this, 'onShutdown']);
         $this->httpServer->start();
     }
 
@@ -212,6 +213,15 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
         $psr7Response = $this->handler->handle($psr7Request);
         $emitter->emit($psr7Response);
         $this->logger->logAccessForPsr7Resource($request, $psr7Response);
+    }
+
+     /**
+     * Handle the shutting down of the server
+     */
+    public function onShutdown(SwooleHttpServer $server) : void
+    {
+        $this->pidManager->delete();
+        $this->logger->notice('Swoole HTTP has been terminated.');
     }
 
     /**

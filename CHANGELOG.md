@@ -22,7 +22,8 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#48](https://github.com/zendframework/zend-expressive-swoole/pull/48) adds a `shutdown` handler to the Swoole HTTP server that clears the PID
+  manager, ensuring the PID file is cleared.
 
 ## 2.0.0 - 2018-11-15
 
