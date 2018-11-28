@@ -112,6 +112,12 @@ return [
                 // enabled by default, and generally should not be disabled:
                 'enable_coroutine' => true,
             ],
+
+            // Since 2.1.0: Set the process name prefix.
+            // The master process will be named `{prefix}-master`,
+            // worker processes will be named `{prefix}-worker-{id}`,
+            // and task worker processes will be named `{prefix}-task-worker-{id}`
+            'process-name' => 'your-app',
         ],
     ],
 ];
