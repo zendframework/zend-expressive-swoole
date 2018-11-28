@@ -80,9 +80,7 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
             ->willReturn([
                 'zend-expressive-swoole' => [
                     'swoole-http-server' => [
-                        'static-files' => [
-
-                        ],
+                        'static-files' => [],
                     ],
                 ],
             ]);
@@ -151,5 +149,33 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
         $runner = $factory($this->container->reveal());
         $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $runner);
         $this->assertAttributeSame($this->staticResourceHandler->reveal(), 'staticResourceHandler', $runner);
+    }
+
+    public function testFactoryWillIgnoreConfiguredStaticResourceHandlerWhenStaticFilesAreDisabled()
+    {
+        $this->configureAbsentLoggerService();
+        $this->container
+            ->has(StaticResourceHandlerInterface::class)
+            ->willReturn(true);
+        $this->container
+            ->get('config')
+            ->willReturn([
+                'zend-expressive-swoole' => [
+                    'swoole-http-server' => [
+                        'static-files' => [
+                            'enable' => false, // Disabling static files
+                        ],
+                    ],
+                ],
+            ]);
+
+        $factory = new SwooleRequestHandlerRunnerFactory();
+        $runner = $factory($this->container->reveal());
+
+        $this->container
+            ->get(StaticResourceHandlerInterface::class)
+            ->shouldNotHaveBeenCalled();
+        $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $runner);
+        $this->assertAttributeEmpty('staticResourceHandler', $runner);
     }
 }
