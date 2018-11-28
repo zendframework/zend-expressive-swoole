@@ -47,6 +47,11 @@ All notable changes to this project will be documented in this file, in reverse 
 - [#48](https://github.com/zendframework/zend-expressive-swoole/pull/48) adds a `shutdown` handler to the Swoole HTTP server that clears the PID
   manager, ensuring the PID file is cleared.
 
+- [#52](https://github.com/zendframework/zend-expressive-swoole/pull/52) fixes an error thrown by the `start` command when using this component in
+  configuration-driven expressive applications, due to the fact that the command
+  always tried to require the `config/pipeline.php` and `config/routes.php`
+  files.
+
 ## 2.0.0 - 2018-11-15
 
 ### Added

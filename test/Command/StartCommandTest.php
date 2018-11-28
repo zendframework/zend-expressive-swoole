@@ -240,19 +240,7 @@ class StartCommandTest extends TestCase
         $this->input->getOption('daemonize')->willReturn(false);
         $this->input->getOption('num-workers')->willReturn(null);
 
-        $this->pidManager->read()->willReturn($pids);
-        $this->pushServiceToContainer(PidManager::class, $this->pidManager);
-
-        $httpServer = $this->prophesize(TestAsset\HttpServer::class);
-        $this->pushServiceToContainer(SwooleHttpServer::class, $httpServer);
-
-        $middlewareFactory = $this->prophesize(MiddlewareFactory::class);
-        $this->pushServiceToContainer(MiddlewareFactory::class, $middlewareFactory);
-
-        $application = $this->prophesize(Application::class);
-        $this->pushServiceToContainer(Application::class, $application);
-
-        $command = new StartCommand($this->container->reveal());
+        [$command, $httpServer, $application] = $this->prepareSuccessfulStartCommand($pids);
 
         $execute = $this->reflectMethod($command, 'execute');
 
@@ -273,5 +261,39 @@ class StartCommandTest extends TestCase
         $this->output
             ->writeln(Argument::containingString('Server is already running'))
             ->shouldNotHaveBeenCalled();
+    }
+
+    public function testExecutionDoesNotFailEvenIfProgrammaticConfigFilesDoNotExist()
+    {
+        set_include_path($this->originalIncludePath);
+
+        [$command] = $this->prepareSuccessfulStartCommand([]);
+
+        $execute = $this->reflectMethod($command, 'execute');
+
+        $this->assertSame(0, $execute->invoke(
+            $command,
+            $this->input->reveal(),
+            $this->output->reveal()
+        ));
+    }
+
+    private function prepareSuccessfulStartCommand(array $pids) : array
+    {
+        $this->pidManager->read()->willReturn($pids);
+        $this->pushServiceToContainer(PidManager::class, $this->pidManager);
+
+        $httpServer = $this->prophesize(TestAsset\HttpServer::class);
+        $this->pushServiceToContainer(SwooleHttpServer::class, $httpServer);
+
+        $middlewareFactory = $this->prophesize(MiddlewareFactory::class);
+        $this->pushServiceToContainer(MiddlewareFactory::class, $middlewareFactory);
+
+        $application = $this->prophesize(Application::class);
+        $this->pushServiceToContainer(Application::class, $application);
+
+        $command = new StartCommand($this->container->reveal());
+
+        return [$command, $httpServer, $application];
     }
 }
