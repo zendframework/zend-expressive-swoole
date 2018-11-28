@@ -19,7 +19,12 @@ use Throwable;
 use Zend\Expressive\Swoole\Exception;
 use Zend\HttpHandlerRunner\Emitter\EmitterInterface;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
+
+use function chdir;
+use function getcwd;
+use function sprintf;
 use function swoole_set_process_name;
+
 use const PHP_OS;
 
 /**
@@ -186,11 +191,11 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
     {
         // Reset CWD
         chdir($this->cwd);
-        if ($workerId >= $server->setting['worker_num']) {
-            $this->setProcessName(sprintf('%s-task-worker-%d', $this->processName, $workerId));
-        } else {
-            $this->setProcessName(sprintf('%s-worker-%d', $this->processName, $workerId));
-        }
+
+        $processName = $workerId >= $server->setting['worker_num']
+            ? sprintf('%s-task-worker-%d', $this->processName, $workerId)
+            : sprintf('%s-worker-%d', $this->processName, $workerId);
+        $this->setProcessName($processName);
 
         $this->logger->notice('Worker started in {cwd} with ID {pid}', [
             'cwd' => getcwd(),
@@ -229,7 +234,7 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
         $this->logger->logAccessForPsr7Resource($request, $psr7Response);
     }
 
-     /**
+    /**
      * Handle the shutting down of the server
      */
     public function onShutdown(SwooleHttpServer $server) : void
@@ -253,6 +258,7 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
 
     /**
      * Set the process name, only if the current OS supports the operation
+     *
      * @param string $name
      */
     private function setProcessName(string $name) : void
