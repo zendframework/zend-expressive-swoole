@@ -39,8 +39,10 @@ class SwooleRequestHandlerRunnerFactory
         );
     }
 
-    private function retrieveStaticResourceHandler(ContainerInterface $container, array $config) : ?StaticResourceHandlerInterface
-    {
+    private function retrieveStaticResourceHandler(
+        ContainerInterface $container,
+        array $config
+    ) : ?StaticResourceHandlerInterface {
         $config = $config['static-files'] ?? [];
         $enabled = isset($config['enable']) && true === $config['enable'];
 
