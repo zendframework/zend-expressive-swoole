@@ -163,6 +163,8 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
         $runner = $factory($this->container->reveal());
         $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $runner);
         $this->assertAttributeSame($this->staticResourceHandler->reveal(), 'staticResourceHandler', $runner);
+
+        return $runner;
     }
 
     public function testFactoryWillIgnoreConfiguredStaticResourceHandlerWhenStaticFilesAreDisabled()
@@ -192,5 +194,37 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
             ->shouldNotHaveBeenCalled();
         $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $runner);
         $this->assertAttributeEmpty('staticResourceHandler', $runner);
+    }
+
+    /**
+     * @depends testFactoryWillUseConfiguredStaticResourceHandlerWhenPresent
+     */
+    public function testFactoryUsesDefaultProcessNameIfNoneProvidedInConfiguration(SwooleRequestHandlerRunner $runner)
+    {
+        $this->assertAttributeSame(SwooleRequestHandlerRunner::DEFAULT_PROCESS_NAME, 'processName', $runner);
+    }
+
+    public function testFactoryUsesConfiguredProcessNameWhenPresent()
+    {
+        $this->configureAbsentLoggerService();
+        $this->container
+            ->has(StaticResourceHandlerInterface::class)
+            ->willReturn(false);
+        $this->container->has('config')->willReturn(true);
+        $this->container
+            ->get('config')
+            ->willReturn([
+                'zend-expressive-swoole' => [
+                    'swoole-http-server' => [
+                        'process-name' => 'zend-expressive-swoole-test',
+                    ],
+                ],
+            ]);
+
+        $factory = new SwooleRequestHandlerRunnerFactory();
+        $runner = $factory($this->container->reveal());
+
+        $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $runner);
+        $this->assertAttributeSame('zend-expressive-swoole-test', 'processName', $runner);
     }
 }
