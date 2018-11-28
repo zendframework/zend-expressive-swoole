@@ -6,7 +6,21 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Added
 
-- Nothing.
+- [#50](https://github.com/zendframework/zend-expressive-swoole/pull/50) adds a new configuration flag for toggling serving of static files:
+  `zend-expressive-swoole.swoole-http-server.static-files.enable`. The flag is
+  enabled by default; set it to boolean `false` to disable static file serving:
+
+  ```php
+  return [
+      'zend-expressive-swoole' => [
+          'swoole-http-server' => [
+              'static-files' => [
+                  'enable' => false,
+              ],
+          ],
+      ],
+  ];
+  ```
 
 ### Changed
 
