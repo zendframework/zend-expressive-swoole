@@ -267,6 +267,10 @@
             <ul class="toc__list">
                 
                     <li class="toc__entry">
+                        <a href="#disabling-static-resources" class="toc__link">Disabling static resources</a>
+                    </li>
+                
+                    <li class="toc__entry">
                         <a href="#middleware" class="toc__link">Middleware</a>
                     </li>
                 
@@ -307,6 +311,51 @@ provides an approach that checks an incoming request path against a list of
 known extensions, and a configured document root. If the extension matches, it
 then checks to see if the file exists in the document root. If it does, it will
 serve it.</p>
+<blockquote>
+<h3 id="disabling-static-resources">Disabling static resources</h3>
+<ul>
+<li>Since 2.1.0</li>
+</ul>
+<p>If you want to disable serving of static resources, you can do so in two ways.</p>
+<p>If you have a custom factory for the <code>SwooleRequestHandlerRunner</code>, or are
+instantiating it manually, pass a null value for the sixth argument of its
+constructor. As an example, within a factory:</p>
+<pre class="codehilite"><code class="language-php">use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Swoole\Http\Server as SwooleHttpServer;
+use Zend\Expressive\ApplicationPipeline;
+use Zend\Expressive\Swoole;
+
+function (ContainerInterface $container) : Swoole\SwooleRequestHandlerRunner
+{
+    return new SwooleRequestHandlerRunner(
+        $container-&gt;get(ApplicationPipeline::class),
+        $container-&gt;get(ServerRequestInterface::class),
+        $container-&gt;get(Swoole\ServerRequestErrorResponseGenerator::class),
+        $container-&gt;get(Swoole\PidManager::class),
+        $container-&gt;get(SwooleHttpServer::class),
+        null, // No static resource handler!
+        $container-&gt;has(Swoole\Log\AccessLogInterface::class
+            ? $container-&gt;get(Swool\Log\AccessLogInterface::class
+            : null
+    );
+}</code></pre>
+
+<p>If you are using the default factory provided (<code>Zend\Expressive\Swoole\SwooleRequestHandlerRunnerFactory</code>),
+you can also disable the functionality via configuration. To do this, set the
+<code>zend-expressive-swoole.swoole-http-server.static-files.enable</code> flag to
+boolean <code>false</code>:</p>
+<pre class="codehilite"><code class="language-php">return [
+    'zend-expressive-swoole' =&gt; [
+        'swoole-http-server' =&gt; [
+            'static-files' =&gt; [
+                'enable' =&gt; false,
+            ],
+        ],
+    ],
+];</code></pre>
+
+</blockquote>
 <h2 id="middleware">Middleware</h2>
 <p>The <code>StaticResourceHandler</code> implementation performs its work by composing a
 queue of middleware to execute when attempting to serve a matched file. Using
@@ -409,6 +458,10 @@ return [
     'zend-expressive-swoole' =&gt; [
         'swoole-http-server' =&gt; [
             'static-files' =&gt; [
+                // Since 2.1.0: Set to false to disable any serving of static
+                // files; all other configuration will then be ignored.
+                'enable' =&gt; true,
+
                 // Document root; defaults to &quot;getcwd() . '/public'&quot;
                 'document-root' =&gt; '/path/to/static/files/to/serve',
 
@@ -492,6 +545,7 @@ return [
     'zend-expressive-swoole' =&gt; [
         'swoole-http-server' =&gt; [
             'static-files' =&gt; [
+                'enable'        =&gt; true,
                 'document-root' =&gt; '/var/www/htdocs',
 
                 'type-map' =&gt; [
