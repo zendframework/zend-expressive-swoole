@@ -257,4 +257,121 @@ class SwooleRequestHandlerRunnerTest extends TestCase
 
         $this->expectOutputRegex('/127\.0\.0\.1\s.*?\s"GET[^"]+" 200.*?\R$/');
     }
+
+    public function testProcessNameIsUsedToCreateMasterProcessNameOnStart()
+    {
+        if (\PHP_OS === 'Darwin' || ! is_dir('/proc')) {
+            $this->markTestSkipped(
+                'Testing process names is only performed on *nix systems (with the exception of MacOS)'
+            );
+        }
+
+        $runner = new SwooleRequestHandlerRunner(
+            $this->requestHandler->reveal(),
+            $this->serverRequestFactory,
+            $this->serverRequestError,
+            $this->pidManager->reveal(),
+            $this->httpServer,
+            $this->staticResourceHandler->reveal(),
+            $this->logger,
+            'test' // Process name
+        );
+
+        $pid = posix_getpid();
+        $swooleServer = $this->createMock(SwooleHttpServer::class);
+        $swooleServer->master_pid = 55555;
+        $swooleServer->manager_pid = $pid;
+
+        $runner->onStart($swooleServer);
+        $this->expectOutputString(sprintf(
+            "Swoole is running at :0, in %s\n",
+            getcwd()
+        ));
+
+        $processFile = sprintf('/proc/%d/cmdline', $pid);
+        $this->assertTrue(file_exists($processFile));
+
+        $contents = file_get_contents($processFile);
+        $this->assertContains('test-master', $contents);
+    }
+
+    public function testProcessNameIsUsedToCreateWorkerProcessNameOnWorkerStart()
+    {
+        if (\PHP_OS === 'Darwin' || ! is_dir('/proc')) {
+            $this->markTestSkipped(
+                'Testing process names is only performed on *nix systems (with the exception of MacOS)'
+            );
+        }
+
+        $runner = new SwooleRequestHandlerRunner(
+            $this->requestHandler->reveal(),
+            $this->serverRequestFactory,
+            $this->serverRequestError,
+            $this->pidManager->reveal(),
+            $this->httpServer,
+            $this->staticResourceHandler->reveal(),
+            $this->logger,
+            'test' // Process name
+        );
+
+        $pid = posix_getpid();
+
+        $swooleServer = $this->createMock(SwooleHttpServer::class);
+        $swooleServer->setting = [
+            'worker_num' => $pid + 1,
+        ];
+
+        $runner->onWorkerStart($swooleServer, $pid);
+        $this->expectOutputString(sprintf(
+            "Worker started in %s with ID %d\n",
+            getcwd(),
+            $pid
+        ));
+
+        $processFile = sprintf('/proc/%d/cmdline', $pid);
+        $this->assertTrue(file_exists($processFile));
+
+        $contents = file_get_contents($processFile);
+        $this->assertContains('test-worker', $contents);
+    }
+
+    public function testProcessNameIsUsedToCreateTaskWorkerProcessNameOnWorkerStart()
+    {
+        if (\PHP_OS === 'Darwin' || ! is_dir('/proc')) {
+            $this->markTestSkipped(
+                'Testing process names is only performed on *nix systems (with the exception of MacOS)'
+            );
+        }
+
+        $runner = new SwooleRequestHandlerRunner(
+            $this->requestHandler->reveal(),
+            $this->serverRequestFactory,
+            $this->serverRequestError,
+            $this->pidManager->reveal(),
+            $this->httpServer,
+            $this->staticResourceHandler->reveal(),
+            $this->logger,
+            'test' // Process name
+        );
+
+        $pid = posix_getpid();
+
+        $swooleServer = $this->createMock(SwooleHttpServer::class);
+        $swooleServer->setting = [
+            'worker_num' => $pid - 2,
+        ];
+
+        $runner->onWorkerStart($swooleServer, $pid);
+        $this->expectOutputString(sprintf(
+            "Worker started in %s with ID %d\n",
+            getcwd(),
+            $pid
+        ));
+
+        $processFile = sprintf('/proc/%d/cmdline', $pid);
+        $this->assertTrue(file_exists($processFile));
+
+        $contents = file_get_contents($processFile);
+        $this->assertContains('test-task-worker', $contents);
+    }
 }

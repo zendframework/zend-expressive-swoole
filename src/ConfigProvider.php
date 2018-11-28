@@ -31,6 +31,11 @@ class ConfigProvider
     {
         return [
             'swoole-http-server' => [
+                // A prefix for the process name of the master process and workers.
+                // By default the master process will be named `expressive-master`,
+                // each http worker `expressive-worker-n` and each task worker
+                // `expressive-task-worker-n` where n is the id of the worker
+                'process-name' => 'expressive',
                 'options' => [
                     // We set a default for this. Without one, Swoole\Http\Server
                     // defaults to the value of `ulimit -n`. Unfortunately, in
@@ -39,6 +44,9 @@ class ConfigProvider
                     // sane default; users should check their host system, however,
                     // and set a production value to match.
                     'max_conn' => 1024,
+                ],
+                'static-files' => [
+                    'enable' => true,
                 ],
             ],
         ];
@@ -56,11 +64,12 @@ class ConfigProvider
                 PidManager::class                     => PidManagerFactory::class,
                 SwooleRequestHandlerRunner::class     => SwooleRequestHandlerRunnerFactory::class,
                 ServerRequestInterface::class         => ServerRequestSwooleFactory::class,
-                StaticResourceHandlerInterface::class => StaticResourceHandlerFactory::class,
+                StaticResourceHandler::class          => StaticResourceHandlerFactory::class,
                 SwooleHttpServer::class               => HttpServerFactory::class,
             ],
             'aliases' => [
                 RequestHandlerRunner::class           => SwooleRequestHandlerRunner::class,
+                StaticResourceHandlerInterface::class => StaticResourceHandler::class,
             ],
             'delegators' => [
                 'Zend\Expressive\WhoopsPageHandler' => [

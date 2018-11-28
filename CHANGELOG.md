@@ -2,6 +2,58 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 2.1.0 - 2018-11-28
+
+### Added
+
+- [#54](https://github.com/zendframework/zend-expressive-swoole/pull/54) adds a new configuration key, `zend-expressive-swoole.swoole-http-server.process-name`.
+  This value will be used as a prefix for the process name of all processes
+  created by the `Swoole\Http\Server` instance, including the master process,
+  worker processes, and all task worker processes. The value defaults to
+  `expressive`. As an example:
+
+  ```php
+  return [
+      'zend-expressive-swoole' => [
+          'swoole-http-server' => [
+              'process-name' => 'myapp',
+          ],
+      ],
+  ];
+  ```
+
+- [#50](https://github.com/zendframework/zend-expressive-swoole/pull/50) adds a new configuration flag for toggling serving of static files:
+  `zend-expressive-swoole.swoole-http-server.static-files.enable`. The flag is
+  enabled by default; set it to boolean `false` to disable static file serving:
+
+  ```php
+  return [
+      'zend-expressive-swoole' => [
+          'swoole-http-server' => [
+              'static-files' => [
+                  'enable' => false,
+              ],
+          ],
+      ],
+  ];
+  ```
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- Nothing.
+
 ## 2.0.1 - 2018-11-28
 
 ### Added

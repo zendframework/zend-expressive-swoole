@@ -22,6 +22,56 @@ known extensions, and a configured document root. If the extension matches, it
 then checks to see if the file exists in the document root. If it does, it will
 serve it.
 
+> ### Disabling static resources
+>
+> - Since 2.1.0
+>
+> If you want to disable serving of static resources, you can do so in two ways.
+>
+> If you have a custom factory for the `SwooleRequestHandlerRunner`, or are
+> instantiating it manually, pass a null value for the sixth argument of its
+> constructor. As an example, within a factory:
+>
+> ```php
+> use Psr\Container\ContainerInterface;
+> use Psr\Http\Message\ServerRequestInterface;
+> use Swoole\Http\Server as SwooleHttpServer;
+> use Zend\Expressive\ApplicationPipeline;
+> use Zend\Expressive\Swoole;
+>
+> function (ContainerInterface $container) : Swoole\SwooleRequestHandlerRunner
+> {
+>     return new SwooleRequestHandlerRunner(
+>         $container->get(ApplicationPipeline::class),
+>         $container->get(ServerRequestInterface::class),
+>         $container->get(Swoole\ServerRequestErrorResponseGenerator::class),
+>         $container->get(Swoole\PidManager::class),
+>         $container->get(SwooleHttpServer::class),
+>         null, // No static resource handler!
+>         $container->has(Swoole\Log\AccessLogInterface::class
+>             ? $container->get(Swool\Log\AccessLogInterface::class
+>             : null
+>     );
+> }
+> ```
+>
+> If you are using the default factory provided (`Zend\Expressive\Swoole\SwooleRequestHandlerRunnerFactory`),
+> you can also disable the functionality via configuration. To do this, set the
+> `zend-expressive-swoole.swoole-http-server.static-files.enable` flag to
+> boolean `false`:
+>
+> ```php
+> return [
+>     'zend-expressive-swoole' => [
+>         'swoole-http-server' => [
+>             'static-files' => [
+>                 'enable' => false,
+>             ],
+>         ],
+>     ],
+> ];
+> ```
+
 ## Middleware
 
 The `StaticResourceHandler` implementation performs its work by composing a
@@ -119,6 +169,10 @@ return [
     'zend-expressive-swoole' => [
         'swoole-http-server' => [
             'static-files' => [
+                // Since 2.1.0: Set to false to disable any serving of static
+                // files; all other configuration will then be ignored.
+                'enable' => true,
+
                 // Document root; defaults to "getcwd() . '/public'"
                 'document-root' => '/path/to/static/files/to/serve',
 
@@ -209,6 +263,7 @@ return [
     'zend-expressive-swoole' => [
         'swoole-http-server' => [
             'static-files' => [
+                'enable'        => true,
                 'document-root' => '/var/www/htdocs',
 
                 'type-map' => [
