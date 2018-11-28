@@ -140,13 +140,13 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
     public function testFactoryWillUseConfiguredStaticResourceHandlerWhenPresent()
     {
         $this->configureAbsentLoggerService();
-        $this->configureAbsentConfiguration();
         $this->container
             ->has(StaticResourceHandlerInterface::class)
             ->willReturn(true);
         $this->container
             ->get(StaticResourceHandlerInterface::class)
             ->will([$this->staticResourceHandler, 'reveal']);
+        $this->container->has('config')->willReturn(true);
         $this->container
             ->get('config')
             ->willReturn([
@@ -171,6 +171,7 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
         $this->container
             ->has(StaticResourceHandlerInterface::class)
             ->willReturn(true);
+        $this->container->has('config')->willReturn(true);
         $this->container
             ->get('config')
             ->willReturn([
