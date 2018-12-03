@@ -380,17 +380,24 @@ $runner = new SwooleRequestHandlerRunner(
 <code>SwooleRequestHandlerRunnerFactory</code> will retrieve a log instance using the
 <code>Zend\Expressive\Swoole\Log\AccessLogInterface</code> service.</p>
 <p>You have two options for substituting your own logger from there.</p>
-<p>First, you can create your own factory that produces an <code>AccessLogInterface</code>
-instance, and map it to the service. This is the best route if you want to write
-your own implementation, or want to use a different PSR-3 logger service.</p>
-<p>If you are okay with re-using your existing PSR-3 logger, the provided
-<code>Zend\Expressive\Swoole\Log\AccessLogFactory</code> will use the
-<code>Psr\Log\LoggerInterface</code> service to create a <code>Psr3AccessLogDecorator</code> instance.</p>
+<p>First, if you already have a service which resolves to a <code>Psr\Log\LoggerInterface</code> instance,
+you can configure it by providing its name:</p>
+<pre class="codehilite"><code class="language-php">'zend-expressive-swoole' =&gt; [
+    'swoole-http-server' =&gt; [
+        'logger' =&gt; [
+            'logger-name' =&gt; 'my_logger', // define the logger service name here
+        ],
+    ],
+],</code></pre>
+
+<p>If you don't want to manually provide the service name but you are okay with re-using your
+existing PSR-3 logger, the provided <code>Zend\Expressive\Swoole\Log\AccessLogFactory</code> will use
+the <code>Psr\Log\LoggerInterface</code> service to create a <code>Psr3AccessLogDecorator</code> instance.</p>
 <p>This factory also allows you to specify a custom <code>AccessLogFormatterInterface</code>
 instance if you want. It will look up a service by the fully-qualified interface
 name, and use it if present. Otherwise, it creates an <code>AccessLogFormatter</code>
 instance for you.</p>
-<p>The factory will also look at the following configuration values:</p>
+<p>In both cases the factory will also look at the following configuration values:</p>
 <pre class="codehilite"><code class="language-php">'zend-expressive-swoole' =&gt; [
     'swoole-http-server' =&gt; [
         'logger' =&gt; [
