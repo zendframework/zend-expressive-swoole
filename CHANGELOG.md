@@ -2,11 +2,26 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.1.1 - TBD
+## 2.2.0 - 2018-12-03
 
 ### Added
 
-- Nothing.
+- [#55](https://github.com/zendframework/zend-expressive-swoole/pull/55) adds a new configuration key, `zend-expressive-swoole.swoole-http-server.logger.logger-name`.
+  It allows a custom service name which resolves to a `Psr\Log\LoggerInterface`
+  instance to be provided, in order to be wrapped in the
+  `Zend\Expressive\Swoole\Log\Psr3AccessLogDecorator`:
+
+  ```php
+  return [
+      'zend-expressive-swoole' => [
+          'swoole-http-server' => [
+              'logger' => [
+                  'logger-name' => 'my_logger',
+              ],
+          ],
+      ],
+  ];
+  ```
 
 ### Changed
 
