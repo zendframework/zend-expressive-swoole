@@ -124,20 +124,29 @@ If you are using a [PSR-11](https://www.php-fig.org/psr/psr-11/) container, the
 
 You have two options for substituting your own logger from there.
 
-First, you can create your own factory that produces an `AccessLogInterface`
-instance, and map it to the service. This is the best route if you want to write
-your own implementation, or want to use a different PSR-3 logger service.
+First, if you already have a service which resolves to a `Psr\Log\LoggerInterface` instance,
+you can configure it by providing its name:
 
-If you are okay with re-using your existing PSR-3 logger, the provided
-`Zend\Expressive\Swoole\Log\AccessLogFactory` will use the
-`Psr\Log\LoggerInterface` service to create a `Psr3AccessLogDecorator` instance.
+```php
+'zend-expressive-swoole' => [
+    'swoole-http-server' => [
+        'logger' => [
+            'logger-name' => 'my_logger', // define the logger service name here
+        ],
+    ],
+],
+```
+
+If you don't want to manually provide the service name but you are okay with re-using your
+existing PSR-3 logger, the provided `Zend\Expressive\Swoole\Log\AccessLogFactory` will use
+the `Psr\Log\LoggerInterface` service to create a `Psr3AccessLogDecorator` instance.
 
 This factory also allows you to specify a custom `AccessLogFormatterInterface`
 instance if you want. It will look up a service by the fully-qualified interface
 name, and use it if present. Otherwise, it creates an `AccessLogFormatter`
 instance for you.
 
-The factory will also look at the following configuration values:
+In both cases the factory will also look at the following configuration values:
 
 ```php
 'zend-expressive-swoole' => [

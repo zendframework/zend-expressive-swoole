@@ -46,7 +46,7 @@ class AccessLogFactoryTest extends TestCase
         $this->assertAttributeInstanceOf(AccessLogFormatter::class, 'formatter', $logger);
     }
 
-    public function testUsesConfiguredLoggerServiceWhenPresent()
+    public function testUsesConfiguredStandardLoggerServiceWhenPresent()
     {
         $factory = new AccessLogFactory();
 
@@ -54,6 +54,31 @@ class AccessLogFactoryTest extends TestCase
         $this->container->get('config')->shouldNotBeCalled();
         $this->container->has(LoggerInterface::class)->willReturn(true);
         $this->container->get(LoggerInterface::class)->willReturn($this->logger);
+        $this->container->has(AccessLogFormatterInterface::class)->willReturn(false);
+        $this->container->get(AccessLogFormatterInterface::class)->shouldNotBeCalled();
+
+        $logger = $factory($this->container->reveal());
+
+        $this->assertInstanceOf(Psr3AccessLogDecorator::class, $logger);
+        $this->assertAttributeSame($this->logger, 'logger', $logger);
+        $this->assertAttributeInstanceOf(AccessLogFormatter::class, 'formatter', $logger);
+    }
+
+    public function testUsesConfiguredCustomLoggerServiceWhenPresent()
+    {
+        $factory = new AccessLogFactory();
+
+        $this->container->has('config')->willReturn(true);
+        $this->container->get('config')->willReturn([
+            'zend-expressive-swoole' => [
+                'swoole-http-server' => [
+                    'logger' => [
+                        'logger-name' => 'my_logger',
+                    ],
+                ],
+            ],
+        ]);
+        $this->container->get('my_logger')->willReturn($this->logger);
         $this->container->has(AccessLogFormatterInterface::class)->willReturn(false);
         $this->container->get(AccessLogFormatterInterface::class)->shouldNotBeCalled();
 

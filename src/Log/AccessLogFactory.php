@@ -23,6 +23,7 @@ use Psr\Log\LoggerInterface;
  * 'zend-expressive-swoole' => [
  *     'swoole-http-server' => [
  *         'logger' => [
+ *             'logger-name' => string, // the name of a service resolving a Psr\Log\LoggerInterface instance
  *             'format' => string, // one of the AccessLogFormatter::FORMAT_* constants
  *             'use-hostname-lookups' => bool, // Set to true to enable hostname lookups
  *         ],
@@ -38,10 +39,19 @@ class AccessLogFactory
         $config = $config['zend-expressive-swoole']['swoole-http-server']['logger'] ?? [];
 
         return new Psr3AccessLogDecorator(
-            $container->has(LoggerInterface::class) ? $container->get(LoggerInterface::class) : new StdoutLogger(),
+            $this->getLogger($container, $config),
             $this->getFormatter($container, $config),
             $config['use-hostname-lookups'] ?? false
         );
+    }
+
+    private function getLogger(ContainerInterface $container, array $config) : LoggerInterface
+    {
+        if (isset($config['logger-name'])) {
+            return $container->get($config['logger-name']);
+        }
+
+        return $container->has(LoggerInterface::class) ? $container->get(LoggerInterface::class) : new StdoutLogger();
     }
 
     private function getFormatter(ContainerInterface $container, array $config) : AccessLogFormatterInterface
