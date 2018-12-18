@@ -280,6 +280,9 @@ class HttpServerFactoryTest extends TestCase
                 $swooleServer->on('Request', function ($req, $rep) {
                     // noop
                 });
+                $swooleServer->on('Packet', function ($server, $data, $clientInfo) {
+                    // noop
+                });
                 $swooleServer->start();
             } catch (Throwable $exception) {
                 $worker->write('Exception Thrown: ' . $exception->getMessage());
