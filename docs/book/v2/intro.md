@@ -111,6 +111,10 @@ return [
                 // Whether or not the HTTP server should use coroutines;
                 // enabled by default, and generally should not be disabled:
                 'enable_coroutine' => true,
+
+                // Overwrite the default location of the pid file;
+                // required when you want to run multiple instances of your service in different ports:
+                'pid_file' => 'path/to/pid_file.pid',
             ],
 
             // Since 2.1.0: Set the process name prefix.
