@@ -6,7 +6,8 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Added
 
-- Nothing.
+- [#60](https://github.com/zendframework/zend-expressive-swoole/pull/60) adds a new configuration, `zend-expressive-swoole.hot-code-reload`.
+  Configuring hot-code-reload will allow swoole server to monitor for changes in included php files, and reload accordingly.
 
 ### Changed
 
