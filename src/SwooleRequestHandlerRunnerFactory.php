@@ -14,6 +14,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Swoole\Http\Server as SwooleHttpServer;
 use Zend\Expressive\ApplicationPipeline;
 use Zend\Expressive\Response\ServerRequestErrorResponseGenerator;
+use Zend\Expressive\Swoole\HotCodeReload\Reloader;
 
 class SwooleRequestHandlerRunnerFactory
 {
@@ -23,9 +24,11 @@ class SwooleRequestHandlerRunnerFactory
             ? $container->get(Log\AccessLogInterface::class)
             : null;
 
-        $config = $container->has('config')
-            ? $container->get('config')['zend-expressive-swoole']['swoole-http-server']
+        $expressiveSwooleConfig = $container->has('config')
+            ? $container->get('config')['zend-expressive-swoole']
             : [];
+
+        $swooleHttpServerConfig = $expressiveSwooleConfig['swoole-http-server'] ?? [];
 
         return new SwooleRequestHandlerRunner(
             $container->get(ApplicationPipeline::class),
@@ -33,9 +36,10 @@ class SwooleRequestHandlerRunnerFactory
             $container->get(ServerRequestErrorResponseGenerator::class),
             $container->get(PidManager::class),
             $container->get(SwooleHttpServer::class),
-            $this->retrieveStaticResourceHandler($container, $config),
+            $this->retrieveStaticResourceHandler($container, $swooleHttpServerConfig),
             $logger,
-            $config['process-name'] ?? SwooleRequestHandlerRunner::DEFAULT_PROCESS_NAME
+            $swooleHttpServerConfig['process-name'] ?? SwooleRequestHandlerRunner::DEFAULT_PROCESS_NAME,
+            $this->retrieveHotCodeReloader($container, $expressiveSwooleConfig)
         );
     }
 
@@ -48,6 +52,18 @@ class SwooleRequestHandlerRunnerFactory
 
         return $enabled && $container->has(StaticResourceHandlerInterface::class)
             ? $container->get(StaticResourceHandlerInterface::class)
+            : null;
+    }
+
+    private function retrieveHotCodeReloader(
+        ContainerInterface $container,
+        array $config
+    ) : ?Reloader {
+        $config = $config['hot-code-reload'] ?? [];
+        $enabled = isset($config['enable']) && true === $config['enable'];
+
+        return $enabled && $container->has(Reloader::class)
+            ? $container->get(Reloader::class)
             : null;
     }
 }

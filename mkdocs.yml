@@ -7,6 +7,7 @@ pages:
       - "Static Resources": v2/static-resources.md
       - Logging: v2/logging.md
       - "Async Tasks": v2/async-tasks.md
+      - "Hot Code Reloading": v2/hot-code-reload.md
       - "Command Line Tooling": v2/command-line.md
       - "How it works": v2/how-it-works.md
       - "Considerations when using Swoole": v2/considerations.md
