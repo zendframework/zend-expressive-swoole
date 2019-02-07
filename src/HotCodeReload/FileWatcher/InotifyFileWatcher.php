@@ -12,6 +12,7 @@ namespace Zend\Expressive\Swoole\HotCodeReload\FileWatcher;
 use Zend\Expressive\Swoole\Exception\ExtensionNotLoadedException;
 use Zend\Expressive\Swoole\Exception\RuntimeException;
 use Zend\Expressive\Swoole\HotCodeReload\FileWatcherInterface;
+
 use function inotify_add_watch;
 use function inotify_init;
 use function inotify_read;

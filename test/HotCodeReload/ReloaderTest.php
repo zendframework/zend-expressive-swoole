@@ -28,6 +28,14 @@ class ReloaderTest extends TestCase
     /** @var Reloader */
     private $subject;
 
+    protected function setUp()
+    {
+        $this->fileWatcher = $this->createMock(FileWatcherInterface::class);
+        $this->subject = new Reloader($this->fileWatcher, new NullLogger(), $this->interval);
+
+        parent::setUp();
+    }
+
     /**
      * Creates a constraint that checks if every value is a unique scalar value.
      * Uniqueness is checked by adding values as an array key until a repeat occurs.
@@ -107,13 +115,5 @@ class ReloaderTest extends TestCase
             ->method('reload');
 
         $this->subject->onTick($server);
-    }
-
-    protected function setUp()
-    {
-        $this->fileWatcher = $this->createMock(FileWatcherInterface::class);
-        $this->subject = new Reloader($this->fileWatcher, new NullLogger(), $this->interval);
-
-        parent::setUp();
     }
 }

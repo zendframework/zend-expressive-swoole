@@ -110,7 +110,7 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
     private $processName;
 
     /**
-     * @var ?Reloader
+     * @var null|Reloader
      */
     private $hotCodeReloader;
 
@@ -205,7 +205,7 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
             : sprintf('%s-worker-%d', $this->processName, $workerId);
         $this->setProcessName($processName);
 
-        if (null !== $this->hotCodeReloader) {
+        if ($this->hotCodeReloader) {
             $this->hotCodeReloader->onWorkerStart($server, $workerId);
         }
 

@@ -11,6 +11,7 @@ namespace Zend\Expressive\Swoole\HotCodeReload;
 
 use Psr\Log\LoggerInterface;
 use Swoole\Server as SwooleServer;
+
 use function get_included_files;
 
 class Reloader
@@ -68,13 +69,10 @@ class Reloader
     }
 
     /**
-     * Generates a callable which will call this instance's onTick method with the given swoole server instance.
-     * By doing this, we forgo the need to have a swoole server property, and handle the case in which it wouldn't
+     * Generates a callable which will call this instance's onTick method with
+     * the given swoole server instance. By doing this, we forgo the need to
+     * have a swoole server property, and handle the case in which it wouldn't
      * exist.
-     *
-     * @param SwooleServer $server
-     *
-     * @return callable
      */
     private function generateTickCallback(SwooleServer $server) : callable
     {

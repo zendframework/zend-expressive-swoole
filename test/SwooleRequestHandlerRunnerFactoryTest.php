@@ -16,14 +16,14 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Swoole\Http\Server as SwooleHttpServer;
 use Zend\Expressive\ApplicationPipeline;
 use Zend\Expressive\Response\ServerRequestErrorResponseGenerator;
-use Zend\Expressive\Swoole\PidManager;
-use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
-use Zend\Expressive\Swoole\SwooleRequestHandlerRunnerFactory;
-use Zend\Expressive\Swoole\ServerFactory;
-use Zend\Expressive\Swoole\StaticResourceHandlerInterface;
+use Zend\Expressive\Swoole\HotCodeReload\Reloader;
 use Zend\Expressive\Swoole\Log\AccessLogInterface;
 use Zend\Expressive\Swoole\Log\Psr3AccessLogDecorator;
-use Zend\Expressive\Swoole\HotCodeReload\Reloader;
+use Zend\Expressive\Swoole\PidManager;
+use Zend\Expressive\Swoole\ServerFactory;
+use Zend\Expressive\Swoole\StaticResourceHandlerInterface;
+use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
+use Zend\Expressive\Swoole\SwooleRequestHandlerRunnerFactory;
 
 class SwooleRequestHandlerRunnerFactoryTest extends TestCase
 {

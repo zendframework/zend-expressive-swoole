@@ -24,9 +24,17 @@ class ReloaderFactoryTest extends TestCase
     /** @var FileWatcherInterface */
     private $fileWatcher;
 
+    protected function setUp()
+    {
+        $this->fileWatcher = $this->createMock(FileWatcherInterface::class);
+        $this->container = new ServiceManager();
+        $this->container->setAllowOverride(true);
+        $this->container->setService(FileWatcherInterface::class, $this->fileWatcher);
+
+        parent::setUp();
+    }
+
     /**
-     * @param array $services
-     *
      * @dataProvider provideServiceManagerServicesWithEmptyConfigurations
      */
     public function testCreateUnconfigured(array $services) : void
@@ -84,15 +92,5 @@ class ReloaderFactoryTest extends TestCase
                 ],
             ],
         ];
-    }
-
-    protected function setUp()
-    {
-        $this->fileWatcher = $this->createMock(FileWatcherInterface::class);
-        $this->container = new ServiceManager();
-        $this->container->setAllowOverride(true);
-        $this->container->setService(FileWatcherInterface::class, $this->fileWatcher);
-
-        parent::setUp();
     }
 }

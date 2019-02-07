@@ -9,24 +9,13 @@ declare(strict_types=1);
 
 namespace ZendTest\Expressive\Swoole\HotCodeReload\FileWatcher;
 
-use Zend\Expressive\Swoole\HotCodeReload\FileWatcher\InotifyFileWatcher;
 use PHPUnit\Framework\TestCase;
+use Zend\Expressive\Swoole\HotCodeReload\FileWatcher\InotifyFileWatcher;
 
 class InotifyFileWatcherTest extends TestCase
 {
     /** @var resource */
     private $file;
-
-    public function testReadChangedFilePathsIsNonBlocking() : void
-    {
-        $path = stream_get_meta_data($this->file)['uri'];
-        $subject = new InotifyFileWatcher();
-        $subject->addFilePath($path);
-
-        static::assertEmpty($subject->readChangedFilePaths());
-        fwrite($this->file, 'foo');
-        static::assertEquals([$path], $subject->readChangedFilePaths());
-    }
 
     protected function setUp()
     {
@@ -46,5 +35,16 @@ class InotifyFileWatcherTest extends TestCase
     {
         fclose($this->file);
         parent::tearDown();
+    }
+
+    public function testReadChangedFilePathsIsNonBlocking() : void
+    {
+        $path = stream_get_meta_data($this->file)['uri'];
+        $subject = new InotifyFileWatcher();
+        $subject->addFilePath($path);
+
+        static::assertEmpty($subject->readChangedFilePaths());
+        fwrite($this->file, 'foo');
+        static::assertEquals([$path], $subject->readChangedFilePaths());
     }
 }
