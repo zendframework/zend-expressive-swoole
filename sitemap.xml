@@ -38,6 +38,12 @@
     </url>
         
     <url>
+     <loc>/v2/hot-code-reload/</loc>
+     <lastmod>2019-02-07</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
      <loc>/v2/command-line/</loc>
      <lastmod>2019-02-07</lastmod>
      <changefreq>daily</changefreq>
