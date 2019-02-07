@@ -2,11 +2,11 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.2.1 - TBD
+## 2.2.1 - 2019-02-07
 
 ### Added
 
-- Nothing.
+- [#56](https://github.com/zendframework/zend-expressive-swoole/pull/56) adds support for PHP 7.3.
 
 ### Changed
 
