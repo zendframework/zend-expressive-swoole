@@ -11,6 +11,10 @@ namespace Zend\Expressive\Swoole;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Swoole\Http\Server as SwooleHttpServer;
+use Zend\Expressive\Swoole\HotCodeReload\FileWatcher\InotifyFileWatcher;
+use Zend\Expressive\Swoole\HotCodeReload\FileWatcherInterface;
+use Zend\Expressive\Swoole\HotCodeReload\Reloader;
+use Zend\Expressive\Swoole\HotCodeReload\ReloaderFactory;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 use function extension_loaded;
 
@@ -66,10 +70,12 @@ class ConfigProvider
                 ServerRequestInterface::class         => ServerRequestSwooleFactory::class,
                 StaticResourceHandler::class          => StaticResourceHandlerFactory::class,
                 SwooleHttpServer::class               => HttpServerFactory::class,
+                Reloader::class                       => ReloaderFactory::class,
             ],
             'aliases' => [
                 RequestHandlerRunner::class           => SwooleRequestHandlerRunner::class,
                 StaticResourceHandlerInterface::class => StaticResourceHandler::class,
+                FileWatcherInterface::class           => InotifyFileWatcher::class,
             ],
             'delegators' => [
                 'Zend\Expressive\WhoopsPageHandler' => [

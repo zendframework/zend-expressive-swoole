@@ -17,6 +17,7 @@ use Swoole\Http\Response as SwooleHttpResponse;
 use Swoole\Http\Server as SwooleHttpServer;
 use Throwable;
 use Zend\Expressive\Swoole\Exception;
+use Zend\Expressive\Swoole\HotCodeReload\Reloader;
 use Zend\HttpHandlerRunner\Emitter\EmitterInterface;
 use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
@@ -108,6 +109,11 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
      */
     private $processName;
 
+    /**
+     * @var ?Reloader
+     */
+    private $hotCodeReloader;
+
     public function __construct(
         RequestHandlerInterface $handler,
         callable $serverRequestFactory,
@@ -116,7 +122,8 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
         SwooleHttpServer $httpServer,
         StaticResourceHandlerInterface $staticResourceHandler = null,
         Log\AccessLogInterface $logger = null,
-        string $processName = self::DEFAULT_PROCESS_NAME
+        string $processName = self::DEFAULT_PROCESS_NAME,
+        Reloader $hotCodeReloader = null
     ) {
         $this->handler = $handler;
 
@@ -142,6 +149,7 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
             new Log\AccessLogFormatter()
         );
         $this->processName = $processName;
+        $this->hotCodeReloader = $hotCodeReloader;
         $this->cwd = getcwd();
     }
 
@@ -196,6 +204,10 @@ class SwooleRequestHandlerRunner extends RequestHandlerRunner
             ? sprintf('%s-task-worker-%d', $this->processName, $workerId)
             : sprintf('%s-worker-%d', $this->processName, $workerId);
         $this->setProcessName($processName);
+
+        if (null !== $this->hotCodeReloader) {
+            $this->hotCodeReloader->onWorkerStart($server, $workerId);
+        }
 
         $this->logger->notice('Worker started in {cwd} with ID {pid}', [
             'cwd' => getcwd(),

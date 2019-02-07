@@ -16,7 +16,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Swoole\Http\Server as SwooleHttpServer;
 use Zend\Expressive\ApplicationPipeline;
 use Zend\Expressive\Response\ServerRequestErrorResponseGenerator;
-use Zend\Expressive\Swoole\Exception\InvalidConfigException;
 use Zend\Expressive\Swoole\PidManager;
 use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
 use Zend\Expressive\Swoole\SwooleRequestHandlerRunnerFactory;
@@ -24,7 +23,7 @@ use Zend\Expressive\Swoole\ServerFactory;
 use Zend\Expressive\Swoole\StaticResourceHandlerInterface;
 use Zend\Expressive\Swoole\Log\AccessLogInterface;
 use Zend\Expressive\Swoole\Log\Psr3AccessLogDecorator;
-use Zend\Expressive\Swoole\Log\StdoutLogger;
+use Zend\Expressive\Swoole\HotCodeReload\Reloader;
 
 class SwooleRequestHandlerRunnerFactoryTest extends TestCase
 {
@@ -41,6 +40,7 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
 
         $this->staticResourceHandler = $this->prophesize(StaticResourceHandlerInterface::class);
         $this->logger = $this->prophesize(AccessLogInterface::class);
+        $this->hotCodeReloader = $this->prophesize(Reloader::class);
 
         $this->container = $this->prophesize(ContainerInterface::class);
         $this->container
@@ -108,11 +108,23 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
             ->shouldNotBeCalled();
     }
 
+    public function configureAbsentHotCodeReloader() : void
+    {
+        $this->container
+            ->has(Reloader::class)
+            ->willReturn(false);
+
+        $this->container
+            ->get(Reloader::class)
+            ->shouldNotBeCalled();
+    }
+
     public function testInvocationWithoutOptionalServicesConfiguresInstanceWithDefaults()
     {
         $this->configureAbsentStaticResourceHandler();
         $this->configureAbsentLoggerService();
         $this->configureAbsentConfiguration();
+        $this->configureAbsentHotCodeReloader();
         $factory = new SwooleRequestHandlerRunnerFactory();
         $runner = $factory($this->container->reveal());
         $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $runner);
@@ -124,6 +136,7 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
     {
         $this->configureAbsentStaticResourceHandler();
         $this->configureAbsentConfiguration();
+        $this->configureAbsentHotCodeReloader();
         $this->container
             ->has(AccessLogInterface::class)
             ->willReturn(true);
@@ -140,6 +153,7 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
     public function testFactoryWillUseConfiguredStaticResourceHandlerWhenPresent()
     {
         $this->configureAbsentLoggerService();
+        $this->configureAbsentHotCodeReloader();
         $this->container
             ->has(StaticResourceHandlerInterface::class)
             ->willReturn(true);
@@ -170,6 +184,7 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
     public function testFactoryWillIgnoreConfiguredStaticResourceHandlerWhenStaticFilesAreDisabled()
     {
         $this->configureAbsentLoggerService();
+        $this->configureAbsentHotCodeReloader();
         $this->container
             ->has(StaticResourceHandlerInterface::class)
             ->willReturn(true);
@@ -207,6 +222,7 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
     public function testFactoryUsesConfiguredProcessNameWhenPresent()
     {
         $this->configureAbsentLoggerService();
+        $this->configureAbsentHotCodeReloader();
         $this->container
             ->has(StaticResourceHandlerInterface::class)
             ->willReturn(false);
@@ -226,5 +242,30 @@ class SwooleRequestHandlerRunnerFactoryTest extends TestCase
 
         $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $runner);
         $this->assertAttributeSame('zend-expressive-swoole-test', 'processName', $runner);
+    }
+
+    public function testFactoryWillUseConfiguredHotCodeReloaderWhenPresent()
+    {
+        $this->configureAbsentLoggerService();
+        $this->container->has(Reloader::class)->willReturn(true);
+        $this->container
+            ->get(Reloader::class)
+            ->will([$this->hotCodeReloader, 'reveal']);
+        $this->container->has('config')->willReturn(true);
+        $this->container
+            ->get('config')
+            ->willReturn([
+                'zend-expressive-swoole' => [
+                    'hot-code-reload' => [
+                        'enable' => true,
+                    ],
+                ],
+            ]);
+
+        $factory = new SwooleRequestHandlerRunnerFactory();
+        $runner = $factory($this->container->reveal());
+
+        $this->assertInstanceOf(SwooleRequestHandlerRunner::class, $runner);
+        $this->assertAttributeSame($this->hotCodeReloader->reveal(), 'hotCodeReloader', $runner);
     }
 }

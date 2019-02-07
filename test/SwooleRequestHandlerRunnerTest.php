@@ -19,6 +19,7 @@ use Swoole\Http\Response as SwooleHttpResponse;
 use Swoole\Http\Server as SwooleHttpServer;
 use Zend\Diactoros\Response;
 use Zend\Expressive\Response\ServerRequestErrorResponseGenerator;
+use Zend\Expressive\Swoole\HotCodeReload\Reloader;
 use Zend\Expressive\Swoole\PidManager;
 use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
 use Zend\Expressive\Swoole\ServerFactory;
@@ -373,5 +374,27 @@ class SwooleRequestHandlerRunnerTest extends TestCase
 
         $contents = file_get_contents($processFile);
         $this->assertContains('test-task-worker', $contents);
+    }
+
+    public function testHotCodeReloaderTriggeredOnWorkerStart()
+    {
+        $hotCodeReloader = $this->createMock(Reloader::class);
+        $hotCodeReloader
+            ->expects(static::once())
+            ->method('onWorkerStart')
+            ->with($this->httpServer, 0);
+
+        $runner = new SwooleRequestHandlerRunner(
+            $this->requestHandler->reveal(),
+            $this->serverRequestFactory,
+            $this->serverRequestError,
+            $this->pidManager->reveal(),
+            $this->httpServer,
+            $this->staticResourceHandler->reveal(),
+            $this->logger,
+            SwooleRequestHandlerRunner::DEFAULT_PROCESS_NAME,
+            $hotCodeReloader
+        );
+        $runner->onWorkerStart($this->httpServer, 0);
     }
 }

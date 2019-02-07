@@ -41,6 +41,9 @@
         "zendframework/zend-coding-standard": "~1.0.0",
         "zendframework/zend-servicemanager": "^3.3"
     },
+    "suggest": {
+        "ext-inotify": "To use inotify based file watcher. Required for hot code reloading."
+    },
     "autoload": {
         "psr-4": {
             "Zend\\Expressive\\Swoole\\": "src/"
