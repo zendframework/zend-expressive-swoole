@@ -8,3 +8,5 @@ pecl install swoole << EOF
 `#enable mysqlnd support? [no] :`
 `#enable postgresql coroutine client support support? [no] :`
 EOF
+
+pecl install inotify
