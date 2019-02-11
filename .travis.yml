@@ -47,7 +47,7 @@ matrix:
 
 before_install:
   - sh -c "mkdir -p ${TRAVIS_BUILD_DIR}/.travis/module-cache/$(php-config --vernum)"
-  - MODULES="swoole.so:swoole" ./.travis/modulecache.sh
+  - MODULES="swoole.so:swoole inotify.so:inotify" ./.travis/modulecache.sh
   - if [[ $TEST_COVERAGE != 'true' ]]; then phpenv config-rm xdebug.ini || return 0 ; fi
 
 install:
