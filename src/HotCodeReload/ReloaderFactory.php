@@ -10,11 +10,12 @@ declare(strict_types=1);
 namespace Zend\Expressive\Swoole\HotCodeReload;
 
 use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
-use Zend\Expressive\Swoole\Log\StdoutLogger;
+use Zend\Expressive\Swoole\Log\LoggerResolvingTrait;
 
 class ReloaderFactory
 {
+    use LoggerResolvingTrait;
+
     public function __invoke(ContainerInterface $container) : Reloader
     {
         $config = $container->has('config') ? $container->get('config') : [];
@@ -26,12 +27,5 @@ class ReloaderFactory
             $this->getLogger($container),
             $hotCodeReloadConfig['interval'] ?? 500
         );
-    }
-
-    private function getLogger(ContainerInterface $container) : LoggerInterface
-    {
-        return $container->has(LoggerInterface::class)
-            ? $container->get(LoggerInterface::class)
-            : new StdoutLogger();
     }
 }

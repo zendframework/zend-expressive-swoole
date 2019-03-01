@@ -18,6 +18,7 @@ use Zend\Expressive\Swoole\Log\AccessLogFormatter;
 use Zend\Expressive\Swoole\Log\AccessLogFormatterInterface;
 use Zend\Expressive\Swoole\Log\Psr3AccessLogDecorator;
 use Zend\Expressive\Swoole\Log\StdoutLogger;
+use Zend\Expressive\Swoole\Log\SwooleLoggerFactory;
 
 class AccessLogFactoryTest extends TestCase
 {
@@ -32,6 +33,7 @@ class AccessLogFactoryTest extends TestCase
     {
         $factory = new AccessLogFactory();
 
+        $this->container->has(SwooleLoggerFactory::SWOOLE_LOGGER)->willReturn(false);
         $this->container->has('config')->willReturn(false);
         $this->container->get('config')->shouldNotBeCalled();
         $this->container->has(LoggerInterface::class)->willReturn(false);
@@ -50,6 +52,7 @@ class AccessLogFactoryTest extends TestCase
     {
         $factory = new AccessLogFactory();
 
+        $this->container->has(SwooleLoggerFactory::SWOOLE_LOGGER)->willReturn(false);
         $this->container->has('config')->willReturn(false);
         $this->container->get('config')->shouldNotBeCalled();
         $this->container->has(LoggerInterface::class)->willReturn(true);
@@ -68,6 +71,7 @@ class AccessLogFactoryTest extends TestCase
     {
         $factory = new AccessLogFactory();
 
+        $this->container->has(SwooleLoggerFactory::SWOOLE_LOGGER)->willReturn(false);
         $this->container->has('config')->willReturn(true);
         $this->container->get('config')->willReturn([
             'zend-expressive-swoole' => [
@@ -93,6 +97,7 @@ class AccessLogFactoryTest extends TestCase
     {
         $factory = new AccessLogFactory();
 
+        $this->container->has(SwooleLoggerFactory::SWOOLE_LOGGER)->willReturn(false);
         $this->container->has('config')->willReturn(false);
         $this->container->get('config')->shouldNotBeCalled();
         $this->container->has(LoggerInterface::class)->willReturn(false);
@@ -111,6 +116,7 @@ class AccessLogFactoryTest extends TestCase
     {
         $factory = new AccessLogFactory();
 
+        $this->container->has(SwooleLoggerFactory::SWOOLE_LOGGER)->willReturn(false);
         $this->container->has('config')->willReturn(true);
         $this->container->get('config')->willReturn([
             'zend-expressive-swoole' => [
