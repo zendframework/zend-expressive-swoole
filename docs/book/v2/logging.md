@@ -141,6 +141,9 @@ If you don't want to manually provide the service name but you are okay with re-
 existing PSR-3 logger, the provided `Zend\Expressive\Swoole\Log\AccessLogFactory` will use
 the `Psr\Log\LoggerInterface` service to create a `Psr3AccessLogDecorator` instance.
 
+> Since 2.4.0, the `Zend\Expressive\Swoole\Log\AccessLogFactory` will resolve the logger instance by using the `Zend\Expressive\Swoole\Log\SwooleLogger` service.
+> If you were manually using this factory, you should register the service to the `Zend\Expressive\Swoole\Log\SwooleLoggerFactory`.
+
 This factory also allows you to specify a custom `AccessLogFormatterInterface`
 instance if you want. It will look up a service by the fully-qualified interface
 name, and use it if present. Otherwise, it creates an `AccessLogFormatter`
