@@ -281,6 +281,10 @@
                     </li>
                 
                     <li class="toc__entry">
+                        <a href="#logging" class="toc__link">Logging</a>
+                    </li>
+                
+                    <li class="toc__entry">
                         <a href="#limitations" class="toc__link">Limitations</a>
                     </li>
                 
@@ -325,6 +329,11 @@ return [
     ],
 ];</code></pre>
 
+<h2 id="logging">Logging</h2>
+<p>When a file is reloaded, a <em>notice</em> line will be logged with the message
+<code>Reloading due to file change: {path}</code>.</p>
+<p>The logger used to log these lines is the same used for access logging, which
+is described in the <a href="../logging/#container-usage">logging section</a> of this documentation.</p>
 <h2 id="limitations">Limitations</h2>
 <p>Only files included by PHP after <code>onWorkerStart</code> will be reloaded. This means
 that Swoole will not reload any of the following:</p>

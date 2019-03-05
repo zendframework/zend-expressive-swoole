@@ -399,6 +399,10 @@ you can configure it by providing its name:</p>
 <p>If you don't want to manually provide the service name but you are okay with re-using your
 existing PSR-3 logger, the provided <code>Zend\Expressive\Swoole\Log\AccessLogFactory</code> will use
 the <code>Psr\Log\LoggerInterface</code> service to create a <code>Psr3AccessLogDecorator</code> instance.</p>
+<blockquote>
+<p>Since 2.4.0, the <code>Zend\Expressive\Swoole\Log\AccessLogFactory</code> will resolve the logger instance by using the <code>Zend\Expressive\Swoole\Log\SwooleLogger</code> service.
+If you were manually using this factory, you should register the service to the <code>Zend\Expressive\Swoole\Log\SwooleLoggerFactory</code>.</p>
+</blockquote>
 <p>This factory also allows you to specify a custom <code>AccessLogFormatterInterface</code>
 instance if you want. It will look up a service by the fully-qualified interface
 name, and use it if present. Otherwise, it creates an <code>AccessLogFormatter</code>
