@@ -1,7 +1,7 @@
 <?php
 /**
  * @see       https://github.com/zendframework/zend-expressive-swoole for the canonical source repository
- * @copyright Copyright (c) 2018 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright Copyright (c) 2018-2019 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   https://github.com/zendframework/zend-expressive-swoole/blob/master/LICENSE.md New BSD License
  */
 
@@ -60,17 +60,18 @@ class ConfigProvider
     {
         return [
             'factories'  => [
-                Command\ReloadCommand::class          => Command\ReloadCommandFactory::class,
-                Command\StartCommand::class           => Command\StartCommandFactory::class,
-                Command\StatusCommand::class          => Command\StatusCommandFactory::class,
-                Command\StopCommand::class            => Command\StopCommandFactory::class,
-                Log\AccessLogInterface::class         => Log\AccessLogFactory::class,
-                PidManager::class                     => PidManagerFactory::class,
-                SwooleRequestHandlerRunner::class     => SwooleRequestHandlerRunnerFactory::class,
-                ServerRequestInterface::class         => ServerRequestSwooleFactory::class,
-                StaticResourceHandler::class          => StaticResourceHandlerFactory::class,
-                SwooleHttpServer::class               => HttpServerFactory::class,
-                Reloader::class                       => ReloaderFactory::class,
+                Command\ReloadCommand::class           => Command\ReloadCommandFactory::class,
+                Command\StartCommand::class            => Command\StartCommandFactory::class,
+                Command\StatusCommand::class           => Command\StatusCommandFactory::class,
+                Command\StopCommand::class             => Command\StopCommandFactory::class,
+                Log\AccessLogInterface::class          => Log\AccessLogFactory::class,
+                Log\SwooleLoggerFactory::SWOOLE_LOGGER => Log\SwooleLoggerFactory::class,
+                PidManager::class                      => PidManagerFactory::class,
+                SwooleRequestHandlerRunner::class      => SwooleRequestHandlerRunnerFactory::class,
+                ServerRequestInterface::class          => ServerRequestSwooleFactory::class,
+                StaticResourceHandler::class           => StaticResourceHandlerFactory::class,
+                SwooleHttpServer::class                => HttpServerFactory::class,
+                Reloader::class                        => ReloaderFactory::class,
             ],
             'aliases' => [
                 RequestHandlerRunner::class           => SwooleRequestHandlerRunner::class,

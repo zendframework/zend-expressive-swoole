@@ -62,7 +62,7 @@ class Reloader
         $changedFilePaths = $this->fileWatcher->readChangedFilePaths();
         if ($changedFilePaths) {
             foreach ($changedFilePaths as $path) {
-                $this->logger->notice("File changed {path}, reloading", ['path' => $path]);
+                $this->logger->notice("Reloading due to file change: {path}", ['path' => $path]);
             }
             $server->reload();
         }

@@ -1,7 +1,7 @@
 <?php
 /**
  * @see       https://github.com/zendframework/zend-expressive-swoole for the canonical source repository
- * @copyright Copyright (c) 2018 Zend Technologies USA Inc. (https://www.zend.com)
+ * @copyright Copyright (c) 2018-2019 Zend Technologies USA Inc. (https://www.zend.com)
  * @license   https://github.com/zendframework/zend-expressive-swoole/blob/master/LICENSE.md New BSD License
  */
 
@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Zend\Expressive\Swoole\Log;
 
 use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Create and return an access logger.
@@ -33,25 +32,18 @@ use Psr\Log\LoggerInterface;
  */
 class AccessLogFactory
 {
+    use LoggerResolvingTrait;
+
     public function __invoke(ContainerInterface $container) : AccessLogInterface
     {
         $config = $container->has('config') ? $container->get('config') : [];
         $config = $config['zend-expressive-swoole']['swoole-http-server']['logger'] ?? [];
 
         return new Psr3AccessLogDecorator(
-            $this->getLogger($container, $config),
+            $this->getLogger($container),
             $this->getFormatter($container, $config),
             $config['use-hostname-lookups'] ?? false
         );
-    }
-
-    private function getLogger(ContainerInterface $container, array $config) : LoggerInterface
-    {
-        if (isset($config['logger-name'])) {
-            return $container->get($config['logger-name']);
-        }
-
-        return $container->has(LoggerInterface::class) ? $container->get(LoggerInterface::class) : new StdoutLogger();
     }
 
     private function getFormatter(ContainerInterface $container, array $config) : AccessLogFormatterInterface

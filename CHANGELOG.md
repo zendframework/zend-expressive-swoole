@@ -2,11 +2,12 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.3.1 - TBD
+## 2.4.0 - 2019-03-05
 
 ### Added
 
-- Nothing.
+- [#64](https://github.com/zendframework/zend-expressive-swoole/pull/64) updates the hot reloading feature so that it logs messages using the same
+  logger configured for access logging.
 
 ### Changed
 

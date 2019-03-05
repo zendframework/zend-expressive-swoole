@@ -40,6 +40,14 @@ return [
 ];
 ```
 
+## Logging
+
+When a file is reloaded, a *notice* line will be logged with the message
+`Reloading due to file change: {path}`.
+
+The logger used to log these lines is the same used for access logging, which
+is described in the [logging section](logging.md#container-usage) of this documentation.
+
 ## Limitations
 
 Only files included by PHP after `onWorkerStart` will be reloaded. This means
