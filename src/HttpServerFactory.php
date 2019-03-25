@@ -11,7 +11,7 @@ namespace Zend\Expressive\Swoole;
 
 use Psr\Container\ContainerInterface;
 use Swoole\Http\Server as SwooleHttpServer;
-use SwooleRuntime;
+use Swoole\Runtime as SwooleRuntime;
 
 use function defined;
 use function in_array;

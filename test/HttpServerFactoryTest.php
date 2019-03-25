@@ -14,6 +14,7 @@ use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
 use Swoole\Http\Server as SwooleServer;
 use Swoole\Process;
+use Swoole\Runtime as SwooleRuntime;
 use Throwable;
 use Zend\Expressive\Swoole\Exception\InvalidArgumentException;
 use Zend\Expressive\Swoole\HttpServerFactory;
@@ -293,5 +294,18 @@ class HttpServerFactoryTest extends TestCase
         $output = $process->read();
         Process::wait(true);
         $this->assertSame('Server Started', $output);
+    }
+
+    public function testFactoryCanBeEnableCoroutine()
+    {
+        $this->container->get('config')->willReturn([
+            'zend-expressive-swoole' => [
+                'enable_coroutine' => true,
+            ],
+        ]);
+        $factory = new HttpServerFactory();
+        $factory($this->container->reveal());
+
+        $this->assertFalse(SwooleRuntime::enableCoroutine());
     }
 }
