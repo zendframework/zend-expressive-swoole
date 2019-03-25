@@ -38,7 +38,6 @@
     "require-dev": {
         "filp/whoops": "^2.1",
         "phpunit/phpunit": "^7.1.1",
-        "swoole/ide-helper": "dev-master",
         "zendframework/zend-coding-standard": "~1.0.0",
         "zendframework/zend-servicemanager": "^3.3"
     },
@@ -76,11 +75,5 @@
         "cs-fix": "phpcbf",
         "test": "phpunit --colors=always",
         "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
-    },
-    "repositories": [
-        {
-            "type": "git",
-            "url": "https://github.com/swoole/ide-helper.git"
-        }
-    ]
+    }
 }
