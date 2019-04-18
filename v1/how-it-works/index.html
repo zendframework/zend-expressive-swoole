@@ -12,6 +12,7 @@
     <title>How it works - zend-expressive-swoole</title>
 
     <link rel="stylesheet" href="../../css/styles-18b942728f.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.2.0/anchor.min.js"></script>
 </head>
 <body id="page-top">
 
@@ -66,7 +67,7 @@
                     
     <div class="subnavigation hidden-print">
         <h4 class="subnavigation__title">
-            <a href="../..">zend-expressive-swoole</a>
+            <a href="">zend-expressive-swoole</a>
         </h4>
 
         <h5 class="subnavigation__subtitle">Table of Contents</h5>
@@ -75,7 +76,7 @@
             
                 
                     <li class="subnavigation__list-item ">
-                        <a href="../../v2/intro/" class="subnavigation__link">Introduction</a>
+                        <a href="v2/intro/" class="subnavigation__link">Introduction</a>
                     </li>
                 
             
@@ -86,49 +87,49 @@
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/static-resources/" class="subnavigation__link">Static Resources</a>
+        <a href="v2/static-resources/" class="subnavigation__link">Static Resources</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/logging/" class="subnavigation__link">Logging</a>
+        <a href="v2/logging/" class="subnavigation__link">Logging</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/async-tasks/" class="subnavigation__link">Async Tasks</a>
+        <a href="v2/async-tasks/" class="subnavigation__link">Async Tasks</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/hot-code-reload/" class="subnavigation__link">Hot Code Reloading</a>
+        <a href="v2/hot-code-reload/" class="subnavigation__link">Hot Code Reloading</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/command-line/" class="subnavigation__link">Command Line Tooling</a>
+        <a href="v2/command-line/" class="subnavigation__link">Command Line Tooling</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/how-it-works/" class="subnavigation__link">How it works</a>
+        <a href="v2/how-it-works/" class="subnavigation__link">How it works</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/considerations/" class="subnavigation__link">Considerations when using Swoole</a>
+        <a href="v2/considerations/" class="subnavigation__link">Considerations when using Swoole</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/migration/" class="subnavigation__link">Migration</a>
+        <a href="v2/migration/" class="subnavigation__link">Migration</a>
     </li>
 
                             
@@ -143,7 +144,7 @@
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../intro/" class="subnavigation__link">Intro</a>
+        <a href="v1/intro/" class="subnavigation__link">Intro</a>
     </li>
 
                             
@@ -154,25 +155,25 @@
             
                 
     <li class="subnavigation__list-item ">
-        <a href="../static-resources/" class="subnavigation__link">Static Resources</a>
+        <a href="v1/static-resources/" class="subnavigation__link">Static Resources</a>
     </li>
 
             
                 
     <li class="subnavigation__list-item ">
-        <a href="../logging/" class="subnavigation__link">Logging</a>
+        <a href="v1/logging/" class="subnavigation__link">Logging</a>
     </li>
 
             
                 
     <li class="subnavigation__list-item subnavigation__list-item--active">
-        <a href="./" class="subnavigation__link">How it works</a>
+        <a href="v1/how-it-works/" class="subnavigation__link">How it works</a>
     </li>
 
             
                 
     <li class="subnavigation__list-item ">
-        <a href="../considerations/" class="subnavigation__link">Considerations when using Swoole</a>
+        <a href="v1/considerations/" class="subnavigation__link">Considerations when using Swoole</a>
     </li>
 
             
@@ -260,15 +261,15 @@
         <li><a href="https://docs.zendframework.com/">Documentation</a></li>
 
         
-            <li><a href="../..">zend-expressive-swoole</a></li>
+            <li><a href="">zend-expressive-swoole</a></li>
 
             
                 
-                    <li>v1</li>
+                    <li>Reference</li>
                 
             
                 
-                    <li>Reference</li>
+                    <li>v1</li>
                 
             
 
@@ -311,12 +312,12 @@ event of <code>Swoole\Http\Server</code>. This runner is implemented in the
 <pre class="codehilite"><code class="language-php">public function run() : void
 {
     $this-&gt;swooleHttpServer-&gt;on('start', function ($server) {
-        printf(&quot;Swoole is running at %s:%s\n&quot;, $server-&gt;host, $server-&gt;port);
+        printf("Swoole is running at %s:%s\n", $server-&gt;host, $server-&gt;port);
     });
 
     $this-&gt;swooleHttpServer-&gt;on('request', function ($request, $response) {
         printf(
-            &quot;%s - %s - %s %s\n&quot;,
+            "%s - %s - %s %s\n",
             date('Y-m-d H:i:sO', time()),
             $request-&gt;server['remote_addr'],
             $request-&gt;server['request_method'],
@@ -376,7 +377,7 @@ by the amount of memory); as such, performance can increase from these numbers.<
         
         <li class="page-nav__item">
             
-                <a rel="prev" class="page-nav__link page-nav__link--prev" href="../logging/">
+                <a rel="prev" class="page-nav__link page-nav__link--prev" href="v1/logging/">
                     <i class="fa fa-chevron-left"></i> Previous
                 </a>
             
@@ -385,7 +386,7 @@ by the amount of memory); as such, performance can increase from these numbers.<
         
         <li class="page-nav__item">
             
-                <a rel="next" class="page-nav__link page-nav__link--next" href="../considerations/">
+                <a rel="next" class="page-nav__link page-nav__link--next" href="v1/considerations/">
                     Next <i class="fa fa-chevron-right"></i>
                 </a>
             
@@ -420,7 +421,7 @@ by the amount of memory); as such, performance can increase from these numbers.<
                     
     <div class="subnavigation hidden-print">
         <h4 class="subnavigation__title">
-            <a href="../..">zend-expressive-swoole</a>
+            <a href="">zend-expressive-swoole</a>
         </h4>
 
         <h5 class="subnavigation__subtitle">Table of Contents</h5>
@@ -429,7 +430,7 @@ by the amount of memory); as such, performance can increase from these numbers.<
             
                 
                     <li class="subnavigation__list-item ">
-                        <a href="../../v2/intro/" class="subnavigation__link">Introduction</a>
+                        <a href="v2/intro/" class="subnavigation__link">Introduction</a>
                     </li>
                 
             
@@ -440,49 +441,49 @@ by the amount of memory); as such, performance can increase from these numbers.<
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/static-resources/" class="subnavigation__link">Static Resources</a>
+        <a href="v2/static-resources/" class="subnavigation__link">Static Resources</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/logging/" class="subnavigation__link">Logging</a>
+        <a href="v2/logging/" class="subnavigation__link">Logging</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/async-tasks/" class="subnavigation__link">Async Tasks</a>
+        <a href="v2/async-tasks/" class="subnavigation__link">Async Tasks</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/hot-code-reload/" class="subnavigation__link">Hot Code Reloading</a>
+        <a href="v2/hot-code-reload/" class="subnavigation__link">Hot Code Reloading</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/command-line/" class="subnavigation__link">Command Line Tooling</a>
+        <a href="v2/command-line/" class="subnavigation__link">Command Line Tooling</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/how-it-works/" class="subnavigation__link">How it works</a>
+        <a href="v2/how-it-works/" class="subnavigation__link">How it works</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/considerations/" class="subnavigation__link">Considerations when using Swoole</a>
+        <a href="v2/considerations/" class="subnavigation__link">Considerations when using Swoole</a>
     </li>
 
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../../v2/migration/" class="subnavigation__link">Migration</a>
+        <a href="v2/migration/" class="subnavigation__link">Migration</a>
     </li>
 
                             
@@ -497,7 +498,7 @@ by the amount of memory); as such, performance can increase from these numbers.<
                             
                                 
     <li class="subnavigation__list-item ">
-        <a href="../intro/" class="subnavigation__link">Intro</a>
+        <a href="v1/intro/" class="subnavigation__link">Intro</a>
     </li>
 
                             
@@ -508,25 +509,25 @@ by the amount of memory); as such, performance can increase from these numbers.<
             
                 
     <li class="subnavigation__list-item ">
-        <a href="../static-resources/" class="subnavigation__link">Static Resources</a>
+        <a href="v1/static-resources/" class="subnavigation__link">Static Resources</a>
     </li>
 
             
                 
     <li class="subnavigation__list-item ">
-        <a href="../logging/" class="subnavigation__link">Logging</a>
+        <a href="v1/logging/" class="subnavigation__link">Logging</a>
     </li>
 
             
                 
     <li class="subnavigation__list-item subnavigation__list-item--active">
-        <a href="./" class="subnavigation__link">How it works</a>
+        <a href="v1/how-it-works/" class="subnavigation__link">How it works</a>
     </li>
 
             
                 
     <li class="subnavigation__list-item ">
-        <a href="../considerations/" class="subnavigation__link">Considerations when using Swoole</a>
+        <a href="v1/considerations/" class="subnavigation__link">Considerations when using Swoole</a>
     </li>
 
             
@@ -612,9 +613,8 @@ by the amount of memory); as such, performance can increase from these numbers.<
         var base_url = '../..',
             siteName = 'zend-expressive-swoole';
     </script>
-    <script src="../../js/scripts-0bcb0a3bb3.js"></script>
-        <script src="../../search/require.js"></script>
-        <script src="../../search/search.js"></script>
+    <script src="../../js/scripts-edc4cfa790.js"></script>
+        <script src="../../search/main.js"></script>
 
     
     <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
@@ -643,6 +643,14 @@ by the amount of memory); as such, performance can increase from these numbers.<
             </div>
         </div>
     </div>
+
+<script>
+// Anchors
+anchors.options.placement = 'left';
+anchors.add(
+    '.content h1:not(.content__title), .content h2, .content > h3, .content h4, .content h5'
+);
+</script>
 
 
 
