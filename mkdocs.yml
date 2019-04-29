@@ -1,17 +1,23 @@
 docs_dir: docs/book
 site_dir: docs/html
+extra:
+  current_version: v2
+  versions:
+    - v2
+    - v1
 pages:
     - Home: index.md
-    - Introduction: v2/intro.md
-    - Reference:
-      - "Static Resources": v2/static-resources.md
-      - Logging: v2/logging.md
-      - "Async Tasks": v2/async-tasks.md
-      - "Hot Code Reloading": v2/hot-code-reload.md
-      - "Command Line Tooling": v2/command-line.md
-      - "How it works": v2/how-it-works.md
-      - "Considerations when using Swoole": v2/considerations.md
-      - Migration: v2/migration.md
+    - v2:
+      - Introduction: v2/intro.md
+      - Reference:
+        - "Static Resources": v2/static-resources.md
+        - Logging: v2/logging.md
+        - "Async Tasks": v2/async-tasks.md
+        - "Hot Code Reloading": v2/hot-code-reload.md
+        - "Command Line Tooling": v2/command-line.md
+        - "How it works": v2/how-it-works.md
+        - "Considerations when using Swoole": v2/considerations.md
+        - Migration: v2/migration.md
     - v1:
       - Intro: v1/intro.md
       - Reference:
