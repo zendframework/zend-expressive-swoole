@@ -1,98 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-     <loc>None</loc>
-     <lastmod>2019-04-23</lastmod>
+     <loc>https://docs.zendframework.com/zend-expressive-swoole/</loc>
+     <lastmod>2019-04-29</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>None</loc>
-     <lastmod>2019-04-23</lastmod>
+     <loc>https://docs.zendframework.com/zend-expressive-swoole/v2/intro/</loc>
+     <lastmod>2019-04-29</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>None</loc>
-     <lastmod>2019-04-23</lastmod>
+     <loc>https://docs.zendframework.com/zend-expressive-swoole/v2/static-resources/</loc>
+     <lastmod>2019-04-29</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>None</loc>
-     <lastmod>2019-04-23</lastmod>
+     <loc>https://docs.zendframework.com/zend-expressive-swoole/v2/logging/</loc>
+     <lastmod>2019-04-29</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>None</loc>
-     <lastmod>2019-04-23</lastmod>
+     <loc>https://docs.zendframework.com/zend-expressive-swoole/v2/async-tasks/</loc>
+     <lastmod>2019-04-29</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>None</loc>
-     <lastmod>2019-04-23</lastmod>
+     <loc>https://docs.zendframework.com/zend-expressive-swoole/v2/hot-code-reload/</loc>
+     <lastmod>2019-04-29</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>None</loc>
-     <lastmod>2019-04-23</lastmod>
+     <loc>https://docs.zendframework.com/zend-expressive-swoole/v2/command-line/</loc>
+     <lastmod>2019-04-29</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>None</loc>
-     <lastmod>2019-04-23</lastmod>
+     <loc>https://docs.zendframework.com/zend-expressive-swoole/v2/how-it-works/</loc>
+     <lastmod>2019-04-29</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>None</loc>
-     <lastmod>2019-04-23</lastmod>
+     <loc>https://docs.zendframework.com/zend-expressive-swoole/v2/considerations/</loc>
+     <lastmod>2019-04-29</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>None</loc>
-     <lastmod>2019-04-23</lastmod>
+     <loc>https://docs.zendframework.com/zend-expressive-swoole/v2/migration/</loc>
+     <lastmod>2019-04-29</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>None</loc>
-     <lastmod>2019-04-23</lastmod>
+     <loc>https://docs.zendframework.com/zend-expressive-swoole/v1/intro/</loc>
+     <lastmod>2019-04-29</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>None</loc>
-     <lastmod>2019-04-23</lastmod>
+     <loc>https://docs.zendframework.com/zend-expressive-swoole/v1/static-resources/</loc>
+     <lastmod>2019-04-29</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>None</loc>
-     <lastmod>2019-04-23</lastmod>
+     <loc>https://docs.zendframework.com/zend-expressive-swoole/v1/logging/</loc>
+     <lastmod>2019-04-29</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>None</loc>
-     <lastmod>2019-04-23</lastmod>
+     <loc>https://docs.zendframework.com/zend-expressive-swoole/v1/how-it-works/</loc>
+     <lastmod>2019-04-29</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>None</loc>
-     <lastmod>2019-04-23</lastmod>
+     <loc>https://docs.zendframework.com/zend-expressive-swoole/v1/considerations/</loc>
+     <lastmod>2019-04-29</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>None</loc>
-     <lastmod>2019-04-23</lastmod>
+     <loc>https://docs.zendframework.com/zend-expressive-swoole/intro/</loc>
+     <lastmod>2019-04-29</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>None</loc>
-     <lastmod>2019-04-23</lastmod>
+     <loc>https://docs.zendframework.com/zend-expressive-swoole/static-resources/</loc>
+     <lastmod>2019-04-29</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>None</loc>
-     <lastmod>2019-04-23</lastmod>
+     <loc>https://docs.zendframework.com/zend-expressive-swoole/logging/</loc>
+     <lastmod>2019-04-29</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>None</loc>
-     <lastmod>2019-04-23</lastmod>
+     <loc>https://docs.zendframework.com/zend-expressive-swoole/how_it_works/</loc>
+     <lastmod>2019-04-29</lastmod>
      <changefreq>daily</changefreq>
     </url>
 </urlset>
