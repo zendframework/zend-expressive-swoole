@@ -315,16 +315,16 @@ class HttpServerFactoryTest extends TestCase
         if (extension_loaded('xdebug')) {
             $this->expectException(\PHPUnit\Framework\Error\Warning::class);
 
-            go(function() {
+            go(function () {
             });
         } else {
             $i = 0;
-            go(function() use (&$i) {
+            go(function () use (&$i) {
                 usleep(1000);
                 $i++;
                 SwooleEvent::exit();
             });
-            go(function() use (&$i) {
+            go(function () use (&$i) {
                 $i++;
                 $this->assertEquals(1, $i);
             });
