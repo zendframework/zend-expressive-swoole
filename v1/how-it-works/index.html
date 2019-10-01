@@ -310,15 +310,15 @@ enables the execution of an Expressive application inside the <code>on('request'
 event of <code>Swoole\Http\Server</code>. This runner is implemented in the
 <code>Zend\Expressive\Swoole\SwooleRequestHandlerRunner</code> class.</p>
 <p>The basic implementation looks similar to the following:</p>
-<pre class="codehilite"><code class="language-php">public function run() : void
+<p> <pre class=codehilite><code class=language-php>public function run() : void
 {
     $this-&gt;swooleHttpServer-&gt;on('start', function ($server) {
-        printf("Swoole is running at %s:%s\n", $server-&gt;host, $server-&gt;port);
+        printf(&quot;Swoole is running at %s:%s\n&quot;, $server-&gt;host, $server-&gt;port);
     });
 
     $this-&gt;swooleHttpServer-&gt;on('request', function ($request, $response) {
         printf(
-            "%s - %s - %s %s\n",
+            &quot;%s - %s - %s %s\n&quot;,
             date('Y-m-d H:i:sO', time()),
             $request-&gt;server['remote_addr'],
             $request-&gt;server['request_method'],
@@ -336,8 +336,7 @@ event of <code>Swoole\Http\Server</code>. This runner is implemented in the
     });
 
     $this-&gt;swooleHttpServer-&gt;start();
-}</code></pre>
-
+}</code></pre></p>
 <p>This package provides a bridge between <code>Swoole\Http\Request</code> (<code>$request</code>) and
 <a href="https://www.php-fig.org/psr/psr-7/">PSR-7</a> requests (<code>$psr7Request</code>;
 specifically as implemented by <a href="https://docs.zendframework.com/zend-diactoros">zend-diactoros</a>)
@@ -402,7 +401,7 @@ by the amount of memory); as such, performance can increase from these numbers.<
     <div class="help-wanted">
         <p>
             Found a mistake or want to contribute to the documentation?
-            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/v1/how-it-works.md" target="_blank" class="help-wanted__link">
+            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/book/v1/how-it-works.md" target="_blank" class="help-wanted__link">
                 Edit this page on GitHub!
             </a>
         </p>

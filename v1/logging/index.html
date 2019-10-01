@@ -326,7 +326,7 @@ equal to 400).</p>
 <p>Technically, the <code>SwooleRequestHandlerRunner</code> doesn't use PSR-3 loggers
 directly, but, rather, instances of <code>Zend\Expressive\Swoole\Log\AccessLogInterface</code>.
 This package-specific interface extends the PSR-3 interface to add two methods:</p>
-<pre class="codehilite"><code class="language-php">use Psr\Http\Message\ResponseInterface;
+<p> <pre class=codehilite><code class=language-php>use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Swoole\Http\Request;
 use Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse;
@@ -342,14 +342,13 @@ interface AccessLogInterface extends LoggerInterface
         Request $request,
         ResponseInterface $response
     ) : void;
-}</code></pre>
-
+}</code></pre></p>
 <p>To allow usage of a standard PSR-3 logger, we also provide a decorator,
 <code>Zend\Expressive\Swoole\Log\Psr3AccessLogDecorator</code>, which decorates the PSR-3
 logger and provides a standard implementation for the two methods listed above.
 If you have defined a PSR-3 <code>LoggerInterface</code> service in your application, it
 will be used automatically.</p>
-<h3 id="formatting-logs">Formatting logs</h3>
+<h3>Formatting logs</h3>
 <p>The Apache web server has long provided flexible and robust logging
 capabilities, and its formats are used across a variety of web servers and
 logging platforms. As such, we have chosen to use its formats for our standard
@@ -358,11 +357,10 @@ implementation. However, we allow you to plug in your own system as needed.</p>
 in order to understand the available placeholders available for format strings.</p>
 <p>Formatting is provided to the <code>Psr3AccessLogDecorator</code> via instances of the
 interface <code>Zend\Expressive\Swoole\Log\AccessLogFormatterInterface</code>:</p>
-<pre class="codehilite"><code class="language-php">interface AccessLogFormatterInterface
+<p> <pre class=codehilite><code class=language-php>interface AccessLogFormatterInterface
 {
     public function format(AccessLogDataMap $map) : string;
-}</code></pre>
-
+}</code></pre></p>
 <p><code>AccessLogDataMap</code> is a class used internally by the <code>Psr3AccessLogDecorator</code> in
 order to map Apache log placeholders to request/response values.</p>
 <p>Our default <code>AccessLogFormatterInterface</code> implementation, <code>AccessLogFormatter</code>,
@@ -383,10 +381,10 @@ we include by default are:</p>
 <h2 id="configuring-a-logger">Configuring a logger</h2>
 <p>You may subsitute your own logger implementation into the Swoole request handler
 runner.</p>
-<h3 id="manual-usage">Manual usage</h3>
+<h3>Manual usage</h3>
 <p>If you are manually instantiating a <code>Zend\Expressive\Swoole\SwooleRequestHandlerRunner</code>
 instance, you may provide it as the seventh argument to the constructor:</p>
-<pre class="codehilite"><code class="language-php">use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
+<p> <pre class=codehilite><code class=language-php>use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
 
 $runner = new SwooleRequestHandlerRunner(
     $application,
@@ -396,9 +394,8 @@ $runner = new SwooleRequestHandlerRunner(
     $serverFactory,
     $staticResourceHandler,
     $logger // &lt;-- AccessLoggerInterface instance
-);</code></pre>
-
-<h3 id="container-usage">Container usage</h3>
+);</code></pre></p>
+<h3>Container usage</h3>
 <p>If you are using a <a href="https://www.php-fig.org/psr/psr-11/">PSR-11</a> container, the
 <code>SwooleRequestHandlerRunnerFactory</code> will retrieve a log instance using the
 <code>Zend\Expressive\Swoole\Log\AccessLogInterface</code> service.</p>
@@ -414,7 +411,7 @@ instance if you want. It will look up a service by the fully-qualified interface
 name, and use it if present. Otherwise, it creates an <code>AccessLogFormatter</code>
 instance for you.</p>
 <p>The factory will also look at the following configuration values:</p>
-<pre class="codehilite"><code class="language-php">'zend-expressive-swoole' =&gt; [
+<p> <pre class=codehilite><code class=language-php>'zend-expressive-swoole' =&gt; [
     'swoole-http-server' =&gt; [
         'logger' =&gt; [
             'format' =&gt; string, // one of the AccessLogFormatter::FORMAT_*
@@ -422,9 +419,8 @@ instance for you.</p>
             'use-hostname-lookups' =&gt; bool, // Set to true to enable hostname lookups
         ],
     ],
-],</code></pre>
-
-<h3 id="using-monolog-as-a-psr-3-logger">Using Monolog as a PSR-3 logger</h3>
+],</code></pre></p>
+<h3>Using Monolog as a PSR-3 logger</h3>
 <p>When using <a href="https://seldaek.github.io/monolog/">Monolog</a> with a <code>StreamHandler</code>,
 you must supply a file or a stream resource descriptor. We recommend using one
 of the following:</p>
@@ -446,7 +442,7 @@ of the following:</p>
 </li>
 </ul>
 <blockquote>
-<h3 id="errorloghandler">ErrorLogHandler</h3>
+<h3>ErrorLogHandler</h3>
 <p>If you plan to write to <code>STDERR</code>, you might consider instead using the
 Monolog <code>ErrorLogHandler</code>, as this will use PHP's <code>error_log()</code> mechanism to
 write to the configured PHP error log. You can then either introspect that
@@ -457,7 +453,7 @@ either <code>/dev/stderr</code> or, if on Docker, <code>/proc/1/fd/2</code>.</p>
 handler to ensure that any templated parameters are expanded by the logger.</p>
 <p>As an example, the following is a factory that wires a <code>StreamHandler</code> to a
 <code>Monolog\Logger</code> instance. </p>
-<pre class="codehilite"><code class="language-php">use Psr\Container\ContainerInterface;
+<p> <pre class=codehilite><code class=language-php>use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -477,8 +473,7 @@ class LoggerFactory
         $logger-&gt;pushProcessor(new PsrLogMessageProcessor());
         return $logger;
     }
-}</code></pre>
-
+}</code></pre></p>
 <p>If you then wire this to the <code>Psr\Log\LoggerInterface</code> service, it will be used
 by Swoole for the purposes of access logs as well.</p>
 
@@ -514,7 +509,7 @@ by Swoole for the purposes of access logs as well.</p>
     <div class="help-wanted">
         <p>
             Found a mistake or want to contribute to the documentation?
-            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/v1/logging.md" target="_blank" class="help-wanted__link">
+            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/book/v1/logging.md" target="_blank" class="help-wanted__link">
                 Edit this page on GitHub!
             </a>
         </p>

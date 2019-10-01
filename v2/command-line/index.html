@@ -324,8 +324,7 @@ following commands:</p>
 <li><code>status</code> to determine the server status (running or not running)</li>
 </ul>
 <p>You may obtain help for each command using the <code>help</code> meta-command:</p>
-<pre class="codehilite"><code class="language-bash">$ ./vendor/bin/zend-expressive-swoole help start</code></pre>
-
+<p> <pre class=codehilite><code class=language-bash>$ ./vendor/bin/zend-expressive-swoole help start</code></pre></p>
 <p>The <code>stop</code>, <code>status</code>, and <code>reload</code> commands are sufficiently generic to work
 regardless of runtime or application, as they work directly with the Swoole
 process manager. The <code>start</code> command, however, may need customizations if you
@@ -355,25 +354,23 @@ have customized your application bootstrap.</p>
 </ul>
 <p>These are roughly the steps taken within the application bootstrap
 (<code>public/index.php</code>) of the Expressive skeleton application.</p>
-<h3 id="writing-a-custom-start-command">Writing a custom start command</h3>
+<h3>Writing a custom start command</h3>
 <p>If your application needs alternate bootstrapping (e.g., if you have modified
 the <code>public/index.php</code>, or if you are using this package with a different
 middleware runtime), we recommend writing a custom <code>start</code> command.</p>
 <p>As an example, let's say you have altered your application such that you're
 defining your routes in multiple files, and instead of:</p>
-<pre class="codehilite"><code class="language-php">(require 'config/routes.php')($app, $factory, $container);</code></pre>
-
+<p> <pre class=codehilite><code class=language-php>(require 'config/routes.php')($app, $factory, $container);</code></pre></p>
 <p>you instead have something like:</p>
-<pre class="codehilite"><code class="language-php">$handle = opendir('config/routes/');
+<p> <pre class=codehilite><code class=language-php>$handle = opendir('config/routes/');
 while (false !== ($entry = readdir($handle))) {
     if (false === strrpos($entry, '.php')) {
         continue;
     }
     (require $entry)($app, $factory, $container);
-}</code></pre>
-
+}</code></pre></p>
 <p>You could write a command such as the following:</p>
-<pre class="codehilite"><code class="language-php">// In src/App/Command/StartCommand.php:
+<p> <pre class=codehilite><code class=language-php>// In src/App/Command/StartCommand.php:
 
 namespace App\Command;
 
@@ -432,10 +429,9 @@ class StartCommand extends BaseStartCommand
 
         return 0;
     }
-}</code></pre>
-
+}</code></pre></p>
 <p>You will also need to write a factory for the class:</p>
-<pre class="codehilite"><code class="language-php">// In src/App/Command/StartCommandFactory.php:
+<p> <pre class=codehilite><code class=language-php>// In src/App/Command/StartCommandFactory.php:
 
 namespace App\Command;
 
@@ -447,11 +443,10 @@ class StartCommandFactory
     {
         return new StartCommand($container);
     }
-}</code></pre>
-
+}</code></pre></p>
 <p>If this is all you're changing, you can map this new command to the existing
 <code>Zend\Expressive\Swoole\Command\StartCommand</code> service within your configuration:</p>
-<pre class="codehilite"><code class="language-php">// in config/autoload/dependencies.global.php:
+<p> <pre class=codehilite><code class=language-php>// in config/autoload/dependencies.global.php:
 
 use App\Command\StartCommandFactory;
 use Zend\Expressive\Swoole\Command\StartCommand;
@@ -462,8 +457,7 @@ return [
             StartCommand::class =&gt; StartCommandFactory::class,
         ],
     ],
-];</code></pre>
-
+];</code></pre></p>
 <p>Since the <code>zend-expressive-swoole</code> binary uses your application configuration
 and container, this will substitute your command for the shipped command!</p>
 
@@ -499,7 +493,7 @@ and container, this will substitute your command for the shipped command!</p>
     <div class="help-wanted">
         <p>
             Found a mistake or want to contribute to the documentation?
-            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/v2/command-line.md" target="_blank" class="help-wanted__link">
+            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/book/v2/command-line.md" target="_blank" class="help-wanted__link">
                 Edit this page on GitHub!
             </a>
         </p>

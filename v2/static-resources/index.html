@@ -305,10 +305,6 @@
             <ul class="toc__list">
                 
                     <li class="toc__entry">
-                        <a href="#disabling-static-resources" class="toc__link">Disabling static resources</a>
-                    </li>
-                
-                    <li class="toc__entry">
                         <a href="#middleware" class="toc__link">Middleware</a>
                     </li>
                 
@@ -351,7 +347,7 @@ known extensions, and a configured document root. If the extension matches, it
 then checks to see if the file exists in the document root. If it does, it will
 serve it.</p>
 <blockquote>
-<h3 id="disabling-static-resources">Disabling static resources</h3>
+<h3>Disabling static resources</h3>
 <ul>
 <li>Since 2.1.0</li>
 </ul>
@@ -359,13 +355,13 @@ serve it.</p>
 <p>If you have a custom factory for the <code>SwooleRequestHandlerRunner</code>, or are
 instantiating it manually, pass a null value for the sixth argument of its
 constructor. As an example, within a factory:</p>
-<pre class="codehilite"><code class="language-php">use Psr\Container\ContainerInterface;
+<p>```php
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Swoole\Http\Server as SwooleHttpServer;
 use Zend\Expressive\ApplicationPipeline;
-use Zend\Expressive\Swoole;
-
-function (ContainerInterface $container) : Swoole\SwooleRequestHandlerRunner
+use Zend\Expressive\Swoole;</p>
+<p>function (ContainerInterface $container) : Swoole\SwooleRequestHandlerRunner
 {
     return new SwooleRequestHandlerRunner(
         $container-&gt;get(ApplicationPipeline::class),
@@ -378,13 +374,14 @@ function (ContainerInterface $container) : Swoole\SwooleRequestHandlerRunner
             ? $container-&gt;get(Swool\Log\AccessLogInterface::class
             : null
     );
-}</code></pre>
-
+}
+```</p>
 <p>If you are using the default factory provided (<code>Zend\Expressive\Swoole\SwooleRequestHandlerRunnerFactory</code>),
 you can also disable the functionality via configuration. To do this, set the
 <code>zend-expressive-swoole.swoole-http-server.static-files.enable</code> flag to
 boolean <code>false</code>:</p>
-<pre class="codehilite"><code class="language-php">return [
+<p><code>php
+return [
     'zend-expressive-swoole' =&gt; [
         'swoole-http-server' =&gt; [
             'static-files' =&gt; [
@@ -392,8 +389,7 @@ boolean <code>false</code>:</p>
             ],
         ],
     ],
-];</code></pre>
-
+];</code></p>
 </blockquote>
 <h2 id="middleware">Middleware</h2>
 <p>The <code>StaticResourceHandler</code> implementation performs its work by composing a
@@ -473,7 +469,7 @@ ensures that all possible headers are provided whenever possible (e.g., a <code>
 request should also expose <code>Cache-Control</code>, <code>Last-Modified</code>, and <code>ETag</code>
 headers).</p>
 <blockquote>
-<h3 id="providing-your-own-middleware">Providing your own middleware</h3>
+<h3>Providing your own middleware</h3>
 <p>If you want to disable middleware, or to provide an alternate list of middleware
 (including your own!), you will need to provide an alternate
 <code>StaticResourceHandler</code> factory. In most cases, you can extend
@@ -491,7 +487,7 @@ configuration-driven approach in order to:</p>
 <li>Configure and provide middleware.</li>
 </ul>
 <p>The following demonstrates all currently available configuration options:</p>
-<pre class="codehilite"><code class="language-php">// config/autoload/swoole.local.php
+<p> <pre class=codehilite><code class=language-php>// config/autoload/swoole.local.php
 
 return [
     'zend-expressive-swoole' =&gt; [
@@ -501,7 +497,7 @@ return [
                 // files; all other configuration will then be ignored.
                 'enable' =&gt; true,
 
-                // Document root; defaults to "getcwd() . '/public'"
+                // Document root; defaults to &quot;getcwd() . '/public'&quot;
                 'document-root' =&gt; '/path/to/static/files/to/serve',
 
                 // Extension =&gt; content-type map.
@@ -517,8 +513,8 @@ return [
                 'clearstatcache-interval' =&gt; 3600,
 
                 // Which ETag algorithm to use.
-                // Must be one of "weak" or "strong"; the default, when none is
-                // provided, is "weak".
+                // Must be one of &quot;weak&quot; or &quot;strong&quot;; the default, when none is
+                // provided, is &quot;weak&quot;.
                 'etag-type' =&gt; 'weak|strong',
 
                 // gzip options
@@ -552,22 +548,21 @@ return [
             ],
         ],
     ],
-];</code></pre>
-
+];</code></pre></p>
 <blockquote>
-<h3 id="security-warning">Security warning</h3>
+<h3>Security warning</h3>
 <p>Never add <code>php</code> as an allowed static file extension, as doing so could expose
 the source code of your PHP application!</p>
-<h3 id="document-root">Document root</h3>
+<h3>Document root</h3>
 <p>If no <code>document_root</code> configuration is present, the default is to use
 <code>getcwd() . '/public'</code>. If either the configured or default document root
 does not exist, we raise an exception.</p>
-<h3 id="default-extensioncontent-types">Default extension/content-types</h3>
+<h3>Default extension/content-types</h3>
 <p>By default, we serve files with extensions in the whitelist defined in the
 constant <code>Zend\Expressive\Swoole\StaticResourceHandler\ContentTypeFilterMiddleware::DEFAULT_STATIC_EXTS</code>,
 which is derived from a <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types">list of common web MIME types maintained by Mozilla</a>.</p>
 </blockquote>
-<h3 id="configuration-example">Configuration Example</h3>
+<h3>Configuration Example</h3>
 <p>The example which follows provides the following options:</p>
 <ul>
 <li>Sets the document root to <code>/var/www/htdocs</code>.</li>
@@ -578,7 +573,7 @@ which is derived from a <a href="https://developer.mozilla.org/en-US/docs/Web/HT
 <li>Sets Cache-Control, Last-Modified, and ETag directives for JS, CSS, and image files.</li>
 <li>Sets Cache-Control directives for plain text files.</li>
 </ul>
-<pre class="codehilite"><code class="language-php">// config/autoload/swoole.local.php
+<p> <pre class=codehilite><code class=language-php>// config/autoload/swoole.local.php
 
 return [
     'zend-expressive-swoole' =&gt; [
@@ -626,13 +621,12 @@ return [
             ],
         ],
     ],
-];</code></pre>
-
+];</code></pre></p>
 <h2 id="writing-middleware">Writing Middleware</h2>
 <p>Static resource middleware must implement
 <code>Zend\Expressive\Swoole\StaticResourceHandler\MiddlewareInterface</code>, which
 defines the following:</p>
-<pre class="codehilite"><code class="language-php">namespace Zend\Expressive\Swoole\StaticResourceHandler;
+<p> <pre class=codehilite><code class=language-php>namespace Zend\Expressive\Swoole\StaticResourceHandler;
 
 use Swoole\Http\Request;
 
@@ -648,30 +642,27 @@ interface MiddlewareInterface
         string $filename,
         callable $next
     ) : StaticResourceResponse;
-}</code></pre>
-
+}</code></pre></p>
 <p>The <code>$next</code> argument has the following signature:</p>
-<pre class="codehilite"><code class="language-php">namespace Zend\Expressive\Swoole\StaticResourceHandler;
+<p> <pre class=codehilite><code class=language-php>namespace Zend\Expressive\Swoole\StaticResourceHandler;
 
 use Swoole\Http\Request;
 
 public function __invoke(
     Request $request,
     string $filename
-) : StaticResourceResponse;</code></pre>
-
+) : StaticResourceResponse;</code></pre></p>
 <p>Typically, middleware will look something like this:</p>
-<pre class="codehilite"><code class="language-php">$response = $next($request, $filename);
+<p> <pre class=codehilite><code class=language-php>$response = $next($request, $filename);
 
 // if some request condition does not match:
 // return $response;
 
-// Otherwise, manipulate the returned $response instance and then return it.</code></pre>
-
+// Otherwise, manipulate the returned $response instance and then return it.</code></pre></p>
 <p>Middleware either produces or manipulates a
 <code>Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse</code> instance.
 That class looks like the following:</p>
-<pre class="codehilite"><code class="language-php">class StaticResourceResponse
+<p> <pre class=codehilite><code class=language-php>class StaticResourceResponse
 {
     /**
      * @param callable $responseContentCallback Callback to use when emitting
@@ -711,14 +702,13 @@ That class looks like the following:</p>
     public function setContentLength(int $length) : void;
 
     public function setStatus(int $status) : void;
-}</code></pre>
-
+}</code></pre></p>
 <p>Most middleware will conditionally set the status, one or more headers, and
 potentially disable returning the response body (via <code>disableContent()</code>).
 Middleware that restricts access or filters out specific files will also use
 <code>markAsFailure()</code>.</p>
 <blockquote>
-<h3 id="providing-an-alternative-mechanism-for-sending-response-content">Providing an alternative mechanism for sending response content</h3>
+<h3>Providing an alternative mechanism for sending response content</h3>
 <p>In some cases, you may want to alter how the <code>Swoole\Http\Response</code> receives the
 body content. By default, we use <code>Swoole\Http\Response::sendfile()</code>. However,
 this may not work well when performing tasks such as compression, appending a
@@ -736,7 +726,7 @@ resource was matched by the request, and then to serve it.</p>
 <p>If you want to provide an alternative mechanism for doing so (e.g., to serve
 files out of a caching server), you will need to implement
 <code>Zend\Expressive\Swoole\StaticResourceHandlerInterface</code>:</p>
-<pre class="codehilite"><code class="language-php">declare(strict_types=1);
+<p> <pre class=codehilite><code class=language-php>declare(strict_types=1);
 
 namespace Zend\Expressive\Swoole;
 
@@ -757,8 +747,7 @@ interface StaticResourceHandlerInterface
         SwooleHttpRequest $request,
         SwooleHttpResponse $response
     ) : ?StaticResourceHandler\StaticResourceResponse;
-}</code></pre>
-
+}</code></pre></p>
 <p>Once implemented, map the service
 <code>Zend\Expressive\Swoole\StaticResourceHandlerInterface</code> to a factory that
 returns your custom implementation within your <code>dependencies</code> configuration.</p>
@@ -795,7 +784,7 @@ returns your custom implementation within your <code>dependencies</code> configu
     <div class="help-wanted">
         <p>
             Found a mistake or want to contribute to the documentation?
-            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/v2/static-resources.md" target="_blank" class="help-wanted__link">
+            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/book/v2/static-resources.md" target="_blank" class="help-wanted__link">
                 Edit this page on GitHub!
             </a>
         </p>

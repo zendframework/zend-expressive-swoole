@@ -306,23 +306,20 @@ or the low-level Linux kernel.</p>
 <h2 id="install-swoole">Install swoole</h2>
 <p>You can install the Swoole extension on Linux or Mac environments using the
 following commands:</p>
-<pre class="codehilite"><code class="language-bash">$ pecl install swoole</code></pre>
-
+<p> <pre class=codehilite><code class=language-bash>$ pecl install swoole</code></pre></p>
 <p>For more information on the extension, <a href="https://pecl.php.net/package/swoole">visit its package details on PECL</a>.</p>
 <h2 id="install-zend-expressive-swoole">Install zend-expressive-swoole</h2>
 <p>To install this package, use <a href="https://getcomposer.org/">Composer</a>:</p>
-<pre class="codehilite"><code class="language-bash">$ composer require zendframework/zend-expressive-swoole</code></pre>
-
+<p> <pre class=codehilite><code class=language-bash>$ composer require zendframework/zend-expressive-swoole</code></pre></p>
 <h2 id="swoole-with-expressive">Swoole with Expressive</h2>
 <p>zend-expressive-swoole enables an Expressive application to be executed with
 the <a href="https://www.swoole.co.uk/">Swoole</a> extension. This means you can run the
 application from the command line, <strong>without requiring a web server</strong>.</p>
 <p>You can run the application using the following command:</p>
-<pre class="codehilite"><code class="language-bash">$ php public/index.php</code></pre>
-
+<p> <pre class=codehilite><code class=language-bash>$ php public/index.php</code></pre></p>
 <p>This command will execute Swoole on <code>localhost</code> via port <code>8080</code>.</p>
 <blockquote>
-<h3 id="expressive-skeleton-versions-prior-to-310">Expressive skeleton versions prior to 3.1.0</h3>
+<h3>Expressive skeleton versions prior to 3.1.0</h3>
 <p>The above will work immediately after installing zend-expressive-swoole if you
 are using a version of <a href="https://github.com/zendframework/zend-expressive-skeleton">zend-expressive-skeleton</a>
 from 3.1.0 or later.</p>
@@ -330,15 +327,15 @@ from 3.1.0 or later.</p>
 create a configuration file such as <code>config/autoload/zend-expressive-swoole.global.php</code>
 or <code>config/autoload/zend-expressive-swoole.local.php</code> with the following
 contents:</p>
-<pre class="codehilite"><code class="language-php">&lt;?php
-use Zend\Expressive\Swoole\ConfigProvider;
-
-return (new ConfigProvider())();</code></pre>
-
+<p>```php
+&lt;?php
+use Zend\Expressive\Swoole\ConfigProvider;</p>
+<p>return (new ConfigProvider())();
+```</p>
 </blockquote>
 <p>You can change the host address and/or host name as well as the port using a
 configuration file, as follows:</p>
-<pre class="codehilite"><code class="language-php">// In config/autoload/swoole.local.php:
+<p> <pre class=codehilite><code class=language-php>// In config/autoload/swoole.local.php:
 return [
     'zend-expressive-swoole' =&gt; [
         'swoole-http-server' =&gt; [
@@ -346,13 +343,12 @@ return [
             'port' =&gt; 9501,
         ],
     ],
-];</code></pre>
-
-<h3 id="providing-additional-swoole-configuration">Providing additional Swoole configuration</h3>
+];</code></pre></p>
+<h3>Providing additional Swoole configuration</h3>
 <p>You can also configure the Swoole HTTP server using an <code>options</code> key to specify
 any accepted Swoole settings. For instance, the following configuration
 demonstrates enabling SSL:</p>
-<pre class="codehilite"><code class="language-php">// config/autoload/swoole.local.php
+<p> <pre class=codehilite><code class=language-php>// config/autoload/swoole.local.php
 return [
     'zend-expressive-swoole' =&gt; [
         'swoole-http-server' =&gt; [
@@ -371,9 +367,8 @@ return [
             ],
         ],
     ],
-];</code></pre>
-
-<h3 id="serving-static-files">Serving static files</h3>
+];</code></pre></p>
+<h3>Serving static files</h3>
 <p>We support serving static files. By default, we serve files with extensions in
 the whitelist defined in the constant <code>Zend\Expressive\Swoole\StaticResourceHandler\ContentTypeFilterMiddleware::DEFAULT_STATIC_EXTS</code>,
 which is derived from a <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Complete_list_of_MIME_types">list of common web MIME types maintained by Mozilla</a>.
@@ -413,7 +408,7 @@ configuration.</p>
     <div class="help-wanted">
         <p>
             Found a mistake or want to contribute to the documentation?
-            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/v1/intro.md" target="_blank" class="help-wanted__link">
+            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/book/v1/intro.md" target="_blank" class="help-wanted__link">
                 Edit this page on GitHub!
             </a>
         </p>

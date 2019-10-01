@@ -327,7 +327,7 @@ documented issue in other similar systems such as Node.js. <strong>The solution 
 cases is the same as for general PHP applications: add a message queue to your
 systems infrastructure, and delegate such work to the message queue instead.</strong></p>
 <blockquote>
-<h3 id="pdo-coroutine-support">PDO Coroutine Support</h3>
+<h3>PDO Coroutine Support</h3>
 <p>Please be aware that enabling coroutine support with <code>Swoole\Runtime::enableCoroutine()</code>
 only decorates MySql PDO connections with coroutines; other drivers (e.g.,
 pdo_pgsql) remain blocking as of Swoole 4.1.2.  &gt; For more details,
@@ -336,13 +336,13 @@ pdo_pgsql) remain blocking as of Swoole 4.1.2.  &gt; For more details,
 <h2 id="sessions">Sessions</h2>
 <p>Because Swoole runs as a PHP CLI application, it generally does not play well
 with the PHP Session extension. However, there are alternatives.</p>
-<h3 id="zend-expressive-session-cache">zend-expressive-session-cache</h3>
+<h3>zend-expressive-session-cache</h3>
 <p><a href="https://docs.zendframework.com/zend-expressive-session-cache/">zend-expressive-session-cache</a>
 provides a persistence adapter for <a href="https://docs.zendframework.com/zend-expressive-session/">zend-expressive-session</a>
 that uses a <a href="https://www.php-fig.org/psr/psr-6/">PSR-6 CacheItemPoolInterface implementation</a>
 for storing and retrieving sessions. This approach requires that you setup a
 backend cache storage for your session data.</p>
-<h3 id="psr7-sessionsstorageless">psr7-sessions/storageless</h3>
+<h3>psr7-sessions/storageless</h3>
 <p><a href="https://github.com/psr7-sessions/storageless">PSR7Session</a> provides session
 middleware that uses <a href="https://tools.ietf.org/html/rfc7519">JWT tokens</a> within
 the session cookie to transmit session data between the server and client.
@@ -403,12 +403,12 @@ Write services to be stateless, and/or mark state-changing methods as
 </li>
 </ul>
 <p>We'll look at each in detail.</p>
-<h3 id="decoration">Decoration</h3>
+<h3>Decoration</h3>
 <p>If a service implements an interface, you can decorate the service to make it
 stateless. Well-written interfaces will be stateless by design, and not provide
 methods meant to internally change state. In these situations, you can create a
 proxy class that decorates the original service:</p>
-<pre class="codehilite"><code class="language-php">class ProxyService implements OriginalInterface
+<p> <pre class=codehilite><code class=language-php>class ProxyService implements OriginalInterface
 {
     /** @var OriginalInterface */
     private $proxy;
@@ -422,15 +422,14 @@ proxy class that decorates the original service:</p>
     {
         return $this-&gt;proxy-&gt;someMethodDefinedInInterface($argument);
     }
-}</code></pre>
-
+}</code></pre></p>
 <p>You would then:</p>
 <ul>
 <li>Map the factory for the original service to the implementation name.</li>
 <li>Create a factory that consumes the original service, and produces the proxy.</li>
 <li>Map the interface name to the factory that creates the proxy.</li>
 </ul>
-<pre class="codehilite"><code class="language-php">// in config/autoload/dependencies.global.php:
+<p> <pre class=codehilite><code class=language-php>// in config/autoload/dependencies.global.php:
 
 return [
     'dependencies' =&gt; [
@@ -439,8 +438,7 @@ return [
             OriginalInterface::class =&gt; ProxyServiceFactory::class,
         ],
     ],
-];</code></pre>
-
+];</code></pre></p>
 <p>If you were writing to the interface, and not the implementation, you can now
 guarantee that any non-interface methods that changed state can now no longer be
 called.</p>
@@ -450,14 +448,13 @@ when those methods are invoked. (The latter approach ensures that you discover
 quickly when code is exercising those methods.) In each case, you would then use
 a <a href="https://docs.zendframework.com/zend-expressive/v3/features/container/delegator-factories/">delegator factory</a>,
 to decorate the original instance in the proxy class:</p>
-<pre class="codehilite"><code class="language-php">function (ContainerInterface $container, string $name, callable $callback)
+<p> <pre class=codehilite><code class=language-php>function (ContainerInterface $container, string $name, callable $callback)
 {
     return new ProxyService($callback());
-}</code></pre>
-
+}</code></pre></p>
 <p>(You can also use the delegator factory approach with the previous proxy service
 example.)</p>
-<h3 id="extension">Extension</h3>
+<h3>Extension</h3>
 <p>When a service does not implement an interface, but exposes methods that change
 internal state, you can extend the original class to make the methods that
 change state into no-ops, or have them raise exceptions. (The latter approach
@@ -466,7 +463,7 @@ ensures that you discover quickly when code is exercising those methods.)</p>
 <code>setTable()</code> in it, and that method would change the database table the mapper
 would query. This is a potentially bad situation!</p>
 <p>We could extend the class as follows:</p>
-<pre class="codehilite"><code class="language-php">class StatelessDataMapper extends DataMapper
+<p> <pre class=codehilite><code class=language-php>class StatelessDataMapper extends DataMapper
 {
     public function setTable(string $table) : void
     {
@@ -475,18 +472,17 @@ would query. This is a potentially bad situation!</p>
             __METHOD__
         ));
     }
-}</code></pre>
-
+}</code></pre></p>
 <p>In your factory that creates an instance of <code>DataMapper</code>, have it instead return
 a <code>StatelessDataMapper</code> instance, and you're now safe.</p>
-<h3 id="factories">Factories</h3>
+<h3>Factories</h3>
 <p>Another approach is to modify your consuming code to accept a <em>factory</em> that
 will produce the service you'll consume, instead of the service itself. This
 approach ensures that the service is created only when needed, mitigating any
 state change issues.</p>
 <p>As an example, consider the following middleware that currently consumes a
 template renderer:</p>
-<pre class="codehilite"><code class="language-php">use Psr\Http\Message\ResponseInterface;
+<p> <pre class=codehilite><code class=language-php>use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Zend\Diactoros\Response\HtmlResponse;
@@ -509,13 +505,12 @@ class SomeHandler implements RequestHandlerInterface
             []
         ));
     }
-}</code></pre>
-
+}</code></pre></p>
 <p>What we will do is modify it to accept a <em>callable</em> to the constructor. We will
 then call that factory <em>just before</em> we need the renderer; we <em>will not</em> store
 the result in the handler, as we want to ensure we have a new instance each
 time.</p>
-<pre class="codehilite"><code class="language-php">use Psr\Http\Message\ResponseInterface;
+<p> <pre class=codehilite><code class=language-php>use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Zend\Diactoros\Response\HtmlResponse;
@@ -540,14 +535,12 @@ class SomeHandler implements RequestHandlerInterface
             []
         ));
     }
-}</code></pre>
-
+}</code></pre></p>
 <p>From here, we create a factory for our dependency injection container that will
 return the factory we use here. As an example, if we are using the <a href="https://docs.zendframework.com/zend-expressive/v3/features/template/zend-view/">zend-view
 integration</a>,
 we might do the following:</p>
-<pre class="codehilite"><code class="language-php">
-use Psr\Container\ContainerInterface;
+<p> <pre class=codehilite><code class=language-php>use Psr\Container\ContainerInterface;
 use Zend\Expressive\Template\TemplateRendererInterface;
 use Zend\Expressive\ZendView\ZendViewRendererFactory;
 
@@ -560,25 +553,23 @@ class ZendViewRendererFactoryFactory
             return $factory($container);
         };
     }
-}</code></pre>
-
+}</code></pre></p>
 <p>If we mapped this to the "service" <code>Zend\Expressive\Template\TemplateRendererInterfaceFactory</code>,
 our factory for the <code>SomeHandler</code> class would then look like:</p>
-<pre class="codehilite"><code class="language-php">use Zend\Expressive\Template\TemplateRendererInterfaceFactory;
+<p> <pre class=codehilite><code class=language-php>use Zend\Expressive\Template\TemplateRendererInterfaceFactory;
 
 function (ContainerInterface $container) : SomeHandler
 {
     return new SomeHandler(
         $container-&gt;get(TemplateRendererInterfaceFactory::class)
     );
-}</code></pre>
-
+}</code></pre></p>
 <p>This approach ensures we get a new instance with known state at precisely the
 moment we wish to execute the functionality. By ensuring we <em>do not</em> store the
 instance in any way, we also ensure it is garbage collected when the instance
 goes out of scope (i.e., when the method ends).</p>
 <blockquote>
-<h3 id="handling-the-template-data-problem">Handling the template data problem</h3>
+<h3>Handling the template data problem</h3>
 <p>If we want our services to be stateless, how do we handle problems such as the 
 <a href="https://docs.zendframework.com/zend-expressive/v3/cookbook/access-common-data-in-templates/">documented <code>addDefaultParam()</code> issue referenced earlier</a>?</p>
 <p>In this case, the original problem was "how do we get common request data into
@@ -588,39 +579,39 @@ previously: <a href="https://docs.zendframework.com/zend-expressive/v3/cookbook/
 <p>In this particular case, the middleware documented in the original solution
 could be modified to provide data to a request attribute, instead of altering
 the state of the template renderer. It might then become:</p>
-<pre class="codehilite"><code class="language-php">namespace App\Middleware;
-
-use Psr\Http\Message\ResponseInterface;
+<p>```php
+namespace App\Middleware;</p>
+<p>use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Zend\Expressive\Router\RouteResult;
 use Zend\Expressive\Session\Authentication\UserInterface;
-use Zend\Expressive\Session\Flash\FlashMessagesInterface;
-
-class TemplateDefaultsMiddleware implements MiddlewareInterface
+use Zend\Expressive\Session\Flash\FlashMessagesInterface;</p>
+<p>class TemplateDefaultsMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
         $routeResult = $request-&gt;getAttribute(RouteResult::class);
-        $flashMessages = $request-&gt;getAttribute(FlashMessagesInterface::class);
+        $flashMessages = $request-&gt;getAttribute(FlashMessagesInterface::class);</p>
+<pre class="codehilite"><code>    $defaults = [
+        // Inject the current user, or null if there isn't one.
+        // This is named security so it will not interfere with your user admin pages
+        'security' =&gt; $request-&gt;getAttribute(UserInterface::class),
 
-        $defaults = [
-            // Inject the current user, or null if there isn't one.
-            // This is named security so it will not interfere with your user admin pages
-            'security' =&gt; $request-&gt;getAttribute(UserInterface::class),
+        // Inject the currently matched route name.
+        'matchedRouteName' =&gt; $routeResult ? $routeResult-&gt;getMatchedRouteName() : null,
 
-            // Inject the currently matched route name.
-            'matchedRouteName' =&gt; $routeResult ? $routeResult-&gt;getMatchedRouteName() : null,
+        // Inject all flash messages
+        'notifications' =&gt; $flashMessages ? $flashMessages-&gt;getFlashes() : [],
+    ];
 
-            // Inject all flash messages
-            'notifications' =&gt; $flashMessages ? $flashMessages-&gt;getFlashes() : [],
-        ];
-
-        return $handler-&gt;handle($request-&gt;withAttribute(__CLASS__, $defaults));
-    }
+    return $handler-&gt;handle($request-&gt;withAttribute(__CLASS__, $defaults));
 }</code></pre>
 
+
+<p>}
+```</p>
 <p>Once that change is made, you would then change your handler to do the
 following:</p>
 <ul>
@@ -628,14 +619,14 @@ following:</p>
 <li>Merge the pulled value with any local values when rendering the template.</li>
 </ul>
 <p>For example:</p>
-<pre class="codehilite"><code class="language-php">$defaultParams = $request-&gt;getAttribute(TemplateDefaultsMiddleware::class, []);
+<p><code>php
+$defaultParams = $request-&gt;getAttribute(TemplateDefaultsMiddleware::class, []);
 return new HtmlResponse($renderer-&gt;render(
     'some::template',
     array_merge($defaultParams, [
         // handler-specific parameters here
     ])
-));</code></pre>
-
+));</code></p>
 <p>This approach, while it requires more work on the part of handler authors,
 ensures that the renderer state does not vary between requests, making it
 safer for usage with Swoole and other long-running processes.</p>
@@ -673,7 +664,7 @@ safer for usage with Swoole and other long-running processes.</p>
     <div class="help-wanted">
         <p>
             Found a mistake or want to contribute to the documentation?
-            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/v1/considerations.md" target="_blank" class="help-wanted__link">
+            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/book/v1/considerations.md" target="_blank" class="help-wanted__link">
                 Edit this page on GitHub!
             </a>
         </p>

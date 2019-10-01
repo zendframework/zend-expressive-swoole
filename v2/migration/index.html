@@ -327,17 +327,15 @@
 update your code to adapt to them.</p>
 <h2 id="controlling-the-server">Controlling the server</h2>
 <p>In version 1, you would execute the web server via the entry script, e.g.:</p>
-<pre class="codehilite"><code class="language-bash">$ php public/index.php start</code></pre>
-
+<p> <pre class=codehilite><code class=language-bash>$ php public/index.php start</code></pre></p>
 <p>With version 2, we ship the command line tools for controlling your server via
 the binary <code>zend-expressive-swoole</code>:</p>
-<pre class="codehilite"><code class="language-bash"># Start the server:
+<p> <pre class=codehilite><code class=language-bash># Start the server:
 $ ./vendor/bin/zend-expressive-swoole start -d
 # Reload the server:
 $ ./vendor/bin/zend-expressive-swoole reload
 # Stop the server:
-$ ./vendor/bin/zend-expressive-swoole stop</code></pre>
-
+$ ./vendor/bin/zend-expressive-swoole stop</code></pre></p>
 <p>While you can still call <code>php public/index.php</code>, you cannot daemonize the server
 using that command, nor reload or stop it (other than using <code>Ctrl-C</code>). You will
 need to change any deployment commands you currently use to consume the new
@@ -349,7 +347,7 @@ boolean true value to the
 <p>That flag now controls specifically the HTTP server coroutine support, and
 defaults to <code>true</code>. To set system-wide coroutine support, toggle the
 <code>zend-expressive-swoole.enable_coroutine</code> flag, which defaults to boolean false:</p>
-<pre class="codehilite"><code class="language-php">return [
+<p> <pre class=codehilite><code class=language-php>return [
     'zend-expressive-swoole' =&gt; [
         'enable_coroutine' =&gt; false, // system-wide support
         'swoole-http-server' =&gt; [
@@ -358,8 +356,7 @@ defaults to <code>true</code>. To set system-wide coroutine support, toggle the
             ],
         ],
     ]
-];</code></pre>
-
+];</code></pre></p>
 <h2 id="serverfactory">ServerFactory</h2>
 <p>Version 2 refactors the architecture slightly to allow providing the HTTP server
 as a service, which allows us to <a href="../async-tasks/">enable async task workers</a>.</p>
@@ -410,7 +407,7 @@ or extending the affected classes.</p>
     <div class="help-wanted">
         <p>
             Found a mistake or want to contribute to the documentation?
-            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/v2/migration.md" target="_blank" class="help-wanted__link">
+            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/book/v2/migration.md" target="_blank" class="help-wanted__link">
                 Edit this page on GitHub!
             </a>
         </p>
