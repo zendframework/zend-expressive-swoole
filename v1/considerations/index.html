@@ -579,39 +579,40 @@ previously: <a href="https://docs.zendframework.com/zend-expressive/v3/cookbook/
 <p>In this particular case, the middleware documented in the original solution
 could be modified to provide data to a request attribute, instead of altering
 the state of the template renderer. It might then become:</p>
-<p>```php
-namespace App\Middleware;</p>
-<p>use Psr\Http\Message\ResponseInterface;
+<p><pre class=codehilite><code class=language-php>
+namespace App\Middleware;
+
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Zend\Expressive\Router\RouteResult;
 use Zend\Expressive\Session\Authentication\UserInterface;
-use Zend\Expressive\Session\Flash\FlashMessagesInterface;</p>
-<p>class TemplateDefaultsMiddleware implements MiddlewareInterface
+use Zend\Expressive\Session\Flash\FlashMessagesInterface;
+
+class TemplateDefaultsMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
         $routeResult = $request-&gt;getAttribute(RouteResult::class);
-        $flashMessages = $request-&gt;getAttribute(FlashMessagesInterface::class);</p>
-<pre class="codehilite"><code>    $defaults = [
-        // Inject the current user, or null if there isn't one.
-        // This is named security so it will not interfere with your user admin pages
-        'security' =&gt; $request-&gt;getAttribute(UserInterface::class),
+        $flashMessages = $request-&gt;getAttribute(FlashMessagesInterface::class);
 
-        // Inject the currently matched route name.
-        'matchedRouteName' =&gt; $routeResult ? $routeResult-&gt;getMatchedRouteName() : null,
+        $defaults = [
+            // Inject the current user, or null if there isn't one.
+            // This is named security so it will not interfere with your user admin pages
+            'security' =&gt; $request-&gt;getAttribute(UserInterface::class),
 
-        // Inject all flash messages
-        'notifications' =&gt; $flashMessages ? $flashMessages-&gt;getFlashes() : [],
-    ];
+            // Inject the currently matched route name.
+            'matchedRouteName' =&gt; $routeResult ? $routeResult-&gt;getMatchedRouteName() : null,
 
-    return $handler-&gt;handle($request-&gt;withAttribute(__CLASS__, $defaults));
-}</code></pre>
+            // Inject all flash messages
+            'notifications' =&gt; $flashMessages ? $flashMessages-&gt;getFlashes() : [],
+        ];
 
-
-<p>}
-```</p>
+        return $handler-&gt;handle($request-&gt;withAttribute(__CLASS__, $defaults));
+    }
+}
+</code></pre></p>
 <p>Once that change is made, you would then change your handler to do the
 following:</p>
 <ul>
@@ -619,14 +620,15 @@ following:</p>
 <li>Merge the pulled value with any local values when rendering the template.</li>
 </ul>
 <p>For example:</p>
-<p><code>php
+<p><pre class=codehilite><code class=language-php>
 $defaultParams = $request-&gt;getAttribute(TemplateDefaultsMiddleware::class, []);
 return new HtmlResponse($renderer-&gt;render(
     'some::template',
     array_merge($defaultParams, [
         // handler-specific parameters here
     ])
-));</code></p>
+));
+</code></pre></p>
 <p>This approach, while it requires more work on the part of handler authors,
 ensures that the renderer state does not vary between requests, making it
 safer for usage with Swoole and other long-running processes.</p>

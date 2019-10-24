@@ -327,11 +327,12 @@ from 3.1.0 or later.</p>
 create a configuration file such as <code>config/autoload/zend-expressive-swoole.global.php</code>
 or <code>config/autoload/zend-expressive-swoole.local.php</code> with the following
 contents:</p>
-<p>```php
+<p><pre class=codehilite><code class=language-php>
 &lt;?php
-use Zend\Expressive\Swoole\ConfigProvider;</p>
-<p>return (new ConfigProvider())();
-```</p>
+use Zend\Expressive\Swoole\ConfigProvider;
+
+return (new ConfigProvider())();
+</code></pre></p>
 </blockquote>
 <p>You can change the host address and/or host name as well as the port using a
 configuration file, as follows:</p>

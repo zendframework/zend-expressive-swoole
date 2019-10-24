@@ -355,13 +355,14 @@ serve it.</p>
 <p>If you have a custom factory for the <code>SwooleRequestHandlerRunner</code>, or are
 instantiating it manually, pass a null value for the sixth argument of its
 constructor. As an example, within a factory:</p>
-<p>```php
+<p><pre class=codehilite><code class=language-php>
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Swoole\Http\Server as SwooleHttpServer;
 use Zend\Expressive\ApplicationPipeline;
-use Zend\Expressive\Swoole;</p>
-<p>function (ContainerInterface $container) : Swoole\SwooleRequestHandlerRunner
+use Zend\Expressive\Swoole;
+
+function (ContainerInterface $container) : Swoole\SwooleRequestHandlerRunner
 {
     return new SwooleRequestHandlerRunner(
         $container-&gt;get(ApplicationPipeline::class),
@@ -375,12 +376,12 @@ use Zend\Expressive\Swoole;</p>
             : null
     );
 }
-```</p>
+</code></pre></p>
 <p>If you are using the default factory provided (<code>Zend\Expressive\Swoole\SwooleRequestHandlerRunnerFactory</code>),
 you can also disable the functionality via configuration. To do this, set the
 <code>zend-expressive-swoole.swoole-http-server.static-files.enable</code> flag to
 boolean <code>false</code>:</p>
-<p><code>php
+<p><pre class=codehilite><code class=language-php>
 return [
     'zend-expressive-swoole' =&gt; [
         'swoole-http-server' =&gt; [
@@ -389,7 +390,8 @@ return [
             ],
         ],
     ],
-];</code></p>
+];
+</code></pre></p>
 </blockquote>
 <h2 id="middleware">Middleware</h2>
 <p>The <code>StaticResourceHandler</code> implementation performs its work by composing a

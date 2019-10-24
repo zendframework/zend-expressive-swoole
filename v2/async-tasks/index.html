@@ -415,8 +415,9 @@ handler. </p>
 <p>If you do not return anything from your <code>task</code> event handler, the
 <code>finish</code> handler <strong>will not be called</strong>. The Swoole documentation recommends
 that the task worker callback manually finish the task in these situations:</p>
-<p><code>php
-$server-&gt;finish('');</code></p>
+<p><pre class=codehilite><code class=language-php>
+$server-&gt;finish('');
+</code></pre></p>
 <p>Even if you do not call the above method, the handler <strong>must</strong> be defined, or
 the server will refuse to start.</p>
 </blockquote>

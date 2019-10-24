@@ -337,8 +337,9 @@ application from the command line, <strong>without requiring a web server</stron
 <blockquote>
 <h3>Other commands</h3>
 <p>To get a list of all available commands, run the command without arguments:</p>
-<p><code>bash
-$ ./vendor/bin/zend-expressive-swoole</code></p>
+<p><pre class=codehilite><code class=language-bash>
+$ ./vendor/bin/zend-expressive-swoole
+</code></pre></p>
 <p>If you add the argument <code>help</code> before any command name, the tooling will
 provide you with more detailed information on that command.</p>
 <h3>Expressive skeleton versions prior to 3.1.0</h3>
@@ -349,11 +350,12 @@ from 3.1.0 or later.</p>
 create a configuration file such as <code>config/autoload/zend-expressive-swoole.global.php</code>
 or <code>config/autoload/zend-expressive-swoole.local.php</code> with the following
 contents:</p>
-<p>```php
+<p><pre class=codehilite><code class=language-php>
 &lt;?php
-use Zend\Expressive\Swoole\ConfigProvider;</p>
-<p>return (new ConfigProvider())();
-```</p>
+use Zend\Expressive\Swoole\ConfigProvider;
+
+return (new ConfigProvider())();
+</code></pre></p>
 </blockquote>
 <p>You can change the host address and/or host name as well as the port using a
 configuration file, as follows:</p>
