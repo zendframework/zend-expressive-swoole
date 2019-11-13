@@ -297,19 +297,20 @@ class HttpServerFactoryTest extends TestCase
         $this->assertSame('Server Started', $output);
     }
 
-    public function testFactoryCanBeEnableCoroutine()
+    public function testFactoryCanEnableCoroutines()
     {
+        if (! method_exists(SwooleRuntime::class, 'enableCoroutine')) {
+            $this->markTestSkipped('The installed version of Swoole does not support coroutines.');
+        }
+
         $this->container->get('config')->willReturn([
             'zend-expressive-swoole' => [
                 'enable_coroutine' => true,
             ],
         ]);
+
         $factory = new HttpServerFactory();
         $factory($this->container->reveal());
-
-        if (! method_exists(SwooleRuntime::class, 'enableCoroutine')) {
-            return ;
-        }
 
         // Xdebug is not ready yet in swoole.
         if (extension_loaded('xdebug')) {
