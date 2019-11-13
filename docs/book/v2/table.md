@@ -23,7 +23,7 @@ defines a table that can contain up to 1024 rows, each with three columns
 accepting `float` values to define a 3-dimensional vector, e.g.
 `src/App/Table/Vector3dTable.php`:
 
-```
+```php
 namespace App\Table;
 
 use Swoole\Table;
@@ -52,7 +52,7 @@ the constructor, we can accomplish this by mapping the service name to a
 concrete instance, using the `services` dependency configuration key in a 
 config provider class, e.g. `src/App/ConfigProvider.php`:
 
-```
+```php
 private function getDependencies() : array
 {
     return [
