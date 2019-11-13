@@ -1,20 +1,28 @@
-# Using Swoole Tables in your application
-Sometimes, you need to share structured data between your message workers and have data outlive your request cycle.
-Swoole Tables are designed to do this exactly for you. They require no additional work and are automatically synchronized.
+# Using Swoole Tables In Your Application
 
-For reasons that will become clear later on, I find it best to create up my tables by extending \Swoole\Table
-and then defining the appropriate columns inside of the `__construct()`, along with the table size.
+Sometimes, you need to share structured data between your message workers and
+have data outlive your request cycle. [Swoole Tables](https://www.swoole.co.uk/docs/modules/swoole-table)
+are designed to do this for you. They require no additional work and are
+automatically synchronized.
 
-*IMPORTANT* You must call your table's `create()` method. Otherwise your table will not work. I find it easiest to do it
-inside of the constructor.
+For reasons that will become clear presently, we recommend creating memory
+tables by extending the `Swoole\Table` class, defining the appropriate columns
+and table size inside of the constructor.
+
+> ### Initialize the table within the constructor
+>
+> You **must** call your table's `create()` method, and this **must** be done
+> prior to initializing any worker processes; if you fail to do so, your table
+> will not work. We recommend doing this in your table class's constructor.
 
 
 ## Creating a table
+
+As an example of a custom table class, consider the following example, which
+defines a table that can contain up to 1024 rows, each with three columns
+accepting `float` values to define a 3-dimensional vector:
+
 ```
-<?php
-
-declare(strict_types=1);
-
 namespace App\Table;
 
 use Swoole\Table;
@@ -23,7 +31,7 @@ final class Vec3Table extends Table
 {
     public function __construct()
     {
-        parent::__construct(1024); //Table size
+        parent::__construct(1024); // Table size
         $this->column('x', self::TYPE_FLOAT);
         $this->column('y', self::TYPE_FLOAT);
         $this->column('z', self::TYPE_FLOAT);
@@ -33,22 +41,36 @@ final class Vec3Table extends Table
 ```
 
 ## Creating your table
-Creating a swoole table is very straightforward, but it HAS to be created inside of your main process.
-By defining the columns inside of the constructor, nothing needs to be done here besides instantiating a new table
+
+Now that we have defined a table class, we need to wire the application to use
+it.
+
+Tables **must** be created inside of your main process, in order to ensure each
+worker process has access to them. Since we define the columns and table size in
+the constructor, we can accomplish this by mapping the service name to a
+concrete instance, using the `services` dependency configuration key:
 
 ```
 private function getDependencies() : array
 {
     return [
         'services'  => [
-            ...
-            Vec3Table::class               => new Vec3Table(),
+            // ...
+            Vec3Table::class => new Vec3Table(),
         ],
     ];
 }
 ```
+
 ## Using the Table
-You are able to retrieve it inside of any worker process by calling `$container->get(Vec3Table::class)`
+
+Classes that will push values to or pull values from the table can compose an
+instance of your custom class just as they normally would. Factories will then
+fetch the instance using `$container->get(Vec3Table::class)` (to use our
+previous example).
 
 ## Troubleshooting
-`PHP Fatal error:  Swoole\Table::offsetSet(): the table object does not exist` then chances are you are not calling $table->create();
+
+- If you receive the message `PHP Fatal error:  Swoole\Table::offsetSet(): the
+  table object does not exist`, then chances are you are not calling
+  `$table->create()` in your custom table's constructor.
