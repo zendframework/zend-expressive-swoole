@@ -12,8 +12,10 @@ namespace ZendTest\Expressive\Swoole;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
+use Swoole\Event as SwooleEvent;
 use Swoole\Http\Server as SwooleServer;
 use Swoole\Process;
+use Swoole\Runtime as SwooleRuntime;
 use Throwable;
 use Zend\Expressive\Swoole\Exception\InvalidArgumentException;
 use Zend\Expressive\Swoole\HttpServerFactory;
@@ -293,5 +295,40 @@ class HttpServerFactoryTest extends TestCase
         $output = $process->read();
         Process::wait(true);
         $this->assertSame('Server Started', $output);
+    }
+
+    public function testFactoryCanEnableCoroutines()
+    {
+        if (! method_exists(SwooleRuntime::class, 'enableCoroutine')) {
+            $this->markTestSkipped('The installed version of Swoole does not support coroutines.');
+        }
+
+        $this->container->get('config')->willReturn([
+            'zend-expressive-swoole' => [
+                'enable_coroutine' => true,
+            ],
+        ]);
+
+        $factory = new HttpServerFactory();
+        $factory($this->container->reveal());
+
+        // Xdebug is not ready yet in swoole.
+        if (extension_loaded('xdebug')) {
+            $this->expectException(\PHPUnit\Framework\Error\Warning::class);
+
+            go(function () {
+            });
+        } else {
+            $i = 0;
+            go(function () use (&$i) {
+                usleep(1000);
+                $i++;
+                SwooleEvent::exit();
+            });
+            go(function () use (&$i) {
+                $i++;
+                $this->assertEquals(1, $i);
+            });
+        }
     }
 }

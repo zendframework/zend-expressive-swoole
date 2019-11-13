@@ -24,7 +24,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 - Nothing.
 
-## 2.4.1 - TBD
+## 2.4.1 - 2019-11-13
 
 ### Added
 
@@ -44,7 +44,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#67](https://github.com/zendframework/zend-expressive-swoole/pull/67) fixes the `HttpServerFactory` to properly support Swoole coroutines.
 
 ## 2.4.0 - 2019-03-05
 
