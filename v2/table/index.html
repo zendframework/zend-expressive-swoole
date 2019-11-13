@@ -7,10 +7,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Swoole support for Expressive">  
-    <link rel="canonical" href="https://docs.zendframework.com/zend-expressive-swoole/v2/async-tasks/">
+    <link rel="canonical" href="https://docs.zendframework.com/zend-expressive-swoole/v2/table/">
     <link rel="shortcut icon" href="../../img/favicon.ico">
 
-    <title>Async Tasks - zend-expressive-swoole - Zend Framework Docs</title>
+    <title>Using Swoole Tables - zend-expressive-swoole - Zend Framework Docs</title>
 
     <link rel="stylesheet" href="../../css/styles-5cfabd53ee.css">
 </head>
@@ -102,14 +102,14 @@
 
             
                 
-    <li class="subnavigation__list-item subnavigation__list-item--active">
-        <a href="./" class="subnavigation__link">Async Tasks</a>
+    <li class="subnavigation__list-item ">
+        <a href="../async-tasks/" class="subnavigation__link">Async Tasks</a>
     </li>
 
             
                 
-    <li class="subnavigation__list-item ">
-        <a href="../table/" class="subnavigation__link">Using Swoole Tables</a>
+    <li class="subnavigation__list-item subnavigation__list-item--active">
+        <a href="./" class="subnavigation__link">Using Swoole Tables</a>
     </li>
 
             
@@ -285,7 +285,7 @@
                 
             
 
-            <li class="active">Async Tasks</li>
+            <li class="active">Using Swoole Tables</li>
         
     
 </ol>
@@ -311,19 +311,19 @@
             <ul class="toc__list">
                 
                     <li class="toc__entry">
-                        <a href="#configuring-the-server-process" class="toc__link">Configuring the Server Process</a>
+                        <a href="#creating-a-table" class="toc__link">Creating a table</a>
                     </li>
                 
                     <li class="toc__entry">
-                        <a href="#task-event-handlers" class="toc__link">Task Event Handlers</a>
+                        <a href="#creating-your-table" class="toc__link">Creating your table</a>
                     </li>
                 
                     <li class="toc__entry">
-                        <a href="#an-example-task-worker" class="toc__link">An example task worker</a>
+                        <a href="#using-the-table" class="toc__link">Using the Table</a>
                     </li>
                 
                     <li class="toc__entry">
-                        <a href="#triggering-tasks-in-middleware" class="toc__link">Triggering Tasks in Middleware</a>
+                        <a href="#troubleshooting" class="toc__link">Troubleshooting</a>
                     </li>
                 
             </ul>
@@ -332,254 +332,66 @@
 
     </div>
 
-    <h1 id="triggering-async-tasks">Triggering Async Tasks</h1>
-<p>Application resources requiring lengthy processing are not uncommon. In order to
-prevent these processes from impacting user experience, particularly when the
-user does not need to wait for the process to complete, we often delegate these
-to a <a href="https://en.wikipedia.org/wiki/Message_queue">message queue</a>.</p>
-<p>While message queues are powerful, they also require additional infrastructure
-for your application, and can be hard to justify when you have a small number of
-heavy processes, or a small number of users.</p>
-<p>In order to facilitate async processing, Swoole servers provides task worker
-processes, allowing your application to trigger tasks without the need for an
-external message queue, and without impacting the server worker processes
-&mdash; allowing your application to continue responding to requests while the
-server processes your task.</p>
-<h2 id="configuring-the-server-process">Configuring the Server Process</h2>
-<p>In order to take advantage of this feature, you will first need to configure the
-server to start up task workers. In your local configuration for the server,
-you'll need to add <code>task_worker_num</code>. The number of workers you configure define
-the number of concurrent tasks that can be executed at once. Tasks are queued in
-the order that they triggered, meaning that a <code>task_worker_num</code> of 1 will offer
-no concurrency and tasks will execute one after the other.</p>
-<p> <pre class=codehilite><code class=language-php>'zend-expressive-swoole' =&gt; [
-    'swoole-http-server' =&gt; [
-        'host' =&gt; '127.0.0.1',
-        'port' =&gt; 8080,
-        'options' =&gt; [
-            'worker_num'      =&gt; 4, // The number of HTTP Server Workers
-            'task_worker_num' =&gt; 4, // The number of Task Workers
-        ],
-    ],
-];</code></pre></p>
+    <h1 id="using-swoole-tables-in-your-application">Using Swoole Tables In Your Application</h1>
+<p>Sometimes, you need to share structured data between your message workers and
+have data outlive your request cycle. <a href="https://www.swoole.co.uk/docs/modules/swoole-table">Swoole Tables</a>
+are designed to do this for you. They require no additional work and are
+automatically synchronized.</p>
+<p>For reasons that will become clear presently, we recommend creating memory
+tables by extending the <code>Swoole\Table</code> class, defining the appropriate columns
+and table size inside of the constructor.</p>
 <blockquote>
-<h3>No CLI option for task_worker_num</h3>
-<p>Unlike <code>worker_num</code>, there is no CLI option for <code>task_worker_num</code>. This is
-because enabling the task worker also requires registering a task worker
-with the server. To prevent accidental startup failures due to passing an
-option to specify the number of task workers without having registered a
-task worker, we omitted the CLI option.</p>
+<h3>Initialize the table within the constructor</h3>
+<p>You <strong>must</strong> call your table's <code>create()</code> method, and this <strong>must</strong> be done
+prior to initializing any worker processes; if you fail to do so, your table
+will not work. We recommend doing this in your table class's constructor.</p>
 </blockquote>
-<h2 id="task-event-handlers">Task Event Handlers</h2>
-<p>When task workers are enabled, the Swoole server will now <strong>require</strong> that you
-register two event callbacks with the server; without them, the server will
-refuse to start.</p>
-<p>The two events are:</p>
-<ul>
-<li><code>task</code>, which will define the code for handling tasks.</li>
-<li><code>finish</code>, which will execute when a task has completed.</li>
-</ul>
-<h3>Registering the Handlers</h3>
-<p>The signature for the <code>task</code> event handler is:</p>
-<p> <pre class=codehilite><code class=language-php>function (
-    \Swoole\Http\Server $server,
-    int $taskId,
-    int $sourceWorkerId,
-    $dataForWorker
-) : void</code></pre></p>
-<p>where:</p>
-<ul>
-<li><code>$server</code> is the main HTTP server process</li>
-<li><code>$taskId</code> is a number that increments each time the server triggers a new task.</li>
-<li><code>$sourceWorkerId</code> is an integer that defines the worker process that is
-  executing the workload.</li>
-<li><code>$dataForWorker</code> contains the value passed to the <code>$server-&gt;task()</code> method
-  when initially triggering the task. This value can be any PHP value, with the
-  exception of a <code>resource</code>.</li>
-</ul>
-<p>To register the handler with the server, you must call it's <code>on()</code> method,
-<strong>before</strong> the server has been started:</p>
-<p> <pre class=codehilite><code class=language-php>$server-&gt;on('task', $callable);</code></pre></p>
-<p>As previously mentioned, you must also register an event handler for the
-<code>finish</code> event. This callback for this event should have the following
-signature:</p>
-<p> <pre class=codehilite><code class=language-php>function (
-    \Swoole\Http\Server $server,
-    int $taskId,
-    $userData
-) : void</code></pre></p>
-<p>The first two parameters are identical to the <code>task</code> event handler. The
-<code>$userData</code> parameter will contain the return value of the <code>task</code> event
-handler. </p>
-<p>Registering your callable for the <code>finish</code> event is accomplished like this:</p>
-<p> <pre class=codehilite><code class=language-php>$server-&gt;on('finish', $callable);</code></pre></p>
-<blockquote>
-<h3>There can be only one</h3>
-<p>There can be <strong>only one</strong> event handler per event type. Subsequent calls to
-<code>on('&lt;EventName&gt;')</code> replace the previously registered callable.</p>
-<h3>Finishing a task</h3>
-<p>If you do not return anything from your <code>task</code> event handler, the
-<code>finish</code> handler <strong>will not be called</strong>. The Swoole documentation recommends
-that the task worker callback manually finish the task in these situations:</p>
-<p><pre class=codehilite><code class=language-php>
-$server-&gt;finish('');
-</code></pre></p>
-<p>Even if you do not call the above method, the handler <strong>must</strong> be defined, or
-the server will refuse to start.</p>
-</blockquote>
-<h2 id="an-example-task-worker">An example task worker</h2>
-<p>The following example code illustrates a task worker with logging capabilities
-that uses a message notifier to process data:</p>
-<p> <pre class=codehilite><code class=language-php>// In src/App/TaskWorker.php:
+<h2 id="creating-a-table">Creating a table</h2>
+<p>As an example of a custom table class, consider the following example, which
+defines a table that can contain up to 1024 rows, each with three columns
+accepting <code>float</code> values to define a 3-dimensional vector:</p>
+<p> <pre class=codehilite><code>namespace App\Table;
 
-namespace App;
+use Swoole\Table;
 
-use Psr\EventDispatcher\MessageInterface;
-use Psr\EventDispatcher\MessageNotifierInterface;
-use Psr\Log\LoggerInterface;
-use Throwable;
-
-class TaskWorker
+final class Vec3Table extends Table
 {
-    private $notifier;
-    private $logger;
-
-    public function __construct(LoggerInterface $logger, MessageNotifierInterface $notifier)
+    public function __construct()
     {
-        $this-&gt;logger = $logger;
-        $this-&gt;notifier = $notifier;
-    }
-
-    public function __invoke($server, $taskId, $fromId, $data)
-    {
-        if (! $data instanceof MessageInterface) {
-            $this-&gt;logger-&gt;error('Invalid data type provided to task worker: {type}', [
-                'type' =&gt; is_object($data) ? get_class($data) : gettype($data)
-            ]);
-            return;
-        }
-
-        $this-&gt;logger-&gt;notice('Starting work on task {taskId} using data: {data}', [
-            'taskId' =&gt; $taskId,
-            'data' =&gt; json_encode($data),
-        ]);
-
-        try {
-            $this-&gt;notifier-&gt;notify($data);
-        } catch (Throwable $e) {
-            $this-&gt;logger-&gt;error('Error processing task {taskId}: {error}', [
-                'taskId' =&gt; $taskId,
-                'error' =&gt; $e-&gt;getTraceAsString(),
-            ]);
-        }
-
-        // Notify the server that processing of the task has finished:
-        $server-&gt;finish('');
+        parent::__construct(1024); // Table size
+        $this-&gt;column('x', self::TYPE_FLOAT);
+        $this-&gt;column('y', self::TYPE_FLOAT);
+        $this-&gt;column('z', self::TYPE_FLOAT);
+        $this-&gt;create();
     }
 }</code></pre></p>
-<p>This invokable class needs to be attached to the <code>$server-&gt;on('task')</code> event
-before the server has started. The easiest place to accomplish this is in a
-<a href="https://docs.zendframework.com/zend-expressive/v3/features/container/delegator-factories/">delegator factory</a>
-targeting the Swoole HTTP server. First, we'll create the delegator factory:</p>
-<p> <pre class=codehilite><code class=language-php>// In src/App/TaskWorkerDelegator.php:
-
-namespace App;
-
-use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
-use Swoole\Http\Server as HttpServer;
-
-class TaskWorkerDelegator
+<h2 id="creating-your-table">Creating your table</h2>
+<p>Now that we have defined a table class, we need to wire the application to use
+it.</p>
+<p>Tables <strong>must</strong> be created inside of your main process, in order to ensure each
+worker process has access to them. Since we define the columns and table size in
+the constructor, we can accomplish this by mapping the service name to a
+concrete instance, using the <code>services</code> dependency configuration key:</p>
+<p> <pre class=codehilite><code>private function getDependencies() : array
 {
-    public function __invoke(ContainerInterface $container, $serviceName, callable $callback) : HttpServer
-    {
-        $server = $callback();
-        $logger = $container-&gt;get(LoggerInterface::class);
-
-        $server-&gt;on('task', $container-&gt;get(TaskWorker::class));
-        $server-&gt;on('finish', function ($server, $taskId, $data) use ($logger) {
-            $logger-&gt;notice('Task #{taskId} has finished processing', ['taskId' =&gt; $taskId]);
-        });
-
-        return $server;
-    }
-}</code></pre></p>
-<p>Next, we'll register it with our container:</p>
-<p> <pre class=codehilite><code class=language-php>// In config/autoload/dependencies.php:
-
-return [
-    'dependencies' =&gt; [
-        'delegators' =&gt; [
-            \Swoole\Http\Server::class =&gt; [
-                \App\TaskWorkerDelegator::class,
-            ],
+    return [
+        'services'  =&gt; [
+            // ...
+            Vec3Table::class =&gt; new Vec3Table(),
         ],
-    ],
-];</code></pre></p>
-<p>With this in place, we can now trigger tasks within our application. In the
-scenario outlined above, the task worker expects <em>messages</em>; it then <em>notifies</em>
-listeners of that message so they may respond to it.</p>
-<h2 id="triggering-tasks-in-middleware">Triggering Tasks in Middleware</h2>
-<p>Considering that this library provides an application runner for middleware
-applications, you will likely trigger tasks from within your middleware or
-request handlers. In each case, you will need to compose the Swoole HTTP server
-instance as a class dependency, as tasks are triggered via the server via its
-<code>task()</code> method. The method can accept any value except a resource as an
-argument.</p>
-<p>In the example below, <code>ContactMessage</code> will implement the <code>MessageInterface</code>
-from the above example. The request handler uses values from the request to
-create the <code>ContactMessage</code> instance, and then create a task from it. It then
-immediately returns a response.</p>
-<p> <pre class=codehilite><code class=language-php>// in src/App/Handler/TaskTriggeringHandler.php:
-
-namespace App\Handler;
-
-use Psr\Http\Message\ResponseFactoryInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use Swoole\Http\Server as HttpServer;
-use Zend\Expressive\Template\TemplateRendererInterface;
-
-class TaskTriggeringHandler implements RequestHandlerInterface
-{
-    private $responseFactory;
-    private $server;
-    private $template;
-
-    public function __construct(
-        HttpServer $server,
-        TemplateRendererInterface $template,
-        ResponseFactoryInterface $responseFactory
-    ) {
-        $this-&gt;server          = $server;
-        $this-&gt;template        = $template;
-        $this-&gt;responseFactory = $responseFactory;
-    }
-
-    public function handle(ServerRequestInterface $request) : ResponseInterface
-    {
-        // Gather data from request
-        $data = $request-&gt;getParsedBody();
-
-        // A fictonal event describing a contact request:
-        $event = new ContactEvent([
-            'to'      =&gt; $data['email'],
-            'subject' =&gt; $data['subject'],
-            'message' =&gt; $data['message'],
-        ]);
-
-        // task() returns a task identifier, if you want to use it; otherwise,
-        // you can ignore the return value.
-        $taskIdentifier = $this-&gt;server-&gt;task($event);
-
-        // The task() method is asynchronous, so execution continues immediately.
-        $response = ($this-&gt;responseFactory()-&gt;createResponse())
-            -&gt;withHeader('Content-Type', 'text/html');
-        $response-&gt;getBody()-&gt;write($this-&gt;template-&gt;render('contact::thank-you', []);
-        return $response;
-    }
+    ];
 }</code></pre></p>
+<h2 id="using-the-table">Using the Table</h2>
+<p>Classes that will push values to or pull values from the table can compose an
+instance of your custom class just as they normally would. Factories will then
+fetch the instance using <code>$container-&gt;get(Vec3Table::class)</code> (to use our
+previous example).</p>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<ul>
+<li>If you receive the message <code>PHP Fatal error:  Swoole\Table::offsetSet(): the
+  table object does not exist</code>, then chances are you are not calling
+  <code>$table-&gt;create()</code> in your custom table's constructor.</li>
+</ul>
 
 
 
@@ -590,7 +402,7 @@ class TaskTriggeringHandler implements RequestHandlerInterface
         
         <li class="page-nav__item">
             
-                <a rel="prev" class="page-nav__link page-nav__link--prev" href="../logging/">
+                <a rel="prev" class="page-nav__link page-nav__link--prev" href="../async-tasks/">
                     <i class="fa fa-chevron-left"></i> Previous
                 </a>
             
@@ -599,7 +411,7 @@ class TaskTriggeringHandler implements RequestHandlerInterface
         
         <li class="page-nav__item">
             
-                <a rel="next" class="page-nav__link page-nav__link--next" href="../table/">
+                <a rel="next" class="page-nav__link page-nav__link--next" href="../hot-code-reload/">
                     Next <i class="fa fa-chevron-right"></i>
                 </a>
             
@@ -613,7 +425,7 @@ class TaskTriggeringHandler implements RequestHandlerInterface
     <div class="help-wanted">
         <p>
             Found a mistake or want to contribute to the documentation?
-            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/book/v2/async-tasks.md" target="_blank" class="help-wanted__link">
+            <a href="https://github.com/zendframework/zend-expressive-swoole/edit/master/docs/book/v2/table.md" target="_blank" class="help-wanted__link">
                 Edit this page on GitHub!
             </a>
         </p>
@@ -670,14 +482,14 @@ class TaskTriggeringHandler implements RequestHandlerInterface
 
             
                 
-    <li class="subnavigation__list-item subnavigation__list-item--active">
-        <a href="./" class="subnavigation__link">Async Tasks</a>
+    <li class="subnavigation__list-item ">
+        <a href="../async-tasks/" class="subnavigation__link">Async Tasks</a>
     </li>
 
             
                 
-    <li class="subnavigation__list-item ">
-        <a href="../table/" class="subnavigation__link">Using Swoole Tables</a>
+    <li class="subnavigation__list-item subnavigation__list-item--active">
+        <a href="./" class="subnavigation__link">Using Swoole Tables</a>
     </li>
 
             
