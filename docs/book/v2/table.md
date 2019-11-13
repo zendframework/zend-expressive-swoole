@@ -28,7 +28,7 @@ namespace App\Table;
 
 use Swoole\Table;
 
-final class Vec3Table extends Table
+final class Vector3dTable extends Table
 {
     public function __construct()
     {
@@ -58,7 +58,7 @@ private function getDependencies() : array
     return [
         'services'  => [
             // ...
-            Vec3Table::class => new Vec3Table(),
+            Vector3dTable::class => new Vector3dTable(),
         ],
     ];
 }
@@ -68,7 +68,7 @@ private function getDependencies() : array
 
 Classes that will push values to or pull values from the table can compose an
 instance of your custom class just as they normally would. Factories will then
-fetch the instance using `$container->get(Vec3Table::class)` (to use our
+fetch the instance using `$container->get(Vector3dTable::class)` (to use our
 previous example).
 
 ## Troubleshooting
