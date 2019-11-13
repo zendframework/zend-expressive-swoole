@@ -26,7 +26,7 @@ class SwooleStreamTest extends TestCase
         }
         $this->request = $this->prophesize(SwooleHttpRequest::class);
         $this->request
-            ->rawcontent()
+            ->rawContent()
             ->willReturn(self::DEFAULT_CONTENT);
 
         $this->stream = new SwooleStream($this->request->reveal());
@@ -36,7 +36,7 @@ class SwooleStreamTest extends TestCase
     {
         $request = $this->prophesize(SwooleHttpRequest::class);
         $request
-            ->rawcontent()
+            ->rawContent()
             ->willReturn(false);
 
         $stream = new SwooleStream($request->reveal());
@@ -64,7 +64,7 @@ class SwooleStreamTest extends TestCase
     public function testGetContentsWithEmptyBodyReturnsEmptyString()
     {
         $this->request
-            ->rawcontent()
+            ->rawContent()
             ->willReturn('');
         $this->stream = new SwooleStream($this->request->reveal());
 
@@ -93,7 +93,7 @@ class SwooleStreamTest extends TestCase
     public function testGetSizeWithEmptyBodyReturnsZero()
     {
         $this->request
-            ->rawcontent()
+            ->rawContent()
             ->willReturn('');
         $this->stream = new SwooleStream($this->request->reveal());
 
