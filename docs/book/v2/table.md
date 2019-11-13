@@ -73,6 +73,6 @@ previous example).
 
 ## Troubleshooting
 
-- If you receive the message `PHP Fatal error:  Swoole\Table::offsetSet(): the
-  table object does not exist`, then chances are you are not calling
-  `$table->create()` in your custom table's constructor.
+If you receive the message `PHP Fatal error:  Swoole\Table::offsetSet(): the
+table object does not exist`, then chances are you are not calling
+`$table->create()` in your custom table's constructor.
