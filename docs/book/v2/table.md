@@ -1,4 +1,4 @@
-# Using Swoole Tables In Your Application
+# Using Swoole Tables in Your Application
 
 Sometimes, you need to share structured data between your message workers and
 have data outlive your request cycle. [Swoole Tables](https://www.swoole.co.uk/docs/modules/swoole-table)
@@ -9,25 +9,26 @@ For reasons that will become clear presently, we recommend creating memory
 tables by extending the `Swoole\Table` class, defining the appropriate columns
 and table size inside of the constructor.
 
-> ### Initialize the table within the constructor
+> ### Initialize the Table Within the Constructor
 >
 > You **must** call your table's `create()` method, and this **must** be done
 > prior to initializing any worker processes; if you fail to do so, your table
 > will not work. We recommend doing this in your table class's constructor.
 
 
-## Creating a table
+## Creating a Table
 
 As an example of a custom table class, consider the following example, which
 defines a table that can contain up to 1024 rows, each with three columns
-accepting `float` values to define a 3-dimensional vector:
+accepting `float` values to define a 3-dimensional vector, e.g.
+`src/App/Table/Vector3dTable.php`:
 
-```
+```php
 namespace App\Table;
 
 use Swoole\Table;
 
-final class Vec3Table extends Table
+final class Vector3dTable extends Table
 {
     public function __construct()
     {
@@ -40,7 +41,7 @@ final class Vec3Table extends Table
 }
 ```
 
-## Creating your table
+## Creating Your Table
 
 Now that we have defined a table class, we need to wire the application to use
 it.
@@ -48,15 +49,16 @@ it.
 Tables **must** be created inside of your main process, in order to ensure each
 worker process has access to them. Since we define the columns and table size in
 the constructor, we can accomplish this by mapping the service name to a
-concrete instance, using the `services` dependency configuration key:
+concrete instance, using the `services` dependency configuration key in a 
+config provider class, e.g. `src/App/ConfigProvider.php`:
 
-```
+```php
 private function getDependencies() : array
 {
     return [
         'services'  => [
             // ...
-            Vec3Table::class => new Vec3Table(),
+            Vector3dTable::class => new Vector3dTable(),
         ],
     ];
 }
@@ -66,11 +68,11 @@ private function getDependencies() : array
 
 Classes that will push values to or pull values from the table can compose an
 instance of your custom class just as they normally would. Factories will then
-fetch the instance using `$container->get(Vec3Table::class)` (to use our
+fetch the instance using `$container->get(Vector3dTable::class)` (to use our
 previous example).
 
 ## Troubleshooting
 
-- If you receive the message `PHP Fatal error:  Swoole\Table::offsetSet(): the
-  table object does not exist`, then chances are you are not calling
-  `$table->create()` in your custom table's constructor.
+If you receive the message `PHP Fatal error:  Swoole\Table::offsetSet(): the
+table object does not exist`, then chances are you are not calling
+`$table->create()` in your custom table's constructor.
