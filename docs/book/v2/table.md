@@ -1,4 +1,4 @@
-# Using Swoole Tables in your Application
+# Using Swoole Tables in Your Application
 
 Sometimes, you need to share structured data between your message workers and
 have data outlive your request cycle. [Swoole Tables](https://www.swoole.co.uk/docs/modules/swoole-table)
@@ -9,7 +9,7 @@ For reasons that will become clear presently, we recommend creating memory
 tables by extending the `Swoole\Table` class, defining the appropriate columns
 and table size inside of the constructor.
 
-> ### Initialize the Table within the Constructor
+> ### Initialize the Table Within the Constructor
 >
 > You **must** call your table's `create()` method, and this **must** be done
 > prior to initializing any worker processes; if you fail to do so, your table
@@ -41,7 +41,7 @@ final class Vector3dTable extends Table
 }
 ```
 
-## Creating your Table
+## Creating Your Table
 
 Now that we have defined a table class, we need to wire the application to use
 it.
