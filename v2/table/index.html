@@ -311,11 +311,11 @@
             <ul class="toc__list">
                 
                     <li class="toc__entry">
-                        <a href="#creating-a-table" class="toc__link">Creating a table</a>
+                        <a href="#creating-a-table" class="toc__link">Creating a Table</a>
                     </li>
                 
                     <li class="toc__entry">
-                        <a href="#creating-your-table" class="toc__link">Creating your table</a>
+                        <a href="#creating-your-table" class="toc__link">Creating Your Table</a>
                     </li>
                 
                     <li class="toc__entry">
@@ -332,7 +332,7 @@
 
     </div>
 
-    <h1 id="using-swoole-tables-in-your-application">Using Swoole Tables In Your Application</h1>
+    <h1 id="using-swoole-tables-in-your-application">Using Swoole Tables in Your Application</h1>
 <p>Sometimes, you need to share structured data between your message workers and
 have data outlive your request cycle. <a href="https://www.swoole.co.uk/docs/modules/swoole-table">Swoole Tables</a>
 are designed to do this for you. They require no additional work and are
@@ -341,20 +341,21 @@ automatically synchronized.</p>
 tables by extending the <code>Swoole\Table</code> class, defining the appropriate columns
 and table size inside of the constructor.</p>
 <blockquote>
-<h3>Initialize the table within the constructor</h3>
+<h3>Initialize the Table Within the Constructor</h3>
 <p>You <strong>must</strong> call your table's <code>create()</code> method, and this <strong>must</strong> be done
 prior to initializing any worker processes; if you fail to do so, your table
 will not work. We recommend doing this in your table class's constructor.</p>
 </blockquote>
-<h2 id="creating-a-table">Creating a table</h2>
+<h2 id="creating-a-table">Creating a Table</h2>
 <p>As an example of a custom table class, consider the following example, which
 defines a table that can contain up to 1024 rows, each with three columns
-accepting <code>float</code> values to define a 3-dimensional vector:</p>
-<p> <pre class=codehilite><code>namespace App\Table;
+accepting <code>float</code> values to define a 3-dimensional vector, e.g.
+<code>src/App/Table/Vector3dTable.php</code>:</p>
+<p> <pre class=codehilite><code class=language-php>namespace App\Table;
 
 use Swoole\Table;
 
-final class Vec3Table extends Table
+final class Vector3dTable extends Table
 {
     public function __construct()
     {
@@ -365,33 +366,32 @@ final class Vec3Table extends Table
         $this-&gt;create();
     }
 }</code></pre></p>
-<h2 id="creating-your-table">Creating your table</h2>
+<h2 id="creating-your-table">Creating Your Table</h2>
 <p>Now that we have defined a table class, we need to wire the application to use
 it.</p>
 <p>Tables <strong>must</strong> be created inside of your main process, in order to ensure each
 worker process has access to them. Since we define the columns and table size in
 the constructor, we can accomplish this by mapping the service name to a
-concrete instance, using the <code>services</code> dependency configuration key:</p>
-<p> <pre class=codehilite><code>private function getDependencies() : array
+concrete instance, using the <code>services</code> dependency configuration key in a 
+config provider class, e.g. <code>src/App/ConfigProvider.php</code>:</p>
+<p> <pre class=codehilite><code class=language-php>private function getDependencies() : array
 {
     return [
         'services'  =&gt; [
             // ...
-            Vec3Table::class =&gt; new Vec3Table(),
+            Vector3dTable::class =&gt; new Vector3dTable(),
         ],
     ];
 }</code></pre></p>
 <h2 id="using-the-table">Using the Table</h2>
 <p>Classes that will push values to or pull values from the table can compose an
 instance of your custom class just as they normally would. Factories will then
-fetch the instance using <code>$container-&gt;get(Vec3Table::class)</code> (to use our
+fetch the instance using <code>$container-&gt;get(Vector3dTable::class)</code> (to use our
 previous example).</p>
 <h2 id="troubleshooting">Troubleshooting</h2>
-<ul>
-<li>If you receive the message <code>PHP Fatal error:  Swoole\Table::offsetSet(): the
-  table object does not exist</code>, then chances are you are not calling
-  <code>$table-&gt;create()</code> in your custom table's constructor.</li>
-</ul>
+<p>If you receive the message <code>PHP Fatal error:  Swoole\Table::offsetSet(): the
+table object does not exist</code>, then chances are you are not calling
+<code>$table-&gt;create()</code> in your custom table's constructor.</p>
 
 
 
