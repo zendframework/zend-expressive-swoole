@@ -24,7 +24,7 @@ class ReloaderFactoryTest extends TestCase
     /** @var FileWatcherInterface */
     private $fileWatcher;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->fileWatcher = $this->createMock(FileWatcherInterface::class);
         $this->container = new ServiceManager();

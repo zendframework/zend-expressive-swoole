@@ -35,7 +35,7 @@ class StartCommandTest extends TestCase
 {
     use ReflectMethodTrait;
 
-    public function setUp()
+    protected function setUp() : void
     {
         $this->container  = $this->prophesize(ContainerInterface::class);
         $this->input      = $this->prophesize(InputInterface::class);
@@ -51,7 +51,7 @@ class StartCommandTest extends TestCase
         ));
     }
 
-    public function tearDown()
+    protected function tearDown() : void
     {
         set_include_path($this->originalIncludePath);
     }

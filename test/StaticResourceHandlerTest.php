@@ -20,7 +20,7 @@ use Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse;
 
 class StaticResourceHandlerTest extends TestCase
 {
-    public function setUp()
+    protected function setUp() : void
     {
         $this->docRoot = __DIR__ . '/TestAsset';
         $this->request = $this->prophesize(SwooleHttpRequest::class)->reveal();

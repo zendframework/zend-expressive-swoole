@@ -20,7 +20,7 @@ class LastModifiedMiddlewareTest extends TestCase
 {
     use AssertResponseTrait;
 
-    public function setUp()
+    protected function setUp() : void
     {
         $this->next = function ($request, $filename) {
             return new StaticResourceResponse();

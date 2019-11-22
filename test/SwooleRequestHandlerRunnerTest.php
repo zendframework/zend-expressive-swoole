@@ -29,7 +29,7 @@ use Zend\HttpHandlerRunner\RequestHandlerRunner;
 
 class SwooleRequestHandlerRunnerTest extends TestCase
 {
-    public function setUp()
+    protected function setUp() : void
     {
         $this->requestHandler = $this->prophesize(RequestHandlerInterface::class);
 
@@ -293,7 +293,7 @@ class SwooleRequestHandlerRunnerTest extends TestCase
         $this->assertTrue(file_exists($processFile));
 
         $contents = file_get_contents($processFile);
-        $this->assertContains('test-master', $contents);
+        $this->assertStringContainsString('test-master', $contents);
     }
 
     public function testProcessNameIsUsedToCreateWorkerProcessNameOnWorkerStart()
@@ -333,7 +333,7 @@ class SwooleRequestHandlerRunnerTest extends TestCase
         $this->assertTrue(file_exists($processFile));
 
         $contents = file_get_contents($processFile);
-        $this->assertContains('test-worker', $contents);
+        $this->assertStringContainsString('test-worker', $contents);
     }
 
     public function testProcessNameIsUsedToCreateTaskWorkerProcessNameOnWorkerStart()
@@ -373,7 +373,7 @@ class SwooleRequestHandlerRunnerTest extends TestCase
         $this->assertTrue(file_exists($processFile));
 
         $contents = file_get_contents($processFile);
-        $this->assertContains('test-task-worker', $contents);
+        $this->assertStringContainsString('test-task-worker', $contents);
     }
 
     public function testHotCodeReloaderTriggeredOnWorkerStart()

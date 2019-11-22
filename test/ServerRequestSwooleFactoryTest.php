@@ -20,7 +20,7 @@ use Zend\Expressive\Swoole\SwooleStream;
 
 class ServerRequestSwooleFactoryTest extends TestCase
 {
-    public function setUp()
+    protected function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }

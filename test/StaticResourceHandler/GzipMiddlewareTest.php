@@ -22,7 +22,7 @@ class GzipMiddlewareTest extends TestCase
 {
     use AssertResponseTrait;
 
-    public function setUp()
+    protected function setUp() : void
     {
         $this->staticResponse = $this->prophesize(StaticResourceResponse::class);
         $this->swooleRequest = $this->prophesize(SwooleHttpRequest::class)->reveal();
