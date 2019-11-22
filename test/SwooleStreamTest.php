@@ -161,14 +161,18 @@ class SwooleStreamTest extends TestCase
     public function testSeekCurRaisesExceptionIfPositionOverflows()
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Offset + current position cannot be longer than content size when using SEEK_CUR');
+        $this->expectExceptionMessage(
+            'Offset + current position cannot be longer than content size when using SEEK_CUR'
+        );
         $this->stream->seek(strlen(self::DEFAULT_CONTENT), SEEK_CUR);
     }
 
     public function testSeekEndRaisesExceptionIfPOsitionOverflows()
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Offset must be a negative number to be under the content size when using SEEK_END');
+        $this->expectExceptionMessage(
+            'Offset must be a negative number to be under the content size when using SEEK_END'
+        );
         $this->stream->seek(1, SEEK_END);
     }
 
