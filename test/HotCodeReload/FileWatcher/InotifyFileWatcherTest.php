@@ -17,7 +17,7 @@ class InotifyFileWatcherTest extends TestCase
     /** @var resource */
     private $file;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         if (! extension_loaded('inotify')) {
             static::markTestSkipped('The Inotify extension is not available');
@@ -31,7 +31,7 @@ class InotifyFileWatcherTest extends TestCase
         parent::setUp();
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         fclose($this->file);
         parent::tearDown();

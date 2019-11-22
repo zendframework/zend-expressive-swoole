@@ -18,7 +18,7 @@ use Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse;
 
 class IntegrationTest extends TestCase
 {
-    public function setUp()
+    protected function setUp() : void
     {
         $this->docRoot = __DIR__ . '/../TestAsset';
     }

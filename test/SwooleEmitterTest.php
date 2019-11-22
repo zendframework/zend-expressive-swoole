@@ -17,7 +17,7 @@ use Zend\Expressive\Swoole\SwooleEmitter;
 
 class SwooleEmitterTest extends TestCase
 {
-    public function setUp()
+    protected function setUp() : void
     {
         $this->swooleResponse = $this->prophesize(SwooleHttpResponse::class);
         $this->emitter = new SwooleEmitter($this->swooleResponse->reveal());

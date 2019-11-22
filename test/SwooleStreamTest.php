@@ -19,7 +19,7 @@ class SwooleStreamTest extends TestCase
 {
     const DEFAULT_CONTENT = 'This is a test!';
 
-    public function setUp()
+    protected function setUp() : void
     {
         if (! extension_loaded('swoole')) {
             $this->markTestSkipped('The Swoole extension is not available');
@@ -151,30 +151,24 @@ class SwooleStreamTest extends TestCase
         $this->assertEquals(strlen(self::DEFAULT_CONTENT) - 2, $this->stream->tell());
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Offset cannot be longer than content size
-     */
     public function testSeekSetRaisesExceptionIfPositionOverflows()
     {
+        $this->expectedException(RuntimeException::class);
+        $this->expectedExceptionMessage('Offset cannot be longer than content size');
         $this->stream->seek(strlen(self::DEFAULT_CONTENT));
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Offset + current position cannot be longer than content size when using SEEK_CUR
-     */
     public function testSeekCurRaisesExceptionIfPositionOverflows()
     {
+        $this->expectedException(RuntimeException::class);
+        $this->expectedExceptionMessage('Offset + current position cannot be longer than content size when using SEEK_CUR');
         $this->stream->seek(strlen(self::DEFAULT_CONTENT), SEEK_CUR);
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Offset must be a negative number to be under the content size when using SEEK_END
-     */
     public function testSeekEndRaisesExceptionIfPOsitionOverflows()
     {
+        $this->expectedException(RuntimeException::class);
+        $this->expectedExceptionMessage('Offset must be a negative number to be under the content size when using SEEK_END');
         $this->stream->seek(1, SEEK_END);
     }
 
@@ -189,12 +183,10 @@ class SwooleStreamTest extends TestCase
         $this->assertFalse($this->stream->isWritable());
     }
 
-    /**
-     * @expectedException RuntimeException
-     * @expectedExceptionMessage Stream is not writable
-     */
     public function testWriteRaisesException()
     {
+        $this->expectedException(RuntimeException::class);
+        $this->expectedExceptionMessage('Stream is not writable');
         $this->stream->write('Hello!');
     }
 

@@ -21,7 +21,7 @@ class MiddlewareQueueTest extends TestCase
 {
     use AssertResponseTrait;
 
-    public function setUp()
+    protected function setUp() : void
     {
         $this->request = $this->prophesize(Request::class)->reveal();
     }
