@@ -20,7 +20,7 @@ class WhoopsPrettyPageHandlerDelegatorTest extends TestCase
     /** @var ServiceManager */
     private $container;
 
-    public function setUp()
+    protected function setUp() : void
     {
         $dependencies = (new ConfigProvider())()['dependencies'];
         // @see https://github.com/zendframework/zend-expressive-skeleton/blob/master/src/ExpressiveInstaller/Resources/config/error-handler-whoops.php

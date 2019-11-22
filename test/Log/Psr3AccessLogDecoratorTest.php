@@ -24,7 +24,7 @@ use Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse;
 
 class Psr3AccessLogDecoratorTest extends TestCase
 {
-    public function setUp()
+    protected function setUp() : void
     {
         $this->psr3Logger = $this->prophesize(LoggerInterface::class);
         $this->formatter = $this->prophesize(AccessLogFormatterInterface::class);

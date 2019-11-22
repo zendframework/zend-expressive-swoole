@@ -27,7 +27,7 @@ use Zend\Expressive\Swoole\SwooleRequestHandlerRunnerFactory;
 
 class SwooleRequestHandlerRunnerFactoryTest extends TestCase
 {
-    public function setUp()
+    protected function setUp() : void
     {
         $this->applicationPipeline = $this->prophesize(ApplicationPipeline::class);
         $this->applicationPipeline->willImplement(RequestHandlerInterface::class);

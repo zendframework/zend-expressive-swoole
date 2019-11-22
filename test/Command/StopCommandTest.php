@@ -24,7 +24,7 @@ class StopCommandTest extends TestCase
 {
     use ReflectMethodTrait;
 
-    public function setUp()
+    protected function setUp() : void
     {
         $this->input      = $this->prophesize(InputInterface::class);
         $this->output     = $this->prophesize(OutputInterface::class);

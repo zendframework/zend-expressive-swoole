@@ -16,7 +16,7 @@ use Zend\Expressive\Swoole\Log\SwooleLoggerFactory;
 
 trait LoggerFactoryHelperTrait
 {
-    public function setUp()
+    protected function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
         $this->container->has(SwooleLoggerFactory::SWOOLE_LOGGER)->willReturn(false);

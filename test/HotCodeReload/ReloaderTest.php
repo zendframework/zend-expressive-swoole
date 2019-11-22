@@ -28,7 +28,7 @@ class ReloaderTest extends TestCase
     /** @var Reloader */
     private $subject;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->fileWatcher = $this->createMock(FileWatcherInterface::class);
         $this->subject = new Reloader($this->fileWatcher, new NullLogger(), $this->interval);

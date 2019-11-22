@@ -17,7 +17,7 @@ use Zend\Expressive\Swoole\StaticResourceHandlerFactory;
 
 class StaticResourceHandlerFactoryTest extends TestCase
 {
-    public function setUp()
+    protected function setUp() : void
     {
         $this->container = $this->prophesize(ContainerInterface::class);
     }
