@@ -15,17 +15,15 @@ matrix:
     - php: 7.1
       env:
         - DEPS=lowest
-        - LEGACY_DEPS="dflydev/fig-cookies"
     - php: 7.1
       env:
         - DEPS=locked
-        - LEGACY_DEPS="dflydev/fig-cookies"
+        - LEGACY_DEPS="dflydev/fig-cookies symfony/console"
         - CS_CHECK=true
         - TEST_COVERAGE=true
     - php: 7.1
       env:
         - DEPS=latest
-        - LEGACY_DEPS="dflydev/fig-cookies"
     - php: 7.2
       env:
         - DEPS=lowest
