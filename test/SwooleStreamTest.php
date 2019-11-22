@@ -153,22 +153,22 @@ class SwooleStreamTest extends TestCase
 
     public function testSeekSetRaisesExceptionIfPositionOverflows()
     {
-        $this->expectedException(RuntimeException::class);
-        $this->expectedExceptionMessage('Offset cannot be longer than content size');
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Offset cannot be longer than content size');
         $this->stream->seek(strlen(self::DEFAULT_CONTENT));
     }
 
     public function testSeekCurRaisesExceptionIfPositionOverflows()
     {
-        $this->expectedException(RuntimeException::class);
-        $this->expectedExceptionMessage('Offset + current position cannot be longer than content size when using SEEK_CUR');
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Offset + current position cannot be longer than content size when using SEEK_CUR');
         $this->stream->seek(strlen(self::DEFAULT_CONTENT), SEEK_CUR);
     }
 
     public function testSeekEndRaisesExceptionIfPOsitionOverflows()
     {
-        $this->expectedException(RuntimeException::class);
-        $this->expectedExceptionMessage('Offset must be a negative number to be under the content size when using SEEK_END');
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Offset must be a negative number to be under the content size when using SEEK_END');
         $this->stream->seek(1, SEEK_END);
     }
 
@@ -185,8 +185,8 @@ class SwooleStreamTest extends TestCase
 
     public function testWriteRaisesException()
     {
-        $this->expectedException(RuntimeException::class);
-        $this->expectedExceptionMessage('Stream is not writable');
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Stream is not writable');
         $this->stream->write('Hello!');
     }
 
