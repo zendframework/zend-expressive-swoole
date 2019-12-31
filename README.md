@@ -1,5 +1,9 @@
 # zend-expressive-swoole
 
+> ## Repository abandoned 2019-12-31
+>
+> This repository has moved to mezzio/mezzio-swoole.
+
 [![Build Status](https://secure.travis-ci.org/zendframework/zend-expressive-swoole.svg?branch=master)](https://secure.travis-ci.org/zendframework/zend-expressive-swoole)
 [![Coverage Status](https://coveralls.io/repos/github/zendframework/zend-expressive-swoole/badge.svg?branch=master)](https://coveralls.io/github/zendframework/zend-expressive-swoole?branch=master)
 
