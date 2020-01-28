@@ -7,12 +7,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Swoole support for Expressive">  
-    <link rel="canonical" href="https://docs.zendframework.com/zend-expressive-swoole/v2/logging/">
+    <link rel="canonical" href="https://docs.zendframework.com/v2/logging/">
     <link rel="shortcut icon" href="../../img/favicon.ico">
 
     <title>Logging - zend-expressive-swoole - Zend Framework Docs</title>
 
-    <link rel="stylesheet" href="../../css/styles-5cfabd53ee.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body id="page-top">
 
@@ -249,9 +249,9 @@
     <div class="laminas-announcement">
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
-                Zend Framework transitions to the Linux Foundation. <a href="https://getlaminas.org">Learn More.</a>
-            </div>
+            <div class="col-xs-12"><strong>
+                This package has moved. Visit its replacement, <a href="https://docs.mezzio.dev/mezzio-swoole/">mezzio/mezzio-swoole.</a>
+            </strong></div>
         </div>
     </div>
 </div>
@@ -348,7 +348,7 @@ equal to 400).</p>
 <p>Technically, the <code>SwooleRequestHandlerRunner</code> doesn't use PSR-3 loggers
 directly, but, rather, instances of <code>Zend\Expressive\Swoole\Log\AccessLogInterface</code>.
 This package-specific interface extends the PSR-3 interface to add two methods:</p>
-<p> <pre class=codehilite><code class=language-php>use Psr\Http\Message\ResponseInterface;
+<pre><code class="language-php">use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Swoole\Http\Request;
 use Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse;
@@ -364,7 +364,9 @@ interface AccessLogInterface extends LoggerInterface
         Request $request,
         ResponseInterface $response
     ) : void;
-}</code></pre></p>
+}
+</code></pre>
+
 <p>To allow usage of a standard PSR-3 logger, we also provide a decorator,
 <code>Zend\Expressive\Swoole\Log\Psr3AccessLogDecorator</code>, which decorates the PSR-3
 logger and provides a standard implementation for the two methods listed above.
@@ -379,10 +381,12 @@ implementation. However, we allow you to plug in your own system as needed.</p>
 in order to understand the available placeholders available for format strings.</p>
 <p>Formatting is provided to the <code>Psr3AccessLogDecorator</code> via instances of the
 interface <code>Zend\Expressive\Swoole\Log\AccessLogFormatterInterface</code>:</p>
-<p> <pre class=codehilite><code class=language-php>interface AccessLogFormatterInterface
+<pre><code class="language-php">interface AccessLogFormatterInterface
 {
     public function format(AccessLogDataMap $map) : string;
-}</code></pre></p>
+}
+</code></pre>
+
 <p><code>AccessLogDataMap</code> is a class used internally by the <code>Psr3AccessLogDecorator</code> in
 order to map Apache log placeholders to request/response values.</p>
 <p>Our default <code>AccessLogFormatterInterface</code> implementation, <code>AccessLogFormatter</code>,
@@ -406,7 +410,7 @@ runner.</p>
 <h3>Manual usage</h3>
 <p>If you are manually instantiating a <code>Zend\Expressive\Swoole\SwooleRequestHandlerRunner</code>
 instance, you may provide it as the seventh argument to the constructor:</p>
-<p> <pre class=codehilite><code class=language-php>use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
+<pre><code class="language-php">use Zend\Expressive\Swoole\SwooleRequestHandlerRunner;
 
 $runner = new SwooleRequestHandlerRunner(
     $application,
@@ -416,7 +420,9 @@ $runner = new SwooleRequestHandlerRunner(
     $serverFactory,
     $staticResourceHandler,
     $logger // &lt;-- AccessLoggerInterface instance
-);</code></pre></p>
+);
+</code></pre>
+
 <h3>Container usage</h3>
 <p>If you are using a <a href="https://www.php-fig.org/psr/psr-11/">PSR-11</a> container, the
 <code>SwooleRequestHandlerRunnerFactory</code> will retrieve a log instance using the
@@ -424,13 +430,15 @@ $runner = new SwooleRequestHandlerRunner(
 <p>You have two options for substituting your own logger from there.</p>
 <p>First, if you already have a service which resolves to a <code>Psr\Log\LoggerInterface</code> instance,
 you can configure it by providing its name:</p>
-<p> <pre class=codehilite><code class=language-php>'zend-expressive-swoole' =&gt; [
+<pre><code class="language-php">'zend-expressive-swoole' =&gt; [
     'swoole-http-server' =&gt; [
         'logger' =&gt; [
             'logger-name' =&gt; 'my_logger', // define the logger service name here
         ],
     ],
-],</code></pre></p>
+],
+</code></pre>
+
 <p>If you don't want to manually provide the service name but you are okay with re-using your
 existing PSR-3 logger, the provided <code>Zend\Expressive\Swoole\Log\AccessLogFactory</code> will use
 the <code>Psr\Log\LoggerInterface</code> service to create a <code>Psr3AccessLogDecorator</code> instance.</p>
@@ -443,7 +451,7 @@ instance if you want. It will look up a service by the fully-qualified interface
 name, and use it if present. Otherwise, it creates an <code>AccessLogFormatter</code>
 instance for you.</p>
 <p>In both cases the factory will also look at the following configuration values:</p>
-<p> <pre class=codehilite><code class=language-php>'zend-expressive-swoole' =&gt; [
+<pre><code class="language-php">'zend-expressive-swoole' =&gt; [
     'swoole-http-server' =&gt; [
         'logger' =&gt; [
             'format' =&gt; string, // one of the AccessLogFormatter::FORMAT_*
@@ -451,7 +459,9 @@ instance for you.</p>
             'use-hostname-lookups' =&gt; bool, // Set to true to enable hostname lookups
         ],
     ],
-],</code></pre></p>
+],
+</code></pre>
+
 <h3>Using Monolog as a PSR-3 logger</h3>
 <p>When using <a href="https://seldaek.github.io/monolog/">Monolog</a> with a <code>StreamHandler</code>,
 you must supply a file or a stream resource descriptor. We recommend using one
@@ -485,7 +495,7 @@ either <code>/dev/stderr</code> or, if on Docker, <code>/proc/1/fd/2</code>.</p>
 handler to ensure that any templated parameters are expanded by the logger.</p>
 <p>As an example, the following is a factory that wires a <code>StreamHandler</code> to a
 <code>Monolog\Logger</code> instance. </p>
-<p> <pre class=codehilite><code class=language-php>use Psr\Container\ContainerInterface;
+<pre><code class="language-php">use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -505,7 +515,9 @@ class LoggerFactory
         $logger-&gt;pushProcessor(new PsrLogMessageProcessor());
         return $logger;
     }
-}</code></pre></p>
+}
+</code></pre>
+
 <p>If you then wire this to the <code>Psr\Log\LoggerInterface</code> service, it will be used
 by Swoole for the purposes of access logs as well.</p>
 
@@ -689,7 +701,7 @@ by Swoole for the purposes of access logs as well.</p>
             
             <div class="col-md-9">
                 <h4 class="footer__headline">Copyright</h4>
-                <p>&copy; 2006-2019 by <a href="https://www.zend.com/">Zend</a>, a <a href="https://www.roguewave.com/">Rogue Wave Company</a>.</p>
+                <p>&copy; 2006-2020 by <a href="https://www.zend.com/">Zend</a> by <a href="https://www.perforce.com/">Perforce</a>.</p>
             </div>
 
             
@@ -697,10 +709,10 @@ by Swoole for the purposes of access logs as well.</p>
                 <h4 class="footer__headline">Support</h4>
                 <ul class="support__list">
                     <li class="support__list-item">
-                        <a href="https://discourse.zendframework.com" class="support__link" title="Forum"><i class="fa fa-comments"></i></a>
+                        <a href="https://discourse.laminas.dev" class="support__link" title="Forum"><i class="fa fa-comments"></i></a>
                     </li>
                     <li class="support__list-item">
-                        <a href="https://zendframework-slack.herokuapp.com" class="support__link" title="Chat"><i class="fa fa-slack"></i></a>
+                        <a href="https://laminas.dev/chat/" class="support__link" title="Chat"><i class="fa fa-slack"></i></a>
                     </li>
                     <li class="support__list-item">
                         <a href="https://github.com/zendframework" class="support__link" title="Github"><i class="fa fa-github"></i></a>
@@ -708,27 +720,28 @@ by Swoole for the purposes of access logs as well.</p>
                     <li class="support__list-item">
                         <a href="https://twitter.com/zfdevteam" class="support__link" title="Twitter"><i class="fa fa-twitter"></i></a>
                     </li>
-                    <li class="support__list-item">
-                        <a href="https://tinyletter.com/mwopzend" class="support__link" title="Newsletter"><i class="fa fa-envelope"></i></a>
-                    </li>
-                    <li class="support__list-item">
-                        <a href="https://framework.zend.com/blog/feed-rss.xml" class="support__link" title="Blog feed"><i class="fa fa-rss"></i></a>
-                    </li>
-                    <li class="support__list-item">
-                        <a href="https://framework.zend.com/security/feed" class="support__link" title="Security feed"><i class="fa fa-rss-square"></i></a>
-                    </li>
                 </ul>
             </div>
         </div>
     </div>
 </footer>
 
+<nav class="cookie-bar navbar navbar-fixed-bottom navbar-default hidden">
+    <div class="container">
+        <p class="navbar-text">
+            We use cookies to allow you to dismiss dialogs such as the Laminas
+            Project notification.
+        </p>
+        <button type="button" class="cookie-button btn btn-default navbar-btn">Allow Cookies</button>
+    </div>
+</nav>
+
     <script>
         var base_url = '../..',
             siteName = 'zend-expressive-swoole';
     </script>
-    <script src="../../js/scripts-8d7ae56abf.js"></script>
-        <script src="../../search/main.js"></script>
+    <script src="/js/scripts.js"></script>
+    <script src="../../search/main.js"></script>
 
     
     <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">

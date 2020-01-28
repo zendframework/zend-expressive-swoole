@@ -7,12 +7,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Swoole support for Expressive">  
-    <link rel="canonical" href="https://docs.zendframework.com/zend-expressive-swoole/v2/async-tasks/">
+    <link rel="canonical" href="https://docs.zendframework.com/v2/async-tasks/">
     <link rel="shortcut icon" href="../../img/favicon.ico">
 
     <title>Async Tasks - zend-expressive-swoole - Zend Framework Docs</title>
 
-    <link rel="stylesheet" href="../../css/styles-5cfabd53ee.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body id="page-top">
 
@@ -249,9 +249,9 @@
     <div class="laminas-announcement">
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
-                Zend Framework transitions to the Linux Foundation. <a href="https://getlaminas.org">Learn More.</a>
-            </div>
+            <div class="col-xs-12"><strong>
+                This package has moved. Visit its replacement, <a href="https://docs.mezzio.dev/mezzio-swoole/">mezzio/mezzio-swoole.</a>
+            </strong></div>
         </div>
     </div>
 </div>
@@ -352,7 +352,7 @@ you'll need to add <code>task_worker_num</code>. The number of workers you confi
 the number of concurrent tasks that can be executed at once. Tasks are queued in
 the order that they triggered, meaning that a <code>task_worker_num</code> of 1 will offer
 no concurrency and tasks will execute one after the other.</p>
-<p> <pre class=codehilite><code class=language-php>'zend-expressive-swoole' =&gt; [
+<pre><code class="language-php">'zend-expressive-swoole' =&gt; [
     'swoole-http-server' =&gt; [
         'host' =&gt; '127.0.0.1',
         'port' =&gt; 8080,
@@ -361,7 +361,9 @@ no concurrency and tasks will execute one after the other.</p>
             'task_worker_num' =&gt; 4, // The number of Task Workers
         ],
     ],
-];</code></pre></p>
+];
+</code></pre>
+
 <blockquote>
 <h3>No CLI option for task_worker_num</h3>
 <p>Unlike <code>worker_num</code>, there is no CLI option for <code>task_worker_num</code>. This is
@@ -381,12 +383,14 @@ refuse to start.</p>
 </ul>
 <h3>Registering the Handlers</h3>
 <p>The signature for the <code>task</code> event handler is:</p>
-<p> <pre class=codehilite><code class=language-php>function (
+<pre><code class="language-php">function (
     \Swoole\Http\Server $server,
     int $taskId,
     int $sourceWorkerId,
     $dataForWorker
-) : void</code></pre></p>
+) : void
+</code></pre>
+
 <p>where:</p>
 <ul>
 <li><code>$server</code> is the main HTTP server process</li>
@@ -399,20 +403,26 @@ refuse to start.</p>
 </ul>
 <p>To register the handler with the server, you must call it's <code>on()</code> method,
 <strong>before</strong> the server has been started:</p>
-<p> <pre class=codehilite><code class=language-php>$server-&gt;on('task', $callable);</code></pre></p>
+<pre><code class="language-php">$server-&gt;on('task', $callable);
+</code></pre>
+
 <p>As previously mentioned, you must also register an event handler for the
 <code>finish</code> event. This callback for this event should have the following
 signature:</p>
-<p> <pre class=codehilite><code class=language-php>function (
+<pre><code class="language-php">function (
     \Swoole\Http\Server $server,
     int $taskId,
     $userData
-) : void</code></pre></p>
+) : void
+</code></pre>
+
 <p>The first two parameters are identical to the <code>task</code> event handler. The
 <code>$userData</code> parameter will contain the return value of the <code>task</code> event
 handler. </p>
 <p>Registering your callable for the <code>finish</code> event is accomplished like this:</p>
-<p> <pre class=codehilite><code class=language-php>$server-&gt;on('finish', $callable);</code></pre></p>
+<pre><code class="language-php">$server-&gt;on('finish', $callable);
+</code></pre>
+
 <blockquote>
 <h3>There can be only one</h3>
 <p>There can be <strong>only one</strong> event handler per event type. Subsequent calls to
@@ -421,16 +431,16 @@ handler. </p>
 <p>If you do not return anything from your <code>task</code> event handler, the
 <code>finish</code> handler <strong>will not be called</strong>. The Swoole documentation recommends
 that the task worker callback manually finish the task in these situations:</p>
-<p><pre class=codehilite><code class=language-php>
+<pre class=codehilite><code class=language-php>
 $server-&gt;finish('');
-</code></pre></p>
+</code></pre>
 <p>Even if you do not call the above method, the handler <strong>must</strong> be defined, or
 the server will refuse to start.</p>
 </blockquote>
 <h2 id="an-example-task-worker">An example task worker</h2>
 <p>The following example code illustrates a task worker with logging capabilities
 that uses a message notifier to process data:</p>
-<p> <pre class=codehilite><code class=language-php>// In src/App/TaskWorker.php:
+<pre><code class="language-php">// In src/App/TaskWorker.php:
 
 namespace App;
 
@@ -476,12 +486,14 @@ class TaskWorker
         // Notify the server that processing of the task has finished:
         $server-&gt;finish('');
     }
-}</code></pre></p>
+}
+</code></pre>
+
 <p>This invokable class needs to be attached to the <code>$server-&gt;on('task')</code> event
 before the server has started. The easiest place to accomplish this is in a
 <a href="https://docs.zendframework.com/zend-expressive/v3/features/container/delegator-factories/">delegator factory</a>
 targeting the Swoole HTTP server. First, we'll create the delegator factory:</p>
-<p> <pre class=codehilite><code class=language-php>// In src/App/TaskWorkerDelegator.php:
+<pre><code class="language-php">// In src/App/TaskWorkerDelegator.php:
 
 namespace App;
 
@@ -503,9 +515,11 @@ class TaskWorkerDelegator
 
         return $server;
     }
-}</code></pre></p>
+}
+</code></pre>
+
 <p>Next, we'll register it with our container:</p>
-<p> <pre class=codehilite><code class=language-php>// In config/autoload/dependencies.php:
+<pre><code class="language-php">// In config/autoload/dependencies.php:
 
 return [
     'dependencies' =&gt; [
@@ -515,7 +529,9 @@ return [
             ],
         ],
     ],
-];</code></pre></p>
+];
+</code></pre>
+
 <p>With this in place, we can now trigger tasks within our application. In the
 scenario outlined above, the task worker expects <em>messages</em>; it then <em>notifies</em>
 listeners of that message so they may respond to it.</p>
@@ -530,7 +546,7 @@ argument.</p>
 from the above example. The request handler uses values from the request to
 create the <code>ContactMessage</code> instance, and then create a task from it. It then
 immediately returns a response.</p>
-<p> <pre class=codehilite><code class=language-php>// in src/App/Handler/TaskTriggeringHandler.php:
+<pre><code class="language-php">// in src/App/Handler/TaskTriggeringHandler.php:
 
 namespace App\Handler;
 
@@ -579,7 +595,8 @@ class TaskTriggeringHandler implements RequestHandlerInterface
         $response-&gt;getBody()-&gt;write($this-&gt;template-&gt;render('contact::thank-you', []);
         return $response;
     }
-}</code></pre></p>
+}
+</code></pre>
 
 
 
@@ -761,7 +778,7 @@ class TaskTriggeringHandler implements RequestHandlerInterface
             
             <div class="col-md-9">
                 <h4 class="footer__headline">Copyright</h4>
-                <p>&copy; 2006-2019 by <a href="https://www.zend.com/">Zend</a>, a <a href="https://www.roguewave.com/">Rogue Wave Company</a>.</p>
+                <p>&copy; 2006-2020 by <a href="https://www.zend.com/">Zend</a> by <a href="https://www.perforce.com/">Perforce</a>.</p>
             </div>
 
             
@@ -769,10 +786,10 @@ class TaskTriggeringHandler implements RequestHandlerInterface
                 <h4 class="footer__headline">Support</h4>
                 <ul class="support__list">
                     <li class="support__list-item">
-                        <a href="https://discourse.zendframework.com" class="support__link" title="Forum"><i class="fa fa-comments"></i></a>
+                        <a href="https://discourse.laminas.dev" class="support__link" title="Forum"><i class="fa fa-comments"></i></a>
                     </li>
                     <li class="support__list-item">
-                        <a href="https://zendframework-slack.herokuapp.com" class="support__link" title="Chat"><i class="fa fa-slack"></i></a>
+                        <a href="https://laminas.dev/chat/" class="support__link" title="Chat"><i class="fa fa-slack"></i></a>
                     </li>
                     <li class="support__list-item">
                         <a href="https://github.com/zendframework" class="support__link" title="Github"><i class="fa fa-github"></i></a>
@@ -780,27 +797,28 @@ class TaskTriggeringHandler implements RequestHandlerInterface
                     <li class="support__list-item">
                         <a href="https://twitter.com/zfdevteam" class="support__link" title="Twitter"><i class="fa fa-twitter"></i></a>
                     </li>
-                    <li class="support__list-item">
-                        <a href="https://tinyletter.com/mwopzend" class="support__link" title="Newsletter"><i class="fa fa-envelope"></i></a>
-                    </li>
-                    <li class="support__list-item">
-                        <a href="https://framework.zend.com/blog/feed-rss.xml" class="support__link" title="Blog feed"><i class="fa fa-rss"></i></a>
-                    </li>
-                    <li class="support__list-item">
-                        <a href="https://framework.zend.com/security/feed" class="support__link" title="Security feed"><i class="fa fa-rss-square"></i></a>
-                    </li>
                 </ul>
             </div>
         </div>
     </div>
 </footer>
 
+<nav class="cookie-bar navbar navbar-fixed-bottom navbar-default hidden">
+    <div class="container">
+        <p class="navbar-text">
+            We use cookies to allow you to dismiss dialogs such as the Laminas
+            Project notification.
+        </p>
+        <button type="button" class="cookie-button btn btn-default navbar-btn">Allow Cookies</button>
+    </div>
+</nav>
+
     <script>
         var base_url = '../..',
             siteName = 'zend-expressive-swoole';
     </script>
-    <script src="../../js/scripts-8d7ae56abf.js"></script>
-        <script src="../../search/main.js"></script>
+    <script src="/js/scripts.js"></script>
+    <script src="../../search/main.js"></script>
 
     
     <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">

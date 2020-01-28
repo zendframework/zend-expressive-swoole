@@ -7,12 +7,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Swoole support for Expressive">  
-    <link rel="canonical" href="https://docs.zendframework.com/zend-expressive-swoole/v2/static-resources/">
+    <link rel="canonical" href="https://docs.zendframework.com/v2/static-resources/">
     <link rel="shortcut icon" href="../../img/favicon.ico">
 
     <title>Static Resources - zend-expressive-swoole - Zend Framework Docs</title>
 
-    <link rel="stylesheet" href="../../css/styles-5cfabd53ee.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body id="page-top">
 
@@ -249,9 +249,9 @@
     <div class="laminas-announcement">
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
-                Zend Framework transitions to the Linux Foundation. <a href="https://getlaminas.org">Learn More.</a>
-            </div>
+            <div class="col-xs-12"><strong>
+                This package has moved. Visit its replacement, <a href="https://docs.mezzio.dev/mezzio-swoole/">mezzio/mezzio-swoole.</a>
+            </strong></div>
         </div>
     </div>
 </div>
@@ -361,7 +361,7 @@ serve it.</p>
 <p>If you have a custom factory for the <code>SwooleRequestHandlerRunner</code>, or are
 instantiating it manually, pass a null value for the sixth argument of its
 constructor. As an example, within a factory:</p>
-<p><pre class=codehilite><code class=language-php>
+<pre class=codehilite><code class=language-php>
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Swoole\Http\Server as SwooleHttpServer;
@@ -382,12 +382,12 @@ function (ContainerInterface $container) : Swoole\SwooleRequestHandlerRunner
             : null
     );
 }
-</code></pre></p>
+</code></pre>
 <p>If you are using the default factory provided (<code>Zend\Expressive\Swoole\SwooleRequestHandlerRunnerFactory</code>),
 you can also disable the functionality via configuration. To do this, set the
 <code>zend-expressive-swoole.swoole-http-server.static-files.enable</code> flag to
 boolean <code>false</code>:</p>
-<p><pre class=codehilite><code class=language-php>
+<pre class=codehilite><code class=language-php>
 return [
     'zend-expressive-swoole' =&gt; [
         'swoole-http-server' =&gt; [
@@ -397,7 +397,7 @@ return [
         ],
     ],
 ];
-</code></pre></p>
+</code></pre>
 </blockquote>
 <h2 id="middleware">Middleware</h2>
 <p>The <code>StaticResourceHandler</code> implementation performs its work by composing a
@@ -495,7 +495,7 @@ configuration-driven approach in order to:</p>
 <li>Configure and provide middleware.</li>
 </ul>
 <p>The following demonstrates all currently available configuration options:</p>
-<p> <pre class=codehilite><code class=language-php>// config/autoload/swoole.local.php
+<pre><code class="language-php">// config/autoload/swoole.local.php
 
 return [
     'zend-expressive-swoole' =&gt; [
@@ -556,7 +556,9 @@ return [
             ],
         ],
     ],
-];</code></pre></p>
+];
+</code></pre>
+
 <blockquote>
 <h3>Security warning</h3>
 <p>Never add <code>php</code> as an allowed static file extension, as doing so could expose
@@ -581,7 +583,7 @@ which is derived from a <a href="https://developer.mozilla.org/en-US/docs/Web/HT
 <li>Sets Cache-Control, Last-Modified, and ETag directives for JS, CSS, and image files.</li>
 <li>Sets Cache-Control directives for plain text files.</li>
 </ul>
-<p> <pre class=codehilite><code class=language-php>// config/autoload/swoole.local.php
+<pre><code class="language-php">// config/autoload/swoole.local.php
 
 return [
     'zend-expressive-swoole' =&gt; [
@@ -629,12 +631,14 @@ return [
             ],
         ],
     ],
-];</code></pre></p>
+];
+</code></pre>
+
 <h2 id="writing-middleware">Writing Middleware</h2>
 <p>Static resource middleware must implement
 <code>Zend\Expressive\Swoole\StaticResourceHandler\MiddlewareInterface</code>, which
 defines the following:</p>
-<p> <pre class=codehilite><code class=language-php>namespace Zend\Expressive\Swoole\StaticResourceHandler;
+<pre><code class="language-php">namespace Zend\Expressive\Swoole\StaticResourceHandler;
 
 use Swoole\Http\Request;
 
@@ -650,27 +654,33 @@ interface MiddlewareInterface
         string $filename,
         callable $next
     ) : StaticResourceResponse;
-}</code></pre></p>
+}
+</code></pre>
+
 <p>The <code>$next</code> argument has the following signature:</p>
-<p> <pre class=codehilite><code class=language-php>namespace Zend\Expressive\Swoole\StaticResourceHandler;
+<pre><code class="language-php">namespace Zend\Expressive\Swoole\StaticResourceHandler;
 
 use Swoole\Http\Request;
 
 public function __invoke(
     Request $request,
     string $filename
-) : StaticResourceResponse;</code></pre></p>
+) : StaticResourceResponse;
+</code></pre>
+
 <p>Typically, middleware will look something like this:</p>
-<p> <pre class=codehilite><code class=language-php>$response = $next($request, $filename);
+<pre><code class="language-php">$response = $next($request, $filename);
 
 // if some request condition does not match:
 // return $response;
 
-// Otherwise, manipulate the returned $response instance and then return it.</code></pre></p>
+// Otherwise, manipulate the returned $response instance and then return it.
+</code></pre>
+
 <p>Middleware either produces or manipulates a
 <code>Zend\Expressive\Swoole\StaticResourceHandler\StaticResourceResponse</code> instance.
 That class looks like the following:</p>
-<p> <pre class=codehilite><code class=language-php>class StaticResourceResponse
+<pre><code class="language-php">class StaticResourceResponse
 {
     /**
      * @param callable $responseContentCallback Callback to use when emitting
@@ -710,7 +720,9 @@ That class looks like the following:</p>
     public function setContentLength(int $length) : void;
 
     public function setStatus(int $status) : void;
-}</code></pre></p>
+}
+</code></pre>
+
 <p>Most middleware will conditionally set the status, one or more headers, and
 potentially disable returning the response body (via <code>disableContent()</code>).
 Middleware that restricts access or filters out specific files will also use
@@ -734,7 +746,7 @@ resource was matched by the request, and then to serve it.</p>
 <p>If you want to provide an alternative mechanism for doing so (e.g., to serve
 files out of a caching server), you will need to implement
 <code>Zend\Expressive\Swoole\StaticResourceHandlerInterface</code>:</p>
-<p> <pre class=codehilite><code class=language-php>declare(strict_types=1);
+<pre><code class="language-php">declare(strict_types=1);
 
 namespace Zend\Expressive\Swoole;
 
@@ -755,7 +767,9 @@ interface StaticResourceHandlerInterface
         SwooleHttpRequest $request,
         SwooleHttpResponse $response
     ) : ?StaticResourceHandler\StaticResourceResponse;
-}</code></pre></p>
+}
+</code></pre>
+
 <p>Once implemented, map the service
 <code>Zend\Expressive\Swoole\StaticResourceHandlerInterface</code> to a factory that
 returns your custom implementation within your <code>dependencies</code> configuration.</p>
@@ -940,7 +954,7 @@ returns your custom implementation within your <code>dependencies</code> configu
             
             <div class="col-md-9">
                 <h4 class="footer__headline">Copyright</h4>
-                <p>&copy; 2006-2019 by <a href="https://www.zend.com/">Zend</a>, a <a href="https://www.roguewave.com/">Rogue Wave Company</a>.</p>
+                <p>&copy; 2006-2020 by <a href="https://www.zend.com/">Zend</a> by <a href="https://www.perforce.com/">Perforce</a>.</p>
             </div>
 
             
@@ -948,10 +962,10 @@ returns your custom implementation within your <code>dependencies</code> configu
                 <h4 class="footer__headline">Support</h4>
                 <ul class="support__list">
                     <li class="support__list-item">
-                        <a href="https://discourse.zendframework.com" class="support__link" title="Forum"><i class="fa fa-comments"></i></a>
+                        <a href="https://discourse.laminas.dev" class="support__link" title="Forum"><i class="fa fa-comments"></i></a>
                     </li>
                     <li class="support__list-item">
-                        <a href="https://zendframework-slack.herokuapp.com" class="support__link" title="Chat"><i class="fa fa-slack"></i></a>
+                        <a href="https://laminas.dev/chat/" class="support__link" title="Chat"><i class="fa fa-slack"></i></a>
                     </li>
                     <li class="support__list-item">
                         <a href="https://github.com/zendframework" class="support__link" title="Github"><i class="fa fa-github"></i></a>
@@ -959,27 +973,28 @@ returns your custom implementation within your <code>dependencies</code> configu
                     <li class="support__list-item">
                         <a href="https://twitter.com/zfdevteam" class="support__link" title="Twitter"><i class="fa fa-twitter"></i></a>
                     </li>
-                    <li class="support__list-item">
-                        <a href="https://tinyletter.com/mwopzend" class="support__link" title="Newsletter"><i class="fa fa-envelope"></i></a>
-                    </li>
-                    <li class="support__list-item">
-                        <a href="https://framework.zend.com/blog/feed-rss.xml" class="support__link" title="Blog feed"><i class="fa fa-rss"></i></a>
-                    </li>
-                    <li class="support__list-item">
-                        <a href="https://framework.zend.com/security/feed" class="support__link" title="Security feed"><i class="fa fa-rss-square"></i></a>
-                    </li>
                 </ul>
             </div>
         </div>
     </div>
 </footer>
 
+<nav class="cookie-bar navbar navbar-fixed-bottom navbar-default hidden">
+    <div class="container">
+        <p class="navbar-text">
+            We use cookies to allow you to dismiss dialogs such as the Laminas
+            Project notification.
+        </p>
+        <button type="button" class="cookie-button btn btn-default navbar-btn">Allow Cookies</button>
+    </div>
+</nav>
+
     <script>
         var base_url = '../..',
             siteName = 'zend-expressive-swoole';
     </script>
-    <script src="../../js/scripts-8d7ae56abf.js"></script>
-        <script src="../../search/main.js"></script>
+    <script src="/js/scripts.js"></script>
+    <script src="../../search/main.js"></script>
 
     
     <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">

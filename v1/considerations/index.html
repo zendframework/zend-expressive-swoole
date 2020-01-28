@@ -7,12 +7,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Swoole support for Expressive">  
-    <link rel="canonical" href="https://docs.zendframework.com/zend-expressive-swoole/v1/considerations/">
+    <link rel="canonical" href="https://docs.zendframework.com/v1/considerations/">
     <link rel="shortcut icon" href="../../img/favicon.ico">
 
     <title>Considerations when using Swoole - zend-expressive-swoole - Zend Framework Docs</title>
 
-    <link rel="stylesheet" href="../../css/styles-5cfabd53ee.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body id="page-top">
 
@@ -219,9 +219,9 @@
     <div class="laminas-announcement">
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
-                Zend Framework transitions to the Linux Foundation. <a href="https://getlaminas.org">Learn More.</a>
-            </div>
+            <div class="col-xs-12"><strong>
+                This package has moved. Visit its replacement, <a href="https://docs.mezzio.dev/mezzio-swoole/">mezzio/mezzio-swoole.</a>
+            </strong></div>
         </div>
     </div>
 </div>
@@ -408,7 +408,7 @@ Write services to be stateless, and/or mark state-changing methods as
 stateless. Well-written interfaces will be stateless by design, and not provide
 methods meant to internally change state. In these situations, you can create a
 proxy class that decorates the original service:</p>
-<p> <pre class=codehilite><code class=language-php>class ProxyService implements OriginalInterface
+<pre><code class="language-php">class ProxyService implements OriginalInterface
 {
     /** @var OriginalInterface */
     private $proxy;
@@ -422,14 +422,16 @@ proxy class that decorates the original service:</p>
     {
         return $this-&gt;proxy-&gt;someMethodDefinedInInterface($argument);
     }
-}</code></pre></p>
+}
+</code></pre>
+
 <p>You would then:</p>
 <ul>
 <li>Map the factory for the original service to the implementation name.</li>
 <li>Create a factory that consumes the original service, and produces the proxy.</li>
 <li>Map the interface name to the factory that creates the proxy.</li>
 </ul>
-<p> <pre class=codehilite><code class=language-php>// in config/autoload/dependencies.global.php:
+<pre><code class="language-php">// in config/autoload/dependencies.global.php:
 
 return [
     'dependencies' =&gt; [
@@ -438,7 +440,9 @@ return [
             OriginalInterface::class =&gt; ProxyServiceFactory::class,
         ],
     ],
-];</code></pre></p>
+];
+</code></pre>
+
 <p>If you were writing to the interface, and not the implementation, you can now
 guarantee that any non-interface methods that changed state can now no longer be
 called.</p>
@@ -448,10 +452,12 @@ when those methods are invoked. (The latter approach ensures that you discover
 quickly when code is exercising those methods.) In each case, you would then use
 a <a href="https://docs.zendframework.com/zend-expressive/v3/features/container/delegator-factories/">delegator factory</a>,
 to decorate the original instance in the proxy class:</p>
-<p> <pre class=codehilite><code class=language-php>function (ContainerInterface $container, string $name, callable $callback)
+<pre><code class="language-php">function (ContainerInterface $container, string $name, callable $callback)
 {
     return new ProxyService($callback());
-}</code></pre></p>
+}
+</code></pre>
+
 <p>(You can also use the delegator factory approach with the previous proxy service
 example.)</p>
 <h3>Extension</h3>
@@ -463,7 +469,7 @@ ensures that you discover quickly when code is exercising those methods.)</p>
 <code>setTable()</code> in it, and that method would change the database table the mapper
 would query. This is a potentially bad situation!</p>
 <p>We could extend the class as follows:</p>
-<p> <pre class=codehilite><code class=language-php>class StatelessDataMapper extends DataMapper
+<pre><code class="language-php">class StatelessDataMapper extends DataMapper
 {
     public function setTable(string $table) : void
     {
@@ -472,7 +478,9 @@ would query. This is a potentially bad situation!</p>
             __METHOD__
         ));
     }
-}</code></pre></p>
+}
+</code></pre>
+
 <p>In your factory that creates an instance of <code>DataMapper</code>, have it instead return
 a <code>StatelessDataMapper</code> instance, and you're now safe.</p>
 <h3>Factories</h3>
@@ -482,7 +490,7 @@ approach ensures that the service is created only when needed, mitigating any
 state change issues.</p>
 <p>As an example, consider the following middleware that currently consumes a
 template renderer:</p>
-<p> <pre class=codehilite><code class=language-php>use Psr\Http\Message\ResponseInterface;
+<pre><code class="language-php">use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Zend\Diactoros\Response\HtmlResponse;
@@ -505,12 +513,14 @@ class SomeHandler implements RequestHandlerInterface
             []
         ));
     }
-}</code></pre></p>
+}
+</code></pre>
+
 <p>What we will do is modify it to accept a <em>callable</em> to the constructor. We will
 then call that factory <em>just before</em> we need the renderer; we <em>will not</em> store
 the result in the handler, as we want to ensure we have a new instance each
 time.</p>
-<p> <pre class=codehilite><code class=language-php>use Psr\Http\Message\ResponseInterface;
+<pre><code class="language-php">use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Zend\Diactoros\Response\HtmlResponse;
@@ -535,12 +545,15 @@ class SomeHandler implements RequestHandlerInterface
             []
         ));
     }
-}</code></pre></p>
+}
+</code></pre>
+
 <p>From here, we create a factory for our dependency injection container that will
 return the factory we use here. As an example, if we are using the <a href="https://docs.zendframework.com/zend-expressive/v3/features/template/zend-view/">zend-view
 integration</a>,
 we might do the following:</p>
-<p> <pre class=codehilite><code class=language-php>use Psr\Container\ContainerInterface;
+<pre><code class="language-php">
+use Psr\Container\ContainerInterface;
 use Zend\Expressive\Template\TemplateRendererInterface;
 use Zend\Expressive\ZendView\ZendViewRendererFactory;
 
@@ -553,17 +566,21 @@ class ZendViewRendererFactoryFactory
             return $factory($container);
         };
     }
-}</code></pre></p>
+}
+</code></pre>
+
 <p>If we mapped this to the "service" <code>Zend\Expressive\Template\TemplateRendererInterfaceFactory</code>,
 our factory for the <code>SomeHandler</code> class would then look like:</p>
-<p> <pre class=codehilite><code class=language-php>use Zend\Expressive\Template\TemplateRendererInterfaceFactory;
+<pre><code class="language-php">use Zend\Expressive\Template\TemplateRendererInterfaceFactory;
 
 function (ContainerInterface $container) : SomeHandler
 {
     return new SomeHandler(
         $container-&gt;get(TemplateRendererInterfaceFactory::class)
     );
-}</code></pre></p>
+}
+</code></pre>
+
 <p>This approach ensures we get a new instance with known state at precisely the
 moment we wish to execute the functionality. By ensuring we <em>do not</em> store the
 instance in any way, we also ensure it is garbage collected when the instance
@@ -579,7 +596,7 @@ previously: <a href="https://docs.zendframework.com/zend-expressive/v3/cookbook/
 <p>In this particular case, the middleware documented in the original solution
 could be modified to provide data to a request attribute, instead of altering
 the state of the template renderer. It might then become:</p>
-<p><pre class=codehilite><code class=language-php>
+<pre class=codehilite><code class=language-php>
 namespace App\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
@@ -612,7 +629,7 @@ class TemplateDefaultsMiddleware implements MiddlewareInterface
         return $handler-&gt;handle($request-&gt;withAttribute(__CLASS__, $defaults));
     }
 }
-</code></pre></p>
+</code></pre>
 <p>Once that change is made, you would then change your handler to do the
 following:</p>
 <ul>
@@ -620,7 +637,7 @@ following:</p>
 <li>Merge the pulled value with any local values when rendering the template.</li>
 </ul>
 <p>For example:</p>
-<p><pre class=codehilite><code class=language-php>
+<pre class=codehilite><code class=language-php>
 $defaultParams = $request-&gt;getAttribute(TemplateDefaultsMiddleware::class, []);
 return new HtmlResponse($renderer-&gt;render(
     'some::template',
@@ -628,7 +645,7 @@ return new HtmlResponse($renderer-&gt;render(
         // handler-specific parameters here
     ])
 ));
-</code></pre></p>
+</code></pre>
 <p>This approach, while it requires more work on the part of handler authors,
 ensures that the renderer state does not vary between requests, making it
 safer for usage with Swoole and other long-running processes.</p>
@@ -784,7 +801,7 @@ safer for usage with Swoole and other long-running processes.</p>
             
             <div class="col-md-9">
                 <h4 class="footer__headline">Copyright</h4>
-                <p>&copy; 2006-2019 by <a href="https://www.zend.com/">Zend</a>, a <a href="https://www.roguewave.com/">Rogue Wave Company</a>.</p>
+                <p>&copy; 2006-2020 by <a href="https://www.zend.com/">Zend</a> by <a href="https://www.perforce.com/">Perforce</a>.</p>
             </div>
 
             
@@ -792,10 +809,10 @@ safer for usage with Swoole and other long-running processes.</p>
                 <h4 class="footer__headline">Support</h4>
                 <ul class="support__list">
                     <li class="support__list-item">
-                        <a href="https://discourse.zendframework.com" class="support__link" title="Forum"><i class="fa fa-comments"></i></a>
+                        <a href="https://discourse.laminas.dev" class="support__link" title="Forum"><i class="fa fa-comments"></i></a>
                     </li>
                     <li class="support__list-item">
-                        <a href="https://zendframework-slack.herokuapp.com" class="support__link" title="Chat"><i class="fa fa-slack"></i></a>
+                        <a href="https://laminas.dev/chat/" class="support__link" title="Chat"><i class="fa fa-slack"></i></a>
                     </li>
                     <li class="support__list-item">
                         <a href="https://github.com/zendframework" class="support__link" title="Github"><i class="fa fa-github"></i></a>
@@ -803,27 +820,28 @@ safer for usage with Swoole and other long-running processes.</p>
                     <li class="support__list-item">
                         <a href="https://twitter.com/zfdevteam" class="support__link" title="Twitter"><i class="fa fa-twitter"></i></a>
                     </li>
-                    <li class="support__list-item">
-                        <a href="https://tinyletter.com/mwopzend" class="support__link" title="Newsletter"><i class="fa fa-envelope"></i></a>
-                    </li>
-                    <li class="support__list-item">
-                        <a href="https://framework.zend.com/blog/feed-rss.xml" class="support__link" title="Blog feed"><i class="fa fa-rss"></i></a>
-                    </li>
-                    <li class="support__list-item">
-                        <a href="https://framework.zend.com/security/feed" class="support__link" title="Security feed"><i class="fa fa-rss-square"></i></a>
-                    </li>
                 </ul>
             </div>
         </div>
     </div>
 </footer>
 
+<nav class="cookie-bar navbar navbar-fixed-bottom navbar-default hidden">
+    <div class="container">
+        <p class="navbar-text">
+            We use cookies to allow you to dismiss dialogs such as the Laminas
+            Project notification.
+        </p>
+        <button type="button" class="cookie-button btn btn-default navbar-btn">Allow Cookies</button>
+    </div>
+</nav>
+
     <script>
         var base_url = '../..',
             siteName = 'zend-expressive-swoole';
     </script>
-    <script src="../../js/scripts-8d7ae56abf.js"></script>
-        <script src="../../search/main.js"></script>
+    <script src="/js/scripts.js"></script>
+    <script src="../../search/main.js"></script>
 
     
     <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">

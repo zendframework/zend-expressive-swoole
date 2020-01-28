@@ -7,12 +7,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Swoole support for Expressive">  
-    <link rel="canonical" href="https://docs.zendframework.com/zend-expressive-swoole/v2/intro/">
+    <link rel="canonical" href="https://docs.zendframework.com/v2/intro/">
     <link rel="shortcut icon" href="../../img/favicon.ico">
 
     <title>Introduction - zend-expressive-swoole - Zend Framework Docs</title>
 
-    <link rel="stylesheet" href="../../css/styles-5cfabd53ee.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body id="page-top">
 
@@ -249,9 +249,9 @@
     <div class="laminas-announcement">
     <div class="container">
         <div class="row">
-            <div class="col-xs-12">
-                Zend Framework transitions to the Linux Foundation. <a href="https://getlaminas.org">Learn More.</a>
-            </div>
+            <div class="col-xs-12"><strong>
+                This package has moved. Visit its replacement, <a href="https://docs.mezzio.dev/mezzio-swoole/">mezzio/mezzio-swoole.</a>
+            </strong></div>
         </div>
     </div>
 </div>
@@ -328,24 +328,30 @@ or the low-level Linux kernel.</p>
 <h2 id="install-swoole">Install swoole</h2>
 <p>You can install the Swoole extension on Linux or Mac environments using the
 following commands:</p>
-<p> <pre class=codehilite><code class=language-bash>$ pecl install swoole</code></pre></p>
+<pre><code class="language-bash">$ pecl install swoole
+</code></pre>
+
 <p>For more information on the extension, <a href="https://pecl.php.net/package/swoole">visit its package details on PECL</a>.</p>
 <h2 id="install-zend-expressive-swoole">Install zend-expressive-swoole</h2>
 <p>To install this package, use <a href="https://getcomposer.org/">Composer</a>:</p>
-<p> <pre class=codehilite><code class=language-bash>$ composer require zendframework/zend-expressive-swoole</code></pre></p>
+<pre><code class="language-bash">$ composer require zendframework/zend-expressive-swoole
+</code></pre>
+
 <h2 id="swoole-with-expressive">Swoole with Expressive</h2>
 <p>zend-expressive-swoole enables an Expressive application to be executed with
 the <a href="https://www.swoole.co.uk/">Swoole</a> extension. This means you can run the
 application from the command line, <strong>without requiring a web server</strong>.</p>
 <p>You can run the application using the following command:</p>
-<p> <pre class=codehilite><code class=language-bash>$ ./vendor/bin/zend-expressive-swoole start</code></pre></p>
+<pre><code class="language-bash">$ ./vendor/bin/zend-expressive-swoole start
+</code></pre>
+
 <p>This command will execute Swoole on <code>localhost</code> via port <code>8080</code>.</p>
 <blockquote>
 <h3>Other commands</h3>
 <p>To get a list of all available commands, run the command without arguments:</p>
-<p><pre class=codehilite><code class=language-bash>
+<pre class=codehilite><code class=language-bash>
 $ ./vendor/bin/zend-expressive-swoole
-</code></pre></p>
+</code></pre>
 <p>If you add the argument <code>help</code> before any command name, the tooling will
 provide you with more detailed information on that command.</p>
 <h3>Expressive skeleton versions prior to 3.1.0</h3>
@@ -356,16 +362,16 @@ from 3.1.0 or later.</p>
 create a configuration file such as <code>config/autoload/zend-expressive-swoole.global.php</code>
 or <code>config/autoload/zend-expressive-swoole.local.php</code> with the following
 contents:</p>
-<p><pre class=codehilite><code class=language-php>
+<pre class=codehilite><code class=language-php>
 &lt;?php
 use Zend\Expressive\Swoole\ConfigProvider;
 
 return (new ConfigProvider())();
-</code></pre></p>
+</code></pre>
 </blockquote>
 <p>You can change the host address and/or host name as well as the port using a
 configuration file, as follows:</p>
-<p> <pre class=codehilite><code class=language-php>// In config/autoload/swoole.local.php:
+<pre><code class="language-php">// In config/autoload/swoole.local.php:
 return [
     'zend-expressive-swoole' =&gt; [
         'swoole-http-server' =&gt; [
@@ -373,12 +379,14 @@ return [
             'port' =&gt; 9501,
         ],
     ],
-];</code></pre></p>
+];
+</code></pre>
+
 <h3>Providing additional Swoole configuration</h3>
 <p>You can also configure the Swoole HTTP server using an <code>options</code> key to specify
 any accepted Swoole settings. For instance, the following configuration
 demonstrates enabling SSL:</p>
-<p> <pre class=codehilite><code class=language-php>// config/autoload/swoole.local.php
+<pre><code class="language-php">// config/autoload/swoole.local.php
 return [
     'zend-expressive-swoole' =&gt; [
         // Available in Swoole 4.1 and up; enables coroutine support
@@ -412,7 +420,9 @@ return [
             'process-name' =&gt; 'your-app',
         ],
     ],
-];</code></pre></p>
+];
+</code></pre>
+
 <blockquote>
 <h3>SSL support</h3>
 <p>By default, Swoole is not compiled with SSL support. To enable SSL in Swoole, it
@@ -607,7 +617,7 @@ configuration.</p>
             
             <div class="col-md-9">
                 <h4 class="footer__headline">Copyright</h4>
-                <p>&copy; 2006-2019 by <a href="https://www.zend.com/">Zend</a>, a <a href="https://www.roguewave.com/">Rogue Wave Company</a>.</p>
+                <p>&copy; 2006-2020 by <a href="https://www.zend.com/">Zend</a> by <a href="https://www.perforce.com/">Perforce</a>.</p>
             </div>
 
             
@@ -615,10 +625,10 @@ configuration.</p>
                 <h4 class="footer__headline">Support</h4>
                 <ul class="support__list">
                     <li class="support__list-item">
-                        <a href="https://discourse.zendframework.com" class="support__link" title="Forum"><i class="fa fa-comments"></i></a>
+                        <a href="https://discourse.laminas.dev" class="support__link" title="Forum"><i class="fa fa-comments"></i></a>
                     </li>
                     <li class="support__list-item">
-                        <a href="https://zendframework-slack.herokuapp.com" class="support__link" title="Chat"><i class="fa fa-slack"></i></a>
+                        <a href="https://laminas.dev/chat/" class="support__link" title="Chat"><i class="fa fa-slack"></i></a>
                     </li>
                     <li class="support__list-item">
                         <a href="https://github.com/zendframework" class="support__link" title="Github"><i class="fa fa-github"></i></a>
@@ -626,27 +636,28 @@ configuration.</p>
                     <li class="support__list-item">
                         <a href="https://twitter.com/zfdevteam" class="support__link" title="Twitter"><i class="fa fa-twitter"></i></a>
                     </li>
-                    <li class="support__list-item">
-                        <a href="https://tinyletter.com/mwopzend" class="support__link" title="Newsletter"><i class="fa fa-envelope"></i></a>
-                    </li>
-                    <li class="support__list-item">
-                        <a href="https://framework.zend.com/blog/feed-rss.xml" class="support__link" title="Blog feed"><i class="fa fa-rss"></i></a>
-                    </li>
-                    <li class="support__list-item">
-                        <a href="https://framework.zend.com/security/feed" class="support__link" title="Security feed"><i class="fa fa-rss-square"></i></a>
-                    </li>
                 </ul>
             </div>
         </div>
     </div>
 </footer>
 
+<nav class="cookie-bar navbar navbar-fixed-bottom navbar-default hidden">
+    <div class="container">
+        <p class="navbar-text">
+            We use cookies to allow you to dismiss dialogs such as the Laminas
+            Project notification.
+        </p>
+        <button type="button" class="cookie-button btn btn-default navbar-btn">Allow Cookies</button>
+    </div>
+</nav>
+
     <script>
         var base_url = '../..',
             siteName = 'zend-expressive-swoole';
     </script>
-    <script src="../../js/scripts-8d7ae56abf.js"></script>
-        <script src="../../search/main.js"></script>
+    <script src="/js/scripts.js"></script>
+    <script src="../../search/main.js"></script>
 
     
     <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
